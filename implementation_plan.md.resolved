@@ -1,0 +1,393 @@
+# CUET Medical Center Management System — Architecture & Implementation Plan
+
+A Django + Django REST Framework web application for managing campus healthcare at CUET.  
+**Backend only** — exposes a RESTful JSON API consumed by any frontend (or Django templates later).
+
+---
+
+## 1. Technology Stack
+
+| Layer | Choice |
+|---|---|
+| Language | Python 3.12+ |
+| Framework | Django 5.x |
+| API Layer | Django REST Framework 3.15+ |
+| Auth | `djangorestframework-simplejwt` (access + refresh tokens) |
+| Database | SQLite (dev) / PostgreSQL (prod) |
+| Filtering | `django-filter` |
+| Docs | `drf-spectacular` (OpenAPI / Swagger UI) |
+| CORS | `django-cors-headers` |
+| AI Health Assistant | OpenAI-compatible API (optional, behind feature flag) |
+
+---
+
+## 2. Project & Folder Structure
+
+```
+d:\IP2\
+├── manage.py
+├── requirements.txt
+├── .env.example
+├── cuet_medical/                  # Django project package
+│   ├── __init__.py
+│   ├── settings.py
+│   ├── urls.py
+│   ├── wsgi.py
+│   └── asgi.py
+│
+├── accounts/                      # App 1 — Auth & User Management
+│   ├── models.py                  #   Custom User model
+│   ├── serializers.py
+│   ├── views.py
+│   ├── urls.py
+│   ├── permissions.py             #   IsStudent, IsDoctor, IsAdmin
+│   ├── admin.py
+│   └── tests.py
+│
+├── records/                       # App 2 — Medical Records
+│   ├── models.py                  #   MedicalRecord
+│   ├── serializers.py
+│   ├── views.py
+│   ├── urls.py
+│   ├── permissions.py
+│   └── tests.py
+│
+├── roster/                        # App 3 — Doctor Schedule & Ambulance
+│   ├── models.py                  #   DoctorSchedule, Ambulance
+│   ├── serializers.py
+│   ├── views.py
+│   ├── urls.py
+│   ├── permissions.py
+│   └── tests.py
+│
+├── bloodbank/                     # App 4 — Blood Donation System
+│   ├── models.py                  #   BloodDonor, BloodRequest
+│   ├── serializers.py
+│   ├── views.py
+│   ├── urls.py
+│   ├── permissions.py
+│   └── tests.py
+│
+├── notifications/                 # App 5 — Notification System
+│   ├── models.py                  #   Notification
+│   ├── serializers.py
+│   ├── views.py
+│   ├── urls.py
+│   ├── permissions.py
+│   └── tests.py
+│
+└── templates/                     # Optional Django templates (if needed)
+```
+
+---
+
+## 3. Data Models (ER Design)
+
+### 3.1 `accounts.User` (Custom — extends `AbstractUser`)
+
+| Field | Type | Notes |
+|---|---|---|
+| `email` | EmailField | **login field**, unique |
+| `role` | CharField | choices: `student`, `doctor`, `admin` |
+| `student_id` | CharField | nullable, only for students |
+| `phone` | CharField | optional |
+| `is_active` | BooleanField | default True |
+
+> **USERNAME_FIELD = `email`**; students self-register, doctors are created by admin, admin via `createsuperuser`.
+
+---
+
+### 3.2 `records.MedicalRecord`
+
+| Field | Type | Notes |
+|---|---|---|
+| `id` | AutoField | PK |
+| `patient` | FK → User | student only |
+| `doctor` | FK → User | doctor only |
+| `diagnosis` | TextField | |
+| `prescription` | TextField | |
+| `notes` | TextField | optional |
+| `created_at` | DateTimeField | auto |
+| `updated_at` | DateTimeField | auto |
+
+---
+
+### 3.3 `roster.DoctorSchedule`
+
+| Field | Type | Notes |
+|---|---|---|
+| `id` | AutoField | PK |
+| `doctor` | FK → User | |
+| `day_of_week` | CharField | choices: Mon–Sun |
+| `start_time` | TimeField | |
+| `end_time` | TimeField | |
+| `is_available` | BooleanField | default True |
+
+### 3.4 `roster.Ambulance`
+
+| Field | Type | Notes |
+|---|---|---|
+| `id` | AutoField | PK |
+| `vehicle_number` | CharField | unique |
+| `driver_name` | CharField | |
+| `driver_phone` | CharField | |
+| `status` | CharField | choices: `available`, `busy`, `maintenance` |
+| `updated_by` | FK → User | admin |
+| `updated_at` | DateTimeField | auto |
+
+---
+
+### 3.5 `bloodbank.BloodDonor`
+
+| Field | Type | Notes |
+|---|---|---|
+| `id` | AutoField | PK |
+| `user` | OneToOne → User | student |
+| `blood_group` | CharField | choices: A+, A−, B+, B−, O+, O−, AB+, AB− |
+| `phone` | CharField | |
+| `is_available` | BooleanField | default True |
+| `last_donation_date` | DateField | nullable |
+
+### 3.6 `bloodbank.BloodRequest`
+
+| Field | Type | Notes |
+|---|---|---|
+| `id` | AutoField | PK |
+| `requested_by` | FK → User | admin |
+| `blood_group` | CharField | same choices |
+| `units_needed` | IntegerField | |
+| `urgency` | CharField | choices: `normal`, `urgent`, `critical` |
+| `status` | CharField | choices: `open`, `fulfilled`, `cancelled` |
+| `message` | TextField | optional |
+| `created_at` | DateTimeField | auto |
+
+---
+
+### 3.7 `notifications.Notification`
+
+| Field | Type | Notes |
+|---|---|---|
+| `id` | AutoField | PK |
+| `title` | CharField | |
+| `message` | TextField | |
+| `target` | CharField | choices: `all`, `students`, `doctors` |
+| `created_by` | FK → User | admin |
+| `created_at` | DateTimeField | auto |
+
+---
+
+### ER Relationships Diagram
+
+```mermaid
+erDiagram
+    USER ||--o{ MEDICAL_RECORD : "patient"
+    USER ||--o{ MEDICAL_RECORD : "doctor"
+    USER ||--o{ DOCTOR_SCHEDULE : "doctor"
+    USER ||--|| BLOOD_DONOR : "student"
+    USER ||--o{ BLOOD_REQUEST : "admin"
+    USER ||--o{ NOTIFICATION : "created_by"
+    USER ||--o{ AMBULANCE : "updated_by"
+
+    USER {
+        int id PK
+        string email
+        string role
+        string student_id
+        string phone
+    }
+    MEDICAL_RECORD {
+        int id PK
+        int patient_id FK
+        int doctor_id FK
+        text diagnosis
+        text prescription
+        datetime created_at
+    }
+    DOCTOR_SCHEDULE {
+        int id PK
+        int doctor_id FK
+        string day_of_week
+        time start_time
+        time end_time
+        bool is_available
+    }
+    AMBULANCE {
+        int id PK
+        string vehicle_number
+        string status
+        int updated_by_id FK
+    }
+    BLOOD_DONOR {
+        int id PK
+        int user_id FK
+        string blood_group
+        bool is_available
+    }
+    BLOOD_REQUEST {
+        int id PK
+        int requested_by_id FK
+        string blood_group
+        int units_needed
+        string urgency
+        string status
+    }
+    NOTIFICATION {
+        int id PK
+        string title
+        text message
+        string target
+        int created_by_id FK
+    }
+```
+
+---
+
+## 4. API Endpoints
+
+All endpoints prefixed with `/api/v1/`.
+
+### 4.1 Auth (`/api/v1/auth/`)
+
+| Method | Endpoint | Access | Description |
+|---|---|---|---|
+| POST | `/register/` | Public | Student self-registration |
+| POST | `/login/` | Public | JWT token obtain (email + password) |
+| POST | `/token/refresh/` | Authenticated | Refresh access token |
+| GET | `/me/` | Authenticated | Current user profile |
+| PUT | `/me/` | Authenticated | Update own profile |
+
+### 4.2 Medical Records (`/api/v1/records/`)
+
+| Method | Endpoint | Access | Description |
+|---|---|---|---|
+| GET | `/` | Doctor (own patients), Admin (all), Student (own) | List records |
+| POST | `/` | Doctor | Create record |
+| GET | `/{id}/` | Doctor/Admin/Student(own) | Record detail |
+| PUT | `/{id}/` | Doctor (own records) | Update record |
+| DELETE | `/{id}/` | Admin | Delete record |
+
+### 4.3 Roster (`/api/v1/roster/`)
+
+| Method | Endpoint | Access | Description |
+|---|---|---|---|
+| GET | `/schedules/` | All authenticated | List doctor schedules |
+| POST | `/schedules/` | Doctor (own), Admin | Create schedule |
+| PUT | `/schedules/{id}/` | Doctor (own), Admin | Update schedule |
+| DELETE | `/schedules/{id}/` | Admin | Delete schedule |
+| GET | `/ambulances/` | All authenticated | List ambulances |
+| POST | `/ambulances/` | Admin | Add ambulance |
+| PUT | `/ambulances/{id}/` | Admin | Update status |
+| DELETE | `/ambulances/{id}/` | Admin | Remove ambulance |
+
+### 4.4 Blood Bank (`/api/v1/blood/`)
+
+| Method | Endpoint | Access | Description |
+|---|---|---|---|
+| GET | `/donors/` | Admin, Doctor | List donors (filterable by blood_group) |
+| POST | `/donors/` | Student | Register as donor |
+| PUT | `/donors/{id}/` | Student (own) | Update availability |
+| GET | `/requests/` | Admin | List blood requests |
+| POST | `/requests/` | Admin | Create blood request |
+| PUT | `/requests/{id}/` | Admin | Update request status |
+
+### 4.5 Notifications (`/api/v1/notifications/`)
+
+| Method | Endpoint | Access | Description |
+|---|---|---|---|
+| GET | `/` | All authenticated | List notifications (filtered by target + role) |
+| POST | `/` | Admin | Create notification |
+| GET | `/{id}/` | All authenticated | Notification detail |
+| DELETE | `/{id}/` | Admin | Delete notification |
+
+---
+
+## 5. Permissions Strategy
+
+```python
+# accounts/permissions.py
+
+class IsStudent(BasePermission):
+    def has_permission(self, request, view):
+        return request.user.is_authenticated and request.user.role == 'student'
+
+class IsDoctor(BasePermission):
+    def has_permission(self, request, view):
+        return request.user.is_authenticated and request.user.role == 'doctor'
+
+class IsAdmin(BasePermission):
+    def has_permission(self, request, view):
+        return request.user.is_authenticated and request.user.role == 'admin'
+```
+
+ViewSets will combine these with DRF's `permission_classes` per action:
+
+```python
+def get_permissions(self):
+    if self.action == 'create':
+        return [IsDoctor()]
+    if self.action in ['list', 'retrieve']:
+        return [IsAuthenticated()]  # further filtered in get_queryset
+    return [IsAdmin()]
+```
+
+---
+
+## 6. Authentication Flow
+
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant S as Server
+    C->>S: POST /api/v1/auth/login/ {email, password}
+    S-->>C: {access_token, refresh_token, user role}
+    C->>S: GET /api/v1/records/ (Authorization: Bearer <access>)
+    S-->>C: Filtered records based on role
+    Note over C,S: When access token expires
+    C->>S: POST /api/v1/auth/token/refresh/ {refresh_token}
+    S-->>C: {new access_token}
+```
+
+---
+
+## 7. Key Design Decisions
+
+> [!IMPORTANT]
+> **Custom User model with email login** — must be set up before the first migration. Changing the user model after migrations exist is extremely difficult.
+
+1. **Single User model with `role` field** instead of separate Student/Doctor/Admin models — simpler auth, single JWT pipeline.
+2. **ViewSet-per-model** pattern — consistent CRUD across all modules.
+3. **Queryset filtering by role** — students only see their own records; doctors see records they created; admin sees everything.
+4. **AI Assistant deferred** — marked as optional / phase 2. Can be added as a simple view that calls an external API using the student's medical records as context.
+
+---
+
+## 8. Settings Highlights
+
+```python
+AUTH_USER_MODEL = 'accounts.User'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.SearchFilter',
+    ],
+}
+```
+
+---
+
+## Verification Plan
+
+Since this is a **planning-only** deliverable, verification is by user review of this document.
+
+### After implementation begins:
+- **Unit tests**: `python manage.py test` — one test file per app
+- **API smoke test**: Use the Swagger UI at `/api/docs/` to exercise every endpoint
+- **Permission tests**: Verify each endpoint rejects unauthorized roles (e.g., student cannot POST to `/records/`)
+- **Manual check**: Create superuser → create doctor → register student → create record → verify student sees only their own

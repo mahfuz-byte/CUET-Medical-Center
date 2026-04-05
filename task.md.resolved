@@ -1,0 +1,12 @@
+# CUET Medical Center Management System
+
+- [x] Plan and design full system architecture
+- [x] Get user approval on architecture
+- [ ] Scaffold Django project and install dependencies
+- [ ] Implement `accounts` app (Custom User, auth, permissions)
+- [ ] Implement `records` app (Medical Records)
+- [ ] Implement `roster` app (Doctor Schedule & Ambulance)
+- [ ] Implement `bloodbank` app (Blood Donors & Requests)
+- [ ] Implement `notifications` app
+- [ ] Configure project settings and root URLs
+- [ ] Verify (migrate, run tests, check server)
