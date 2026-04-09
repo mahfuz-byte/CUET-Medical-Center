@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Notices | CUET Medical Center</title>
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+  <header class="site-header" role="banner">
+    <div class="container">
+      <div class="branding">
+        <a class="logo" href="index.html">CUET Medical Center</a>
+      </div>
+      <button id="menuToggle" class="menu-toggle" aria-label="Toggle navigation" aria-controls="topNav" aria-expanded="false">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+      </button>
+      <nav id="topNav" class="top-nav" aria-label="Primary">
+        <a href="about.html" class="nav-link">About</a>
+        <a href="doctors.html" class="nav-link">Doctors</a>
+        <a href="pharmacy.html" class="nav-link">Pharmacy</a>
+        <a href="emergency.html" class="nav-link">Emergency</a>
+        <a href="contact.html" class="nav-link">Contact</a>
+        <a href="login.html" class="btn btn-primary">Login</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="container">
+    <h1>Notices & Updates</h1>
+    <p>Public announcements, clinic schedules, and health advisories.</p>
+
+    <section class="panel">
+      <form id="notice-filter" class="form-inline" role="search" aria-label="Filter notices">
+        <select id="notice-type">
+          <option value="">All Types</option>
+          <option value="advisory">Advisory</option>
+          <option value="schedule">Schedule</option>
+          <option value="event">Event</option>
+        </select>
+        <input type="text" id="notice-q" placeholder="Search title or content">
+        <button type="submit" class="btn">Filter</button>
+      </form>
+      <div id="notice-list" class="list" aria-live="polite">
+        <div class="item" data-type="advisory">
+          <div class="item-title">Seasonal Flu Advisory</div>
+          <div class="item-meta">Jan 15, 2026 — Advisory</div>
+          <div>Get vaccinated and practice hand hygiene to reduce transmission.</div>
+        </div>
+        <div class="item" data-type="schedule">
+          <div class="item-title">Clinic Hours Update</div>
+          <div class="item-meta">Jan 10, 2026 — Schedule</div>
+          <div>Temporary hours: Sun–Thu, 9 AM – 4 PM this week.</div>
+        </div>
+        <div class="item" data-type="event">
+          <div class="item-title">Blood Donation Camp</div>
+          <div class="item-meta">Dec 20, 2025 — Event</div>
+          <div>Join the campus blood donation drive at the student center.</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-branding">
+          <a href="index.html" class="logo">CUET Medical Center</a>
+          <p class="muted">Unified health services for the CUET campus community.</p>
+        </div>
+        <div class="footer-col">
+          <h3>Quick Links</h3>
+          <ul class="footer-links">
+            <li><a href="about.html">About</a></li>
+            <li><a href="services.html">Services</a></li>
+            <li><a href="doctors.html">Doctors</a></li>
+            <li><a href="emergency.html">Emergency</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h3>Resources</h3>
+          <ul class="footer-links">
+            <li><a href="notices.html">Notices</a></li>
+            <li><a href="alerts.html">System Status</a></li>
+            <li><a href="#">Privacy Policy</a></li>
+            <li><a href="#">Terms of Service</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h3>Contact</h3>
+          <ul class="footer-list">
+            <li class="muted">Pahartoli, Raozan, Chattogram - 4349, Bangladesh</li>
+            <li class="muted">Phone: +880-31-714946</li>
+            <li class="muted">Email: medical@cuet.edu</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <small>© 2026 CUET Campus Medical Center</small>
+        <nav class="footer-legal">
+          <a href="#">Privacy</a>
+          <a href="#">Terms</a>
+          <a href="alerts.html">Status</a>
+        </nav>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/app.js"></script>
+  <script>
+    document.getElementById('notice-filter').addEventListener('submit', function(e){
+      e.preventDefault();
+      const type = document.getElementById('notice-type').value;
+      const q = document.getElementById('notice-q').value.toLowerCase().trim();
+      const list = document.getElementById('notice-list');
+      const items = Array.from(list.querySelectorAll('.item'));
+      let visible = 0;
+      items.forEach(it => {
+        const okType = !type || it.getAttribute('data-type') === type;
+        const okText = !q || it.textContent.toLowerCase().includes(q);
+        const ok = okType && okText;
+        it.style.display = ok ? '' : 'none';
+        if (ok) visible++;
+      });
+      const empty = list.querySelector('[data-empty]');
+      if (!visible) {
+        if (!empty) list.insertAdjacentHTML('beforeend', '<div class="item" data-empty>No notices match your filters.</div>');
+      } else if (empty) { empty.remove(); }
+    });
+  </script>
+</body>
+</html>

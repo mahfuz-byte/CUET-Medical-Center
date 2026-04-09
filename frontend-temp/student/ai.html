@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI Assistant | Student | CUET</title>
+  <link rel="stylesheet" href="../assets/css/styles.css">
+</head>
+<body>
+  <aside id="sidebar" class="sidebar" role="navigation" aria-label="Student navigation">
+    <div class="sidebar-brand">Student</div>
+    <nav>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="records.html">My Medical Records</a>
+      <a href="doctors.html">Doctor Roster</a>
+      <a href="ambulance.html">Ambulance Status</a>
+      <a href="blood.html">Blood Donation</a>
+      <a href="alerts.html">Health Alerts</a>
+      <a href="ai.html" class="active">AI Assistant</a>
+      <a href="profile.html">Profile</a>
+      <a href="../login.html">Logout</a>
+    </nav>
+  </aside>
+  <main id="main" class="content" role="main">
+    <header class="content-header">
+      <button class="sidebar-toggle" aria-label="Open menu" aria-controls="sidebar" aria-expanded="false">☰ Menu</button>
+      <h1>AI Assistant</h1>
+    </header>
+
+    <section class="cards">
+      <div class="card" style="grid-column: 1 / -1;">
+        <h3>Ask a question</h3>
+        <div id="assistant-chat" class="chat-window" aria-live="polite">
+          <div class="msg sys">Welcome! Ask a general health question below. For medical advice, consult campus doctors.</div>
+        </div>
+        <form id="assistant-form" class="form-inline" style="margin-top:10px;">
+          <input type="text" id="assistant-input" placeholder="Type your question" required>
+          <button type="submit" class="btn btn-primary">Send</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <script src="../assets/js/app.js"></script>
+  <script>
+    document.getElementById('assistant-form').addEventListener('submit', function(e){
+      e.preventDefault();
+      var input = document.getElementById('assistant-input');
+      var text = (input.value || '').trim();
+      if (!text) return;
+      var chat = document.getElementById('assistant-chat');
+      chat.insertAdjacentHTML('beforeend', '<div class="msg user">'+text+'</div>');
+      var reply = 'For medical advice, consult campus doctors. This demo does not provide real medical guidance.';
+      setTimeout(function(){ chat.insertAdjacentHTML('beforeend', '<div class="msg bot">'+reply+'</div>'); }, 400);
+      input.value = '';
+    });
+  </script>
+</body>
+</html>

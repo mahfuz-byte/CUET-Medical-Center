@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Doctors | CUET Medical Center</title>
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+  <header class="site-header" role="banner">
+    <div class="container">
+      <div class="branding">
+        <a class="logo" href="index.html">CUET Medical Center</a>
+      </div>
+      <button id="menuToggle" class="menu-toggle" aria-label="Toggle navigation" aria-controls="topNav" aria-expanded="false">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+      </button>
+      <nav id="topNav" class="top-nav" aria-label="Primary">
+        <a href="about.html" class="nav-link">About</a>
+        <a href="doctors.html" class="nav-link">Doctors</a>
+        <a href="pharmacy.html" class="nav-link">Pharmacy</a>
+        <a href="emergency.html" class="nav-link">Emergency</a>
+        <a href="contact.html" class="nav-link">Contact</a>
+        <a href="login.html" class="btn btn-primary">Login</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="container">
+    <h1>Doctors</h1>
+    <p>Consultant physicians serving the CUET community. Schedules are subject to change.</p>
+
+    <section class="panel">
+      <form class="form-inline" id="doc-filter">
+        <select id="dept-select">
+          <option value="">All Departments</option>
+          <option>General Medicine</option>
+          <option>Emergency Medicine</option>
+          <option>Community Health</option>
+        </select>
+        <input type="text" id="doc-search" placeholder="Search by name">
+        <button class="btn" type="submit">Filter</button>
+      </form>
+      <div id="doctors-list" class="list" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-branding">
+          <a href="index.html" class="logo">CUET Medical Center</a>
+          <p class="muted">Unified health services for the CUET campus community.</p>
+        </div>
+        <div class="footer-col">
+          <h3>Quick Links</h3>
+          <ul class="footer-links">
+            <li><a href="about.html">About</a></li>
+            <li><a href="services.html">Services</a></li>
+            <li><a href="doctors.html">Doctors</a></li>
+            <li><a href="emergency.html">Emergency</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h3>Resources</h3>
+          <ul class="footer-links">
+            <li><a href="notices.html">Notices</a></li>
+            <li><a href="alerts.html">System Status</a></li>
+            <li><a href="#">Privacy Policy</a></li>
+            <li><a href="#">Terms of Service</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h3>Contact</h3>
+          <ul class="footer-list">
+            <li class="muted">Pahartoli, Raozan, Chattogram - 4349, Bangladesh</li>
+            <li class="muted">Phone: +880-31-714946</li>
+            <li class="muted">Email: medical@cuet.edu</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <small>© 2026 CUET Campus Medical Center</small>
+        <nav class="footer-legal">
+          <a href="#">Privacy</a>
+          <a href="#">Terms</a>
+          <a href="alerts.html">Status</a>
+        </nav>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/app.js"></script>
+  <script>
+    (function(){
+      const list = document.getElementById('doctors-list');
+      const form = document.getElementById('doc-filter');
+      const data = [
+        {
+          name: 'Dr. Ayesha Rahman',
+          dept: 'General Medicine',
+          title: 'Consultant Physician',
+          hours: 'Sun-Thu, 9:00 AM - 1:00 PM',
+          bio: 'Focuses on fever, respiratory issues, and routine adult care for students and staff.'
+        },
+        {
+          name: 'Dr. Mahmud Hasan',
+          dept: 'Emergency Medicine',
+          title: 'Emergency Medical Officer',
+          hours: 'Sun-Thu, 2:00 PM - 8:00 PM',
+          bio: 'Handles urgent injuries, acute pain, and emergency stabilization before referral.'
+        },
+        {
+          name: 'Dr. Nusrat Jahan',
+          dept: 'Community Health',
+          title: 'Public Health Specialist',
+          hours: 'Mon-Wed, 10:00 AM - 3:00 PM',
+          bio: 'Leads preventive care, vaccination counseling, and student wellness sessions.'
+        },
+        {
+          name: 'Dr. Tareq Islam',
+          dept: 'General Medicine',
+          title: 'Senior Medical Officer',
+          hours: 'Sun-Thu, 11:00 AM - 4:00 PM',
+          bio: 'Treats common infections, gastric complaints, and follow-up chronic care cases.'
+        },
+        {
+          name: 'Dr. Sabiha Karim',
+          dept: 'Emergency Medicine',
+          title: 'Registrar, Emergency Unit',
+          hours: 'Fri-Sat, 8:00 AM - 2:00 PM',
+          bio: 'Supports weekend emergency triage and rapid response coordination.'
+        },
+        {
+          name: 'Dr. Imran Chowdhury',
+          dept: 'Community Health',
+          title: 'Medical Officer, Student Health',
+          hours: 'Sun-Thu, 9:30 AM - 2:30 PM',
+          bio: 'Works on lifestyle counseling, nutrition guidance, and campus outbreak monitoring.'
+        }
+      ];
+
+      function render(){
+        const dept = (document.getElementById('dept-select').value || '').toLowerCase();
+        const q = (document.getElementById('doc-search').value || '').toLowerCase().trim();
+        const filtered = data.filter(d => {
+          const t = (d.name+' '+d.dept+' '+d.title+' '+d.hours+' '+(d.bio||'')).toLowerCase();
+          const okDept = !dept || (d.dept||'').toLowerCase().includes(dept);
+          const okQ = !q || t.includes(q);
+          return okDept && okQ;
+        });
+        list.innerHTML = filtered.length ? filtered.map(d => `
+          <div class="item">
+            <div class="item-title">${d.name} — ${d.dept||''}</div>
+            <div class="item-meta">${d.title||''} | ${d.hours||''}</div>
+            <div>${d.bio||''}</div>
+          </div>`).join('') : '<div class="item">Nothing found.</div>';
+      }
+
+      render();
+      form.addEventListener('submit', e => { e.preventDefault(); render(); });
+      document.getElementById('dept-select').addEventListener('change', render);
+      document.getElementById('doc-search').addEventListener('input', render);
+    })();
+  </script>
+</body>
+</html>

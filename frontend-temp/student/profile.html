@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Profile | Student | CUET</title>
+  <link rel="stylesheet" href="../assets/css/styles.css">
+</head>
+<body>
+  <aside id="sidebar" class="sidebar" role="navigation" aria-label="Student navigation">
+    <div class="sidebar-brand">Student</div>
+    <nav>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="records.html">My Medical Records</a>
+      <a href="doctors.html">Doctor Roster</a>
+      <a href="ambulance.html">Ambulance Status</a>
+      <a href="blood.html">Blood Donation</a>
+      <a href="alerts.html">Health Alerts</a>
+      <a href="ai.html">AI Assistant</a>
+      <a href="profile.html" class="active">Profile</a>
+      <a href="../login.html">Logout</a>
+    </nav>
+  </aside>
+  <main id="main" class="content" role="main">
+    <header class="content-header">
+      <button class="sidebar-toggle" aria-label="Open menu" aria-controls="sidebar" aria-expanded="false">☰ Menu</button>
+      <h1>Profile</h1>
+    </header>
+
+    <section class="cards">
+      <div class="card" style="grid-column: 1 / -1;">
+        <h3>Basic Information</h3>
+        <form id="profile-form" class="form-grid">
+          <input type="text" placeholder="Full Name" required>
+          <input type="text" placeholder="Student ID" required>
+          <input type="text" placeholder="Department">
+          <input type="text" placeholder="Phone">
+          <textarea placeholder="Allergies / Notes"></textarea>
+          <button class="btn btn-primary" type="submit">Save</button>
+        </form>
+      </div>
+    </section>
+  </main>
+  <script src="../assets/js/app.js"></script>
+  <script>
+    document.getElementById('profile-form').addEventListener('submit', function(e){
+      e.preventDefault();
+      if (window.showToast) window.showToast('Profile saved (demo).', 'success');
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Blood Donor System</title>
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+  <header class="site-header" role="banner">
+    <div class="container">
+      <div class="branding">
+        <a href="index.html" class="logo">CUET Medical Center</a>
+      </div>
+      <button id="menuToggle" class="menu-toggle" aria-label="Toggle navigation" aria-controls="topNav" aria-expanded="false">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+      </button>
+      <nav id="topNav" class="top-nav" aria-label="Primary">
+        <a href="about.html" class="nav-link">About</a>
+        <a href="doctors.html" class="nav-link">Doctors</a>
+        <a href="pharmacy.html" class="nav-link">Pharmacy</a>
+        <a href="emergency.html" class="nav-link">Emergency</a>
+        <a href="contact.html" class="nav-link">Contact</a>
+        <a href="login.html" class="btn btn-primary">Login</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="container">
+    <h1>Blood Donor System</h1>
+    <section class="panel">
+      <h2>Register as Donor</h2>
+      <form id="donor-form" class="form-grid">
+        <input type="text" id="donor-name" placeholder="Full Name" required>
+        <input type="text" id="donor-id" placeholder="Student/Staff ID" required>
+        <select id="donor-blood" required>
+          <option value="">Blood Group</option>
+          <option>A+</option><option>A-</option>
+          <option>B+</option><option>B-</option>
+          <option>AB+</option><option>AB-</option>
+          <option>O+</option><option>O-</option>
+        </select>
+        <button type="submit" class="btn btn-primary">Register</button>
+      </form>
+      <div id="donor-msg" class="notice" role="status" aria-live="polite"></div>
+    </section>
+
+    <section class="panel" id="search">
+      <h2>Find Donors</h2>
+      <form id="donor-search" class="form-inline">
+        <select id="search-blood">
+          <option value="">Any</option>
+          <option>A+</option><option>A-</option>
+          <option>B+</option><option>B-</option>
+          <option>AB+</option><option>AB-</option>
+          <option>O+</option><option>O-</option>
+        </select>
+        <button type="submit" class="btn btn-primary">Search</button>
+      </form>
+      <div id="donor-results" class="list" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-branding">
+          <a href="index.html" class="logo">CUET Medical Center</a>
+          <p class="muted">Unified health services for the CUET campus community.</p>
+        </div>
+        <div class="footer-col">
+          <h3>Quick Links</h3>
+          <ul class="footer-links">
+            <li><a href="about.html">About</a></li>
+            <li><a href="services.html">Services</a></li>
+            <li><a href="doctors.html">Doctors</a></li>
+            <li><a href="emergency.html">Emergency</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li><a href="donors.html">Blood Donor System</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h3>Contact</h3>
+          <ul class="footer-list">
+            <li class="muted">Pahartoli, Raozan, Chattogram - 4349, Bangladesh</li>
+            <li class="muted">Phone: +880-31-714946</li>
+            <li class="muted">Email: medical@cuet.edu</li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h3>Resources</h3>
+          <ul class="footer-links">
+            <li><a href="notices.html">Notices</a></li>
+            <li><a href="alerts.html">System Status</a></li>
+            <li><a href="#">Privacy Policy</a></li>
+            <li><a href="#">Terms of Service</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <small>© 2026 CUET Campus Medical Center</small>
+        <nav class="footer-legal">
+          <a href="#">Privacy</a>
+          <a href="#">Terms</a>
+          <a href="alerts.html">Status</a>
+        </nav>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/app.js"></script>
+  <script>
+    const STORAGE_KEY = 'demo-donors';
+    const donors = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    function persist(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(donors)); }
+
+    document.getElementById('donor-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = document.getElementById('donor-name').value.trim();
+      const id = document.getElementById('donor-id').value.trim();
+      const blood = document.getElementById('donor-blood').value;
+      if (!name || !id || !blood) return;
+      donors.push({ name, id, blood });
+      persist();
+      document.getElementById('donor-msg').textContent = 'Registered (demo only).';
+      if (window.showToast) window.showToast('Donor registered (demo).', 'success');
+      e.target.reset();
+    });
+
+    document.getElementById('donor-search').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const container = document.getElementById('donor-results');
+      container.setAttribute('aria-busy', 'true');
+      container.innerHTML = '<div class="item skeleton" style="height:48px;"></div><div class="item skeleton" style="height:48px;"></div>';
+      const bg = document.getElementById('search-blood').value;
+      setTimeout(() => {
+        const res = donors.filter(d => !bg || d.blood === bg);
+        container.innerHTML = res.length ? res.map(d => `<div class="item">${d.name} (${d.id}) — ${d.blood}</div>`).join('') : '<div class="item">No donors (demo).</div>';
+        container.removeAttribute('aria-busy');
+      }, 400);
+    });
+  </script>
+</body>
+</html>

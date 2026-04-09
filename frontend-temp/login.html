@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Login | CUET Medical Center</title>
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body class="auth">
+  <div class="auth-card" role="main">
+    <a href="index.html" class="logo" style="display:inline-block; margin-bottom:8px;">CUET Medical Center</a>
+    <h1>Login</h1>
+    <form id="loginForm">
+      <label>Role</label>
+      <div class="role-select">
+        <label><input type="radio" name="role" value="student" checked> Student</label>
+        <label><input type="radio" name="role" value="doctor"> Doctor</label>
+        <label><input type="radio" name="role" value="admin"> Admin</label>
+      </div>
+      <label for="userId">User ID</label>
+      <input id="userId" type="text" required placeholder="Enter ID" autocomplete="username">
+      <label for="password">Password</label>
+      <input id="password" type="password" required placeholder="Enter password" autocomplete="current-password">
+      <label style="display:flex; align-items:center; gap:8px; color:var(--muted); font-size:14px;">
+        <input id="showPassword" type="checkbox"> Show password
+      </label>
+      <button type="submit" class="btn btn-primary">Login</button>
+    </form>
+    <p id="loginStatus" class="note" role="status" aria-live="polite">
+      <strong>Demo Credentials:</strong><br>
+      Admin: username: <strong>admin</strong>, password: <strong>admin123</strong><br>
+      Other roles redirect to their dashboards.
+    </p>
+  </div>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>

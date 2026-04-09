@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Health Alerts</title>
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+  <header class="site-header" role="banner">
+    <div class="container">
+      <div class="branding">
+        <a href="index.html" class="logo">CUET Medical Center</a>
+      </div>
+      <button id="menuToggle" class="menu-toggle" aria-label="Toggle navigation" aria-controls="topNav" aria-expanded="false">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+      </button>
+      <nav id="topNav" class="top-nav" aria-label="Primary">
+        <a href="about.html" class="nav-link">About</a>
+        <a href="doctors.html" class="nav-link">Doctors</a>
+        <a href="pharmacy.html" class="nav-link">Pharmacy</a>
+        <a href="emergency.html" class="nav-link">Emergency</a>
+        <a href="contact.html" class="nav-link">Contact</a>
+        <a href="login.html" class="btn btn-primary">Login</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="container">
+    <h1>Health Alerts</h1>
+    <section class="panel">
+      <form id="alert-form" class="form-grid">
+        <input type="text" id="alert-title" placeholder="Title" required>
+        <textarea id="alert-body" placeholder="Message" rows="3" required></textarea>
+        <button type="submit" class="btn">Publish</button>
+      </form>
+    </section>
+
+    <section class="panel">
+      <h2>Recent Alerts</h2>
+      <div id="alerts-list" class="list">
+        <div class="item">No alerts yet (demo).</div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-branding">
+          <a href="index.html" class="logo">CUET Medical Center</a>
+          <p class="muted">Unified health services for the CUET campus community.</p>
+        </div>
+        <div class="footer-col">
+          <h3>Quick Links</h3>
+          <ul class="footer-links">
+            <li><a href="about.html">About</a></li>
+            <li><a href="services.html">Services</a></li>
+            <li><a href="doctors.html">Doctors</a></li>
+            <li><a href="emergency.html">Emergency</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li><a href="medical-records.html">Medical Records</a></li>
+            <li><a href="roster.html">Doctor & Ambulance Roster</a></li>
+            <li><a href="donors.html">Blood Donor System</a></li>
+            <li><a href="alerts.html">Health Alerts</a></li>
+            <li><a href="assistant.html">AI Assistant</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h3>Contact</h3>
+          <ul class="footer-list">
+            <li class="muted">Pahartoli, Raozan, Chattogram - 4349, Bangladesh</li>
+            <li class="muted">Phone: +880-31-714946</li>
+            <li class="muted">Email: medical@cuet.edu</li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h3>Resources</h3>
+          <ul class="footer-links">
+            <li><a href="notices.html">Notices</a></li>
+            <li><a href="alerts.html">System Status</a></li>
+            <li><a href="#">Privacy Policy</a></li>
+            <li><a href="#">Terms of Service</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <small>© 2026 CUET Campus Medical Center</small>
+        <nav class="footer-legal">
+          <a href="#">Privacy</a>
+          <a href="#">Terms</a>
+          <a href="alerts.html">Status</a>
+        </nav>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/app.js"></script>
+  <script>
+    const alerts = [];
+    document.getElementById('alert-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const title = document.getElementById('alert-title').value.trim();
+      const body = document.getElementById('alert-body').value.trim();
+      if (!title || !body) return;
+      alerts.unshift({ title, body, ts: new Date().toLocaleString() });
+      renderAlerts();
+      e.target.reset();
+    });
+    function renderAlerts(){
+      const list = document.getElementById('alerts-list');
+      list.innerHTML = alerts.length ? alerts.map(a => `
+        <div class=\"item\">
+          <div class=\"item-title\">${a.title}</div>
+          <div class=\"item-meta\">${a.ts}</div>
+          <div>${a.body}</div>
+        </div>`).join('') : '<div class="item">No alerts yet (demo).</div>';
+    }
+  </script>
+</body>
+</html>

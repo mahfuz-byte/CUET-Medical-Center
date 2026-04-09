@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bed Availability - CUET Medical Center</title>
+  <meta name="description" content="Real-time bed availability across all wards and departments.">
+  <meta name="theme-color" content="#0b1220">
+  <link rel="icon" href="/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="./assets/css/styles.css">
+  <link rel="manifest" href="./manifest.webmanifest">
+</head>
+<body>
+  <header class="site-header" role="banner">
+    <div class="container">
+      <div class="branding">
+        <a class="logo" href="index.html" aria-label="CUET Medical Center Home">CUET Medical Center</a>
+      </div>
+      <button id="menuToggle" class="menu-toggle" aria-label="Toggle navigation" aria-controls="topNav" aria-expanded="false">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+      </button>
+      <nav id="topNav" class="top-nav" aria-label="Primary">
+        <a href="about.html" class="nav-link">About</a>
+        <a href="doctors.html" class="nav-link">Doctors</a>
+        <a href="pharmacy.html" class="nav-link">Pharmacy</a>
+        <a href="emergency.html" class="nav-link">Emergency</a>
+        <a href="contact.html" class="nav-link">Contact</a>
+        <a href="login.html" class="btn btn-primary">Login</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="page-content">
+    <div class="container">
+      <div class="page-header">
+        <h1>🛏️ Bed Availability</h1>
+        <p class="muted">Real-time bed availability across all wards and departments</p>
+      </div>
+
+      <!-- Overall Summary -->
+      <div class="bed-summary">
+        <div class="summary-card">
+          <div class="summary-label">Total Beds</div>
+          <div class="summary-value" id="totalBeds">120</div>
+        </div>
+        <div class="summary-card available">
+          <div class="summary-label">Available</div>
+          <div class="summary-value" id="availableBeds">45</div>
+        </div>
+        <div class="summary-card occupied">
+          <div class="summary-label">Occupied</div>
+          <div class="summary-value" id="occupiedBeds">75</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">Occupancy Rate</div>
+          <div class="summary-value" id="occupancyRate">62.5%</div>
+        </div>
+      </div>
+
+      <!-- Ward/Department Breakdown -->
+      <section class="beds-section">
+        <h2>Department-wise Availability</h2>
+        <div class="beds-grid" id="bedsGrid">
+          <!-- Will be populated by JavaScript -->
+        </div>
+      </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-branding">
+          <a href="index.html" class="logo">CUET Medical Center</a>
+          <p class="muted">Unified health services for the CUET campus community.</p>
+        </div>
+        <div class="footer-col">
+          <h3>Quick Links</h3>
+          <ul class="footer-links">
+            <li><a href="about.html">About</a></li>
+            <li><a href="services.html">Services</a></li>
+            <li><a href="doctors.html">Doctors</a></li>
+            <li><a href="emergency.html">Emergency</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h3>Resources</h3>
+          <ul class="footer-links">
+            <li><a href="notices.html">Notices</a></li>
+            <li><a href="alerts.html">System Status</a></li>
+            <li><a href="#">Privacy Policy</a></li>
+            <li><a href="#">Terms of Service</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h3>Contact</h3>
+          <ul class="footer-list">
+            <li class="muted">Pahartoli, Raozan, Chattogram - 4349, Bangladesh</li>
+            <li class="muted">Phone: +880-31-714946</li>
+            <li class="muted">Email: medical@cuet.edu</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <small>© 2026 CUET Campus Medical Center</small>
+        <nav class="footer-legal">
+          <a href="#">Privacy</a>
+          <a href="#">Terms</a>
+          <a href="alerts.html">Status</a>
+        </nav>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/app.js"></script>
+  <script src="assets/js/beds.js"></script>
+</body>
+</html>
