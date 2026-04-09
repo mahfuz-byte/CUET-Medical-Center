@@ -678,16 +678,60 @@
             } catch(e) {}
         }
 
-        // ===== TEST KITS =====
-        function loadTestKits() {
-            const testKits = JSON.parse(localStorage.getItem('testKits') || '{"dengue": 0, "covid": 0, "malaria": 0, "bloodGroup": 0}');
-            
-            document.getElementById('denguKits').value = testKits.dengue || 0;
-            document.getElementById('covidKits').value = testKits.covid || 0;
-            document.getElementById('malariaKits').value = testKits.malaria || 0;
-            document.getElementById('bloodGroupKits').value = testKits.bloodGroup || 0;
+        // ===== TEST KITS + BED AVAILABILITY (BACKEND) =====
+        const INVENTORY_NAMES = {
+            dengue: 'Dengue Test Kit',
+            covid: 'COVID-19 Test Kit',
+            malaria: 'Malaria Test Kit',
+            bloodGroup: 'Blood Group Test Kit',
+            beds: 'Available Beds'
+        };
 
-            updateTestKitsSummary();
+        async function fetchInventory() {
+            const res = await fetch(`${API_URL}/records/inventory/`, { headers: getHeaders() });
+            if (!res.ok) throw new Error('Failed to load inventory');
+            return res.json();
+        }
+
+        async function upsertInventoryItem(existingItems, payload) {
+            const existing = existingItems.find(item => item.item_type === payload.item_type && item.name === payload.name);
+            if (existing) {
+                const res = await fetch(`${API_URL}/records/inventory/${existing.id}/`, {
+                    method: 'PATCH',
+                    headers: getHeaders(),
+                    body: JSON.stringify(payload)
+                });
+                if (!res.ok) throw new Error('Failed to update inventory item');
+                return;
+            }
+
+            const createRes = await fetch(`${API_URL}/records/inventory/`, {
+                method: 'POST',
+                headers: getHeaders(),
+                body: JSON.stringify(payload)
+            });
+            if (!createRes.ok) throw new Error('Failed to create inventory item');
+        }
+
+        async function loadTestKits() {
+            try {
+                const inventory = await fetchInventory();
+                const kits = inventory.filter(item => item.item_type === 'kit');
+
+                const getQty = (name) => {
+                    const found = kits.find(k => k.name === name);
+                    return found ? Number(found.quantity) || 0 : 0;
+                };
+
+                document.getElementById('denguKits').value = getQty(INVENTORY_NAMES.dengue);
+                document.getElementById('covidKits').value = getQty(INVENTORY_NAMES.covid);
+                document.getElementById('malariaKits').value = getQty(INVENTORY_NAMES.malaria);
+                document.getElementById('bloodGroupKits').value = getQty(INVENTORY_NAMES.bloodGroup);
+
+                updateTestKitsSummary();
+            } catch (e) {
+                showToast('Failed to load test kits from backend', 'error');
+            }
         }
 
         function updateTestKitsSummary() {
@@ -719,7 +763,7 @@
             `;
         }
 
-        document.getElementById('updateTestKitsBtn').addEventListener('click', () => {
+        document.getElementById('updateTestKitsBtn').addEventListener('click', async () => {
             const testKits = {
                 dengue: parseInt(document.getElementById('denguKits').value) || 0,
                 covid: parseInt(document.getElementById('covidKits').value) || 0,
@@ -727,16 +771,47 @@
                 bloodGroup: parseInt(document.getElementById('bloodGroupKits').value) || 0
             };
 
-            localStorage.setItem('testKits', JSON.stringify(testKits));
-            updateTestKitsSummary();
-            showToast('Test kits updated successfully');
+            try {
+                const inventory = await fetchInventory();
+                await upsertInventoryItem(inventory, {
+                    item_type: 'kit',
+                    name: INVENTORY_NAMES.dengue,
+                    quantity: testKits.dengue
+                });
+                await upsertInventoryItem(inventory, {
+                    item_type: 'kit',
+                    name: INVENTORY_NAMES.covid,
+                    quantity: testKits.covid
+                });
+                await upsertInventoryItem(inventory, {
+                    item_type: 'kit',
+                    name: INVENTORY_NAMES.malaria,
+                    quantity: testKits.malaria
+                });
+                await upsertInventoryItem(inventory, {
+                    item_type: 'kit',
+                    name: INVENTORY_NAMES.bloodGroup,
+                    quantity: testKits.bloodGroup
+                });
+
+                updateTestKitsSummary();
+                showToast('Test kits updated in backend');
+            } catch (e) {
+                showToast('Failed to update test kits', 'error');
+            }
         });
 
         // ===== BED AVAILABILITY =====
-        function loadBeds() {
-            const beds = parseInt(localStorage.getItem('availableBeds') || '0');
-            document.getElementById('bedCount').value = beds;
-            document.getElementById('bedValue').textContent = beds;
+        async function loadBeds() {
+            try {
+                const inventory = await fetchInventory();
+                const bedItems = inventory.filter(item => item.item_type === 'bed');
+                const bedTotal = bedItems.reduce((sum, item) => sum + (Number(item.quantity) || 0), 0);
+                document.getElementById('bedCount').value = bedTotal;
+                document.getElementById('bedValue').textContent = bedTotal;
+            } catch (e) {
+                showToast('Failed to load bed availability', 'error');
+            }
         }
 
         document.getElementById('bedIncreaseBtn').addEventListener('click', () => {
@@ -751,11 +826,21 @@
             }
         });
 
-        document.getElementById('updateBedsBtn').addEventListener('click', () => {
+        document.getElementById('updateBedsBtn').addEventListener('click', async () => {
             const beds = parseInt(document.getElementById('bedCount').value) || 0;
-            localStorage.setItem('availableBeds', beds.toString());
-            document.getElementById('bedValue').textContent = beds;
-            showToast('Bed availability updated successfully');
+
+            try {
+                const inventory = await fetchInventory();
+                await upsertInventoryItem(inventory, {
+                    item_type: 'bed',
+                    name: INVENTORY_NAMES.beds,
+                    quantity: beds
+                });
+                document.getElementById('bedValue').textContent = beds;
+                showToast('Bed availability updated in backend');
+            } catch (e) {
+                showToast('Failed to update bed availability', 'error');
+            }
         });
 
         // ===== PHARMACY =====

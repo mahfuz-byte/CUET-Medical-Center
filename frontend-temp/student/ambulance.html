@@ -14,6 +14,9 @@
       <a href="records.html">My Medical Records</a>
       <a href="doctors.html">Doctor Roster</a>
       <a href="ambulance.html" class="active">Ambulance Status</a>
+      <a href="test-kits.html">Test Kit Availability</a>
+      <a href="bed-availability.html">Bed Availability</a>
+      <a href="pharmacy.html">Pharmacy Info</a>
       <a href="blood.html">Blood Donation</a>
       <a href="alerts.html">Health Alerts</a>
       <a href="ai.html">AI Assistant</a>
@@ -30,10 +33,16 @@
     <section class="cards">
       <div class="card">
         <h3>Campus Ambulance</h3>
-        <p>Live status is available on the public roster page.</p>
-        <p><a class="btn" href="../roster.html">Open Roster</a></p>
+        <p>Live ambulance status and contact details are shown below.</p>
       </div>
       <div class="card"><h3>Emergency</h3><p>Call <strong>999</strong> or campus emergency. See <a href="../emergency.html">Emergency info</a>.</p></div>
+    </section>
+
+    <section class="panel" style="margin-top: 20px;">
+      <h2>Ambulance Roster & Details</h2>
+      <div class="list" id="ambulance-roster-list">
+        <div class="item">Loading ambulance roster...</div>
+      </div>
     </section>
   </main>
   <script src="../assets/js/app.js"></script>

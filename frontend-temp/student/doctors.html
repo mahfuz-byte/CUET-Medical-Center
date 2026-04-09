@@ -15,6 +15,9 @@
       <a href="records.html">My Medical Records</a>
       <a href="doctors.html" class="active">Doctor Roster</a>
       <a href="ambulance.html">Ambulance Status</a>
+      <a href="test-kits.html">Test Kit Availability</a>
+      <a href="bed-availability.html">Bed Availability</a>
+      <a href="pharmacy.html">Pharmacy Info</a>
       <a href="blood.html">Blood Donation</a>
       <a href="alerts.html">Health Alerts</a>
       <a href="ai.html">AI Assistant</a>
@@ -32,14 +35,21 @@
     <section class="cards">
       <div class="card">
         <h3>Overview</h3>
-        <p>View current doctor availability and contact details. For the full campus roster, see the main roster page.</p>
-        <p><a class="btn" href="../roster.html">Open Main Roster</a></p>
+        <p>View current doctor availability and contact details from the live roster.</p>
       </div>
       <div class="card">
         <h3>Today's Highlights</h3>
         <p>Placeholder for student-focused roster info.</p>
       </div>
     </section>
+
+    <section class="panel" style="margin-top: 20px;">
+      <h2>Doctor Roster</h2>
+      <div class="list" id="doctor-roster-list">
+        <div class="item">Loading doctor roster...</div>
+      </div>
+    </section>
+
   </main>
 
   <script src="../assets/js/app.js"></script>
