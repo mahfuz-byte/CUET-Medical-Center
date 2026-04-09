@@ -1,40 +1,55 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Medical Records</title>
+  <title>Medical Records | CUET Medical Center</title>
+  <meta name="description" content="Doctor-only medical records portal for the CUET Medical Center.">
   <link rel="stylesheet" href="assets/css/styles.css">
+  <!-- Auth guard: runs before page renders -->
+  <script>
+    (function () {
+      var user = null;
+      try { user = JSON.parse(localStorage.getItem('currentUser')); } catch (e) { }
+      if (!user || user.role !== 'doctor') {
+        // Not logged in as a doctor — redirect to login
+        window.location.replace('login.html');
+      }
+    })();
+  </script>
 </head>
+
 <body>
   <header class="site-header" role="banner">
     <div class="container">
       <div class="branding">
         <a href="index.html" class="logo">CUET Medical Center</a>
       </div>
-      <button id="menuToggle" class="menu-toggle" aria-label="Toggle navigation" aria-controls="topNav" aria-expanded="false">
+      <button id="menuToggle" class="menu-toggle" aria-label="Toggle navigation" aria-controls="topNav"
+        aria-expanded="false">
         <span class="bar"></span>
         <span class="bar"></span>
         <span class="bar"></span>
       </button>
       <nav id="topNav" class="top-nav" aria-label="Primary">
-        <a href="about.html" class="nav-link">About</a>
         <a href="doctors.html" class="nav-link">Doctors</a>
-        <a href="pharmacy.html" class="nav-link">Pharmacy</a>
+        <a href="roster.html" class="nav-link">Roster</a>
         <a href="emergency.html" class="nav-link">Emergency</a>
-        <a href="contact.html" class="nav-link">Contact</a>
-        <a href="login.html" class="btn btn-primary">Login</a>
+        <span id="doctor-greeting" class="nav-link muted" style="font-size:0.9em;"></span>
+        <button id="logoutBtn" class="btn btn-primary" style="cursor:pointer;">Logout</button>
       </nav>
     </div>
   </header>
 
   <main id="main" class="container">
     <h1>Medical Records</h1>
-    <p>Search and view student medical history.</p>
+    <p id="doctor-welcome">Search and view student medical history.</p>
 
     <section class="panel">
       <form class="form-inline" id="records-search-form" role="search" aria-label="Medical records search">
-        <input type="text" id="record-query" placeholder="Student ID or name" aria-label="Search medical records by student ID or name">
+        <input type="text" id="record-query" placeholder="Student ID or name"
+          aria-label="Search medical records by student ID or name">
         <button type="submit" class="btn btn-primary">Search</button>
       </form>
       <div id="record-results" class="list" aria-live="polite"></div>
@@ -52,7 +67,6 @@
           <h3>Quick Links</h3>
           <ul class="footer-links">
             <li><a href="about.html">About</a></li>
-            <li><a href="services.html">Services</a></li>
             <li><a href="doctors.html">Doctors</a></li>
             <li><a href="emergency.html">Emergency</a></li>
             <li><a href="contact.html">Contact</a></li>
@@ -66,17 +80,7 @@
             <li class="muted">Email: medical@cuet.edu</li>
           </ul>
         </div>
-        <div class="footer-col">
-          <h3>Resources</h3>
-          <ul class="footer-links">
-            <li><a href="notices.html">Notices</a></li>
-            <li><a href="alerts.html">System Status</a></li>
-            <li><a href="#">Privacy Policy</a></li>
-            <li><a href="#">Terms of Service</a></li>
-          </ul>
-        </div>
       </div>
-
       <div class="footer-bottom">
         <small>© 2026 CUET Campus Medical Center</small>
         <nav class="footer-legal">
@@ -90,15 +94,40 @@
 
   <script src="assets/js/app.js"></script>
   <script>
-    // Minimal placeholder behavior
-    document.getElementById('records-search-form').addEventListener('submit', function(e){
+    // Show doctor's name in the nav
+    (function () {
+      var user = null;
+      try { user = JSON.parse(localStorage.getItem('currentUser')); } catch (e) { }
+      if (user) {
+        var greeting = document.getElementById('doctor-greeting');
+        if (greeting) greeting.textContent = 'Dr. ' + (user.first_name || user.email);
+        var welcome = document.getElementById('doctor-welcome');
+        if (welcome) welcome.textContent = 'Welcome, Dr. ' + (user.first_name || user.email) + '. Search and view student medical history below.';
+      }
+
+      // Logout
+      var logoutBtn = document.getElementById('logoutBtn');
+      if (logoutBtn) {
+        logoutBtn.addEventListener('click', function () {
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('refreshToken');
+          localStorage.removeItem('currentUser');
+          window.location.href = 'login.html';
+        });
+      }
+    })();
+
+    // Search behavior
+    document.getElementById('records-search-form').addEventListener('submit', function (e) {
       e.preventDefault();
-      const q = document.getElementById('record-query').value.trim();
-      const container = document.getElementById('record-results');
-      container.innerHTML = q ? `<div class="item">No records found for: ${q}</div>` : '<div class="item">Enter a query to search records.</div>';
+      var q = document.getElementById('record-query').value.trim();
+      var container = document.getElementById('record-results');
+      container.innerHTML = q
+        ? '<div class="item">No records found for: ' + q + '</div>'
+        : '<div class="item">Enter a query to search records.</div>';
     });
-    // Initialize with a helpful prompt
     document.getElementById('record-results').innerHTML = '<div class="item">Enter a query to search records.</div>';
   </script>
 </body>
+
 </html>
