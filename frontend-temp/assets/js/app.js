@@ -313,6 +313,128 @@
     });
   })();
 
+  // Student/Doctor portal: dedicated roster and availability panels
+  (function(){
+    var doctorOnlyList = document.getElementById('doctor-roster-list');
+    var ambulanceOnlyList = document.getElementById('ambulance-roster-list');
+    var testKitList = document.getElementById('availability-testkits');
+    var bedList = document.getElementById('availability-beds');
+    var medicineList = document.getElementById('availability-medicines');
+
+    if (!doctorOnlyList && !ambulanceOnlyList && !testKitList && !bedList && !medicineList) return;
+
+    function authHeaders() {
+      var token = localStorage.getItem('accessToken');
+      return token ? { 'Authorization': 'Bearer ' + token } : {};
+    }
+
+    function renderNotLoggedIn(el, label) {
+      if (!el) return;
+      el.innerHTML = '<div class="item">Login required to view ' + label + '.</div>';
+    }
+
+    function loadDoctorsOnly() {
+      if (!doctorOnlyList) return;
+      doctorOnlyList.innerHTML = '<div class="item">Loading doctor roster...</div>';
+      fetch(API_BASE_URL + '/roster/doctors/')
+        .then(function(r){ return r.ok ? r.json() : []; })
+        .then(function(doctors){
+          doctorOnlyList.innerHTML = doctors.length ? doctors.map(function(d){
+            return '<div class="item">'
+              + '<div class="item-title">' + (d.name || 'Unknown') + '</div>'
+              + '<div class="item-meta">Department: ' + (d.dept || '-') + '</div>'
+              + '<div class="item-meta">Title: ' + (d.title || '-') + '</div>'
+              + '<div class="item-meta">Hours: ' + (d.hours || '-') + '</div>'
+              + '</div>';
+          }).join('') : '<div class="item">No doctors listed.</div>';
+        })
+        .catch(function(){
+          doctorOnlyList.innerHTML = '<div class="item">Unable to load doctor roster.</div>';
+        });
+    }
+
+    function loadAmbulancesOnly() {
+      if (!ambulanceOnlyList) return;
+      ambulanceOnlyList.innerHTML = '<div class="item">Loading ambulance roster...</div>';
+      fetch(API_BASE_URL + '/roster/ambulances/')
+        .then(function(r){ return r.ok ? r.json() : []; })
+        .then(function(ambulances){
+          ambulanceOnlyList.innerHTML = ambulances.length ? ambulances.map(function(a){
+            return '<div class="item">'
+              + '<div class="item-title">' + (a.ambulance_id || 'Ambulance') + '</div>'
+              + '<div class="item-meta">Status: ' + (a.status || 'Unknown') + '</div>'
+              + '<div class="item-meta">Contact: ' + (a.contact || '-') + '</div>'
+              + '</div>';
+          }).join('') : '<div class="item">No ambulances listed.</div>';
+        })
+        .catch(function(){
+          ambulanceOnlyList.innerHTML = '<div class="item">Unable to load ambulance roster.</div>';
+        });
+    }
+
+    function loadAvailability() {
+      var token = localStorage.getItem('accessToken');
+      if (!token) {
+        renderNotLoggedIn(testKitList, 'test kit availability');
+        renderNotLoggedIn(bedList, 'bed availability');
+        renderNotLoggedIn(medicineList, 'pharmacy availability');
+        return;
+      }
+
+      if (testKitList) testKitList.innerHTML = '<div class="item">Loading test kits...</div>';
+      if (bedList) bedList.innerHTML = '<div class="item">Loading bed availability...</div>';
+      if (medicineList) medicineList.innerHTML = '<div class="item">Loading medicines...</div>';
+
+      fetch(API_BASE_URL + '/records/inventory/', { headers: authHeaders() })
+        .then(function(r){ return r.ok ? r.json() : []; })
+        .then(function(items){
+          var kits = items.filter(function(i){ return i.item_type === 'kit'; });
+          var beds = items.filter(function(i){ return i.item_type === 'bed'; });
+
+          if (testKitList) {
+            testKitList.innerHTML = kits.length ? kits.map(function(k){
+              return '<div class="item">'
+                + '<div class="item-title">' + (k.name || 'Test Kit') + '</div>'
+                + '<div class="item-meta">Available: ' + (k.quantity || 0) + '</div>'
+                + '</div>';
+            }).join('') : '<div class="item">No test kit data available.</div>';
+          }
+
+          if (bedList) {
+            if (beds.length) {
+              var totalBeds = beds.reduce(function(sum, b){ return sum + (Number(b.quantity) || 0); }, 0);
+              bedList.innerHTML = '<div class="item"><div class="item-title">Available Beds</div><div class="item-meta">' + totalBeds + '</div></div>';
+            } else {
+              bedList.innerHTML = '<div class="item">No bed availability data available.</div>';
+            }
+          }
+        })
+        .catch(function(){
+          if (testKitList) testKitList.innerHTML = '<div class="item">Unable to load test kit availability.</div>';
+          if (bedList) bedList.innerHTML = '<div class="item">Unable to load bed availability.</div>';
+        });
+
+      fetch(API_BASE_URL + '/records/medicines/', { headers: authHeaders() })
+        .then(function(r){ return r.ok ? r.json() : []; })
+        .then(function(medicines){
+          if (!medicineList) return;
+          medicineList.innerHTML = medicines.length ? medicines.map(function(m){
+            return '<div class="item">'
+              + '<div class="item-title">' + (m.name || 'Medicine') + '</div>'
+              + '<div class="item-meta">Dosage: ' + (m.dosage || '-') + '</div>'
+              + '</div>';
+          }).join('') : '<div class="item">No medicines available.</div>';
+        })
+        .catch(function(){
+          if (medicineList) medicineList.innerHTML = '<div class="item">Unable to load pharmacy availability.</div>';
+        });
+    }
+
+    loadDoctorsOnly();
+    loadAmbulancesOnly();
+    loadAvailability();
+  })();
+
   // Highlight active top navigation link
   (function () {
     var nav = document.getElementById('topNav');
