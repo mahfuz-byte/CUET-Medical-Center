@@ -1,18 +1,21 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Health Alerts</title>
   <link rel="stylesheet" href="assets/css/styles.css">
 </head>
+
 <body>
   <header class="site-header" role="banner">
     <div class="container">
       <div class="branding">
         <a href="index.html" class="logo">CUET Medical Center</a>
       </div>
-      <button id="menuToggle" class="menu-toggle" aria-label="Toggle navigation" aria-controls="topNav" aria-expanded="false">
+      <button id="menuToggle" class="menu-toggle" aria-label="Toggle navigation" aria-controls="topNav"
+        aria-expanded="false">
         <span class="bar"></span>
         <span class="bar"></span>
         <span class="bar"></span>
@@ -100,25 +103,72 @@
 
   <script src="assets/js/app.js"></script>
   <script>
-    const alerts = [];
+    const API_BASE_URL = 'http://127.0.0.1:8000/api';
+
+    function fetchAlerts() {
+      fetch(API_BASE_URL + '/notifications/')
+        .then(response => response.json())
+        .then(data => {
+          renderAlerts(data);
+        })
+        .catch(err => {
+          console.error('Error fetching alerts:', err);
+          document.getElementById('alerts-list').innerHTML = '<div class="item">Error loading alerts from database.</div>';
+        });
+    }
+
     document.getElementById('alert-form').addEventListener('submit', (e) => {
       e.preventDefault();
       const title = document.getElementById('alert-title').value.trim();
       const body = document.getElementById('alert-body').value.trim();
       if (!title || !body) return;
-      alerts.unshift({ title, body, ts: new Date().toLocaleString() });
-      renderAlerts();
-      e.target.reset();
+
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        if (window.showToast) window.showToast('You must be logged in to publish alerts.', 'error');
+        return;
+      }
+
+      fetch(API_BASE_URL + '/notifications/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify({
+          title: title,
+          message: body,
+          target: 'all'
+        })
+      })
+        .then(response => {
+          if (!response.ok) throw new Error('Failed to post alert');
+          return response.json();
+        })
+        .then(data => {
+          if (window.showToast) window.showToast('Health alert published successfully.', 'success');
+          e.target.reset();
+          fetchAlerts();
+        })
+        .catch(err => {
+          console.error('Error posting alert:', err);
+          if (window.showToast) window.showToast('Failed to save alert to database.', 'error');
+        });
     });
-    function renderAlerts(){
+
+    function renderAlerts(alerts) {
       const list = document.getElementById('alerts-list');
       list.innerHTML = alerts.length ? alerts.map(a => `
-        <div class=\"item\">
-          <div class=\"item-title\">${a.title}</div>
-          <div class=\"item-meta\">${a.ts}</div>
-          <div>${a.body}</div>
-        </div>`).join('') : '<div class="item">No alerts yet (demo).</div>';
+        <div class="item">
+          <div class="item-title">${a.title}</div>
+          <div class="item-meta">${new Date(a.created_at).toLocaleString()} | Posted by ID: ${a.created_by || 'System'}</div>
+          <div style="margin-top: 0.5rem; word-break: break-word;">${a.message}</div>
+        </div>`).join('') : '<div class="item">No active health alerts.</div>';
     }
+
+    // Load alerts on init
+    fetchAlerts();
   </script>
 </body>
+
 </html>

@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Doctor Profile | CUET Medical Center</title>
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+
+<body>
+    <!-- Sidebar layout for doctor role -->
+    <aside id="sidebar" class="sidebar" role="navigation" aria-label="Doctor navigation">
+        <div class="sidebar-brand">Doctor</div>
+        <nav>
+            <a href="doctor.html">Dashboard</a>
+            <a href="medical-records.html">Patient Records</a>
+            <a href="prescriptions.html">Add Prescription</a>
+            <a href="roster.html">Doctor & Ambulance Roster</a>
+            <a href="pharmacy.html">Pharmacy</a>
+            <a href="alerts.html">Health Alerts</a>
+            <a href="profile.html" class="active">Profile</a>
+            <a href="login.html" id="doctorLogoutLink">Logout</a>
+        </nav>
+    </aside>
+
+    <main id="main" class="content" role="main">
+        <header class="content-header">
+            <button class="sidebar-toggle" aria-label="Open menu" aria-controls="sidebar" aria-expanded="false">☰
+                Menu</button>
+            <h1>Doctor Profile</h1>
+        </header>
+
+        <section class="cards">
+            <div class="card" style="grid-column: 1 / -1;">
+                <h3>Professional Information</h3>
+                <form id="profile-form" class="form-grid">
+                    <input type="text" placeholder="Full Name" value="" id="docName" required>
+                    <input type="email" placeholder="Email" id="docEmail" required disabled>
+                    <input type="text" placeholder="Specialty / Department" id="docDept">
+                    <input type="text" placeholder="Phone Number" id="docPhone">
+                    <textarea placeholder="Availability Notes" id="docNotes"></textarea>
+                    <button class="btn btn-primary" type="submit">Save Profile</button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <script src="assets/js/app.js"></script>
+    <script>
+        (function () {
+            const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            if (!user.role || user.role !== 'doctor') {
+                window.location.href = 'login.html';
+                return;
+            }
+            document.getElementById('docName').value = user.first_name || '';
+            document.getElementById('docEmail').value = user.email || '';
+
+            const logoutLink = document.getElementById('doctorLogoutLink');
+            if (logoutLink) {
+                logoutLink.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    localStorage.removeItem('currentUser');
+                    localStorage.removeItem('accessToken');
+                    localStorage.removeItem('refreshToken');
+                    window.location.href = 'login.html';
+                });
+            }
+
+            document.getElementById('profile-form').addEventListener('submit', function (e) {
+                e.preventDefault();
+                if (window.showToast) window.showToast('Profile saved successfully.', 'success');
+            });
+        })();
+    </script>
+</body>
+
+</html>

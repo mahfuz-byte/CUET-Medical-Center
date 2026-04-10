@@ -122,9 +122,36 @@
       e.preventDefault();
       var q = document.getElementById('record-query').value.trim();
       var container = document.getElementById('record-results');
-      container.innerHTML = q
-        ? '<div class="item">No records found for: ' + q + '</div>'
-        : '<div class="item">Enter a query to search records.</div>';
+
+      if (!q) {
+        container.innerHTML = '<div class="item">Enter a query to search records.</div>';
+        return;
+      }
+
+      let html = '';
+
+      let mockPrescriptions = JSON.parse(localStorage.getItem('mockPrescriptions') || '[]');
+      let results = mockPrescriptions.filter(p => p.studentId === q.toUpperCase() || q.toUpperCase() === 'ALL');
+
+      if (results.length > 0) {
+        html += '<h3 style="margin-bottom: 1rem;">Found ' + results.length + ' prescription(s)</h3>';
+        results.forEach(p => {
+          html += '<div class="item" style="margin-bottom: 1rem; border: 1px solid var(--border); padding: 1rem; border-radius: var(--radius-md);">';
+          html += '<div style="font-weight: bold; margin-bottom: 0.5rem; display: flex; justify-content: space-between;"><span>Date: ' + p.date + '</span><span class="badge" style="background: var(--primary); color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem;">' + p.studentId + '</span></div>';
+          html += '<div style="margin-bottom: 0.5rem;"><strong>Diagnosis:</strong> ' + p.diagnosis + '</div>';
+          html += '<div style="margin-bottom: 0.5rem;"><strong>Medicines:</strong><br>' + String(p.medicines).replace(/\n/g, '<br>') + '</div>';
+          if (p.advice) {
+            html += '<div><strong>Advice:</strong><br>' + String(p.advice).replace(/\n/g, '<br>') + '</div>';
+          }
+          html += '</div>';
+        });
+      } else {
+        html += '<div class="item">No previous records found for student: ' + q + '</div>';
+      }
+
+      html += '<div style="margin-top: 1rem;"><a href="prescriptions.html?sid=' + encodeURIComponent(q) + '" class="btn btn-primary">Add New Prescription for ' + q + '</a></div>';
+
+      container.innerHTML = html;
     });
     document.getElementById('record-results').innerHTML = '<div class="item">Enter a query to search records.</div>';
   </script>
