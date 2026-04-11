@@ -2,7 +2,8 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.contrib.auth import get_user_model
-from .serializers import UserSerializer, UserRegistrationSerializer, UserUpdateSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView
+from .serializers import UserSerializer, UserRegistrationSerializer, UserUpdateSerializer, CustomTokenObtainPairSerializer
 
 User = get_user_model()
 
@@ -32,3 +33,9 @@ class ProfileView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user
+
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    """Custom login view that uses email field."""
+    serializer_class = CustomTokenObtainPairSerializer
+    permission_classes = [AllowAny]

@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 User = get_user_model()
 
@@ -49,3 +50,38 @@ class UserUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['first_name', 'last_name', 'phone']
+
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    """Custom serializer to allow login with email instead of username."""
+    
+    username_field = User.USERNAME_FIELD
+    
+    email = serializers.CharField()
+    password = serializers.CharField()
+    
+    def validate(self, attrs):
+        # Map email to the username_field
+        authenticate_kwargs = {
+            self.username_field: attrs.get('email'),
+            'password': attrs.get('password'),
+        }
+        
+        try:
+            authenticate_user = User.objects.get(email=attrs.get('email'))
+        except User.DoesNotExist:
+            raise serializers.ValidationError({'detail': 'No active account found with the given credentials'})
+        
+        if not authenticate_user.is_active:
+            raise serializers.ValidationError({'detail': 'User account is disabled.'})
+        
+        if not authenticate_user.check_password(attrs.get('password')):
+            raise serializers.ValidationError({'detail': 'No active account found with the given credentials'})
+        
+        refresh = self.get_token(authenticate_user)
+        data = {
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
+        }
+        data['user'] = UserSerializer(authenticate_user).data
+        return data
