@@ -10,11 +10,14 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 from datetime import timedelta
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / '.env')
 
 
 # Quick-start development settings - unsuitable for production
@@ -163,3 +166,23 @@ CORS_ALLOWED_ORIGINS = [
 
 # Allow credentials for JWT cookies
 CORS_ALLOW_CREDENTIALS = True
+
+# Gemini configuration
+GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', '').strip()
+
+if not GEMINI_API_KEY:
+    env_file = BASE_DIR / '.env'
+    if env_file.exists():
+        raw_bytes = env_file.read_bytes()
+        text = ''
+        for enc in ('utf-8-sig', 'utf-16', 'latin-1'):
+            try:
+                text = raw_bytes.decode(enc)
+                break
+            except UnicodeDecodeError:
+                continue
+
+        for line in text.splitlines():
+            if line.startswith('GEMINI_API_KEY='):
+                GEMINI_API_KEY = line.split('=', 1)[1].strip()
+                break

@@ -90,19 +90,46 @@
     </div>
   </footer>
 
+  <script src="assets/js/api-client.js"></script>
   <script src="assets/js/app.js"></script>
   <script>
-    document.getElementById('assistant-form').addEventListener('submit', (e) => {
+    document.getElementById('assistant-form').addEventListener('submit', async function (e) {
       e.preventDefault();
-      const input = document.getElementById('assistant-input');
-      const text = input.value.trim();
+      var input = document.getElementById('assistant-input');
+      var sendBtn = document.querySelector('#assistant-form button[type="submit"]');
+      var text = (input.value || '').trim();
       if (!text) return;
-      const chat = document.getElementById('assistant-chat');
-      chat.insertAdjacentHTML('beforeend', `<div class=\"msg user\">${text}</div>`);
-      // Simple canned reply for demo
-      const reply = 'For medical advice, consult campus doctors. This demo does not provide real medical guidance.';
-      setTimeout(() => chat.insertAdjacentHTML('beforeend', `<div class=\"msg bot\">${reply}</div>`), 400);
+
+      var chat = document.getElementById('assistant-chat');
+      chat.insertAdjacentHTML('beforeend', '<div class="msg user">' + text + '</div>');
+
+      if (sendBtn) {
+        sendBtn.disabled = true;
+        sendBtn.textContent = 'Thinking...';
+      }
+
+      chat.insertAdjacentHTML('beforeend', '<div class="msg bot" id="assistant-loading">Thinking...</div>');
+
+      try {
+        var answer = await window.CUETApiClient.askHealthQuestion(text);
+        var loading = document.getElementById('assistant-loading');
+        if (loading) loading.remove();
+        chat.insertAdjacentHTML('beforeend', '<div class="msg bot">' + answer + '</div>');
+      } catch (err) {
+        var loadingEl = document.getElementById('assistant-loading');
+        if (loadingEl) loadingEl.remove();
+        var msg = (err && err.message) ? err.message : 'Sorry, I could not answer right now. Please try again.';
+        chat.insertAdjacentHTML('beforeend', '<div class="msg bot">' + msg + '</div>');
+        if (window.showToast) window.showToast(msg, 'error');
+      } finally {
+        if (sendBtn) {
+          sendBtn.disabled = false;
+          sendBtn.textContent = 'Send';
+        }
+      }
+
       input.value = '';
+      input.focus();
     });
   </script>
 </body>
