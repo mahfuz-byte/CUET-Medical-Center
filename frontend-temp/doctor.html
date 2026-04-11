@@ -79,8 +79,10 @@
   <script>
     // Basic role guard for doctors
     (function () {
-      const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
-      if (!user.role || user.role !== 'doctor') {
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      const token = localStorage.getItem('access_token');
+      
+      if (!user.role || user.role !== 'doctor' || !token) {
         window.location.href = 'login.html';
         return;
       }
@@ -97,9 +99,8 @@
       if (logoutLink) {
         logoutLink.addEventListener('click', function (e) {
           e.preventDefault();
-          localStorage.removeItem('currentUser');
-          localStorage.removeItem('accessToken');
-          localStorage.removeItem('refreshToken');
+          localStorage.removeItem('user');
+          localStorage.removeItem('access_token');
           window.location.href = 'login.html';
         });
       }

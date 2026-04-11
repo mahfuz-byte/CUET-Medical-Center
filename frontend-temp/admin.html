@@ -539,8 +539,10 @@
 
         // Check if user is logged in as admin
         window.addEventListener('load', () => {
-            const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-            if (!currentUser.role || currentUser.role !== 'admin') {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const token = localStorage.getItem('access_token');
+            
+            if (!user.role || user.role !== 'admin' || !token) {
                 window.location.href = 'login.html';
             }
             loadAdminData();
@@ -548,14 +550,15 @@
 
         // Logout functionality
         document.getElementById('adminLogout').addEventListener('click', () => {
-            localStorage.removeItem('currentUser');
+            localStorage.removeItem('user');
+            localStorage.removeItem('access_token');
             window.location.href = 'login.html';
         });
 
-                function getHeaders() {
+        function getHeaders() {
             return {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+                'Authorization': `Bearer ${localStorage.getItem('access_token')}`
             };
         }
         
