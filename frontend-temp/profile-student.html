@@ -143,6 +143,25 @@
       background: rgba(59, 130, 246, 0.05);
     }
 
+    .btn-danger {
+      width: 100%;
+      padding: 12px 16px;
+      background: #ef4444;
+      border: none;
+      border-radius: 10px;
+      color: white;
+      font-weight: 600;
+      font-size: 15px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-top: 16px;
+    }
+
+    .btn-danger:hover {
+      background: #dc2626;
+      transform: translateY(-2px);
+    }
+
     .message {
       padding: 12px 14px;
       border-radius: 10px;
@@ -278,6 +297,8 @@
               <button type="submit" class="btn-primary">Save Changes</button>
               <button type="button" class="btn-secondary" onclick="window.history.back()">Cancel</button>
             </div>
+
+            <button type="button" class="btn-danger" id="deleteBtn">Delete Account</button>
           </form>
         </div>
       </div>
@@ -354,6 +375,9 @@
       document.getElementById('email').value = user.email;
       document.getElementById('firstName').value = user.first_name || '';
       document.getElementById('studentId').value = user.student_id || '';
+      document.getElementById('dept').value = user.dept || '';
+      document.getElementById('age').value = user.age || '';
+      document.getElementById('bloodGroup').value = user.blood_group || '';
       document.getElementById('phone').value = user.phone || '';
 
       // Set avatar
@@ -376,12 +400,11 @@
 
       const updates = {
         first_name: document.getElementById('firstName').value,
-        student_id: document.getElementById('studentId').value,
+        dept: document.getElementById('dept').value,
+        age: document.getElementById('age').value ? parseInt(document.getElementById('age').value) : null,
+        blood_group: document.getElementById('bloodGroup').value,
         phone: document.getElementById('phone').value,
       };
-
-      // Store additional fields in user object (these need custom model fields to persist)
-      const userData = { ...user, ...updates };
 
       try {
         const response = await fetch(`${API_BASE}/auth/me/`, {
@@ -396,7 +419,6 @@
         const data = await response.json();
 
         if (response.ok) {
-          // Update localStorage
           localStorage.setItem('user', JSON.stringify({...user, ...data}));
           showMessage('Profile updated successfully!', 'success');
           setTimeout(() => {
@@ -407,6 +429,40 @@
         }
       } catch (error) {
         showMessage('Error updating profile', 'error');
+        console.error(error);
+      }
+    });
+
+    // Delete account
+    document.getElementById('deleteBtn').addEventListener('click', async () => {
+      const confirmDelete = confirm('Are you sure you want to delete your account? This action cannot be undone.');
+      if (!confirmDelete) return;
+
+      const auth = checkAuth();
+      if (!auth) return;
+
+      const { token } = auth;
+
+      try {
+        const response = await fetch(`${API_BASE}/auth/me/`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (response.ok) {
+          showMessage('Account deleted successfully. Redirecting...', 'success');
+          setTimeout(() => {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('user');
+            window.location.href = 'index.html';
+          }, 1500);
+        } else {
+          showMessage('Failed to delete account', 'error');
+        }
+      } catch (error) {
+        showMessage('Error deleting account', 'error');
         console.error(error);
       }
     });

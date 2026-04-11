@@ -13,7 +13,15 @@ class UserSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = User
-        fields = ['id', 'email', 'first_name', 'role', 'student_id', 'phone', 'is_active']
+        fields = [
+            'id', 'email', 'first_name', 'role', 'phone', 'is_active',
+            # Student fields
+            'student_id', 'dept', 'age', 'blood_group',
+            # Doctor fields
+            'specialization', 'qualification', 'license_number', 'experience',
+            # Admin fields
+            'designation', 'department', 'employee_id'
+        ]
         read_only_fields = ['id', 'email', 'role', 'is_active']
 
 
@@ -22,7 +30,16 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = User
-        fields = ['first_name', 'student_id', 'phone']
+        fields = [
+            'first_name', 'phone',
+            # Student fields
+            'student_id', 'dept', 'age', 'blood_group',
+            # Doctor fields
+            'specialization', 'qualification', 'license_number', 'experience',
+            # Admin fields
+            'designation', 'department', 'employee_id'
+        ]
+        read_only_fields = ['student_id']  # Make student_id read-only
 
 
 class SendOTPSerializer(serializers.Serializer):
@@ -38,9 +55,7 @@ class SendOTPSerializer(serializers.Serializer):
         if role == 'student':
             if not email.endswith('@student.cuet.ac.bd'):
                 raise serializers.ValidationError({'error': 'Students must use @student.cuet.ac.bd email'})
-        else:  # doctor or admin
-            if not email.endswith('@cuet.ac.bd') or email.endswith('@student.cuet.ac.bd'):
-                raise serializers.ValidationError({'error': 'Doctors and Admins must use @cuet.ac.bd email'})
+        # Doctors and Admins can use any email address
         
         # Check if user with this email already exists
         if User.objects.filter(email=email).exists():

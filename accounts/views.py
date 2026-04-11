@@ -137,7 +137,7 @@ class LoginView(generics.GenericAPIView):
         )
 
 
-class ProfileView(generics.RetrieveUpdateAPIView):
+class ProfileView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = UserSerializer
 
@@ -149,6 +149,16 @@ class ProfileView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user
+
+    def delete(self, request, *args, **kwargs):
+        """Delete user account"""
+        user = self.get_object()
+        user_email = user.email
+        user.delete()
+        return Response(
+            {'message': f'Account {user_email} has been deleted successfully'},
+            status=status.HTTP_200_OK
+        )
 
 
 class RegisterView(generics.CreateAPIView):

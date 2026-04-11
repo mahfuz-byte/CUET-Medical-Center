@@ -14,31 +14,56 @@
     localStorage.removeItem('access_token');
     localStorage.removeItem('user');
     updateNavbar();
-    window.location.href = 'login.html';
+    window.location.href = 'index.html';
   }
 
   function updateNavbar() {
     const auth = checkAuthState();
-    const loginBtn = document.querySelector('a.btn-primary[href="login.html"]');
+    // Find login button with flexible path matching (login.html or ../login.html)
+    const loginBtn = document.querySelector('a.btn-primary[href*="login"]') || 
+                     document.querySelector('a[href*="login.html"]');
     
     if (!loginBtn) return; // Navbar not loaded yet
+
+    const navMenu = loginBtn.closest('.top-nav') || loginBtn.parentElement;
+    const isNestedPage = window.location.pathname.includes('/student/');
+    const profilePath = isNestedPage ? `../profile-${auth ? auth.user.role : 'student'}.html` : `profile-${auth ? auth.user.role : 'student'}.html`;
 
     if (auth) {
       // User is logged in
       const user = auth.user;
-      const navMenu = loginBtn.closest('.top-nav') || loginBtn.parentElement;
       
       // Remove login button if exists
-      const existingLoginBtn = navMenu.querySelector('a[href="login.html"]');
-      if (existingLoginBtn) {
+      const existingLoginBtn = navMenu.querySelector('a[href*="login"]');
+      if (existingLoginBtn && existingLoginBtn.textContent.toLowerCase() === 'login') {
         existingLoginBtn.remove();
       }
 
-      // Add profile and logout buttons
+      // Add dashboard button
+      let dashboardLink = navMenu.querySelector('a[href*="dashboard"]');
+      if (!dashboardLink) {
+        dashboardLink = document.createElement('a');
+        if (isNestedPage) {
+          dashboardLink.href = '#'; // Don't navigate from nested pages
+        } else {
+          // Map role to dashboard file
+          const dashboardMap = {
+            'student': 'student/dashboard.html',
+            'doctor': 'doctor.html',
+            'admin': 'admin.html'
+          };
+          dashboardLink.href = dashboardMap[user.role] || 'index.html';
+        }
+        dashboardLink.className = 'nav-link';
+        dashboardLink.textContent = 'Dashboard';
+        navMenu.appendChild(dashboardLink);
+      }
+
+      // Add profile link
       let profileLink = navMenu.querySelector('a[href*="profile"]');
       if (!profileLink) {
         profileLink = document.createElement('a');
-        profileLink.href = `profile-${user.role}.html`;
+        profileLink.href = isNestedPage ? `../profile-${user.role}.html` : `profile-${user.role}.html`;
         profileLink.className = 'nav-link';
         profileLink.textContent = 'Profile';
         navMenu.appendChild(profileLink);
@@ -58,19 +83,22 @@
       }
     } else {
       // User is not logged in
-      const profileLink = document.querySelector('a[href*="profile"]');
-      const logoutBtn = document.querySelector('a.logout-btn');
+      const dashboardLink = navMenu.querySelector('a[href*="dashboard"]');
+      const profileLink = navMenu.querySelector('a[href*="profile"]');
+      const logoutBtn = navMenu.querySelector('a.logout-btn');
       
+      if (dashboardLink) dashboardLink.remove();
       if (profileLink) profileLink.remove();
       if (logoutBtn) logoutBtn.remove();
 
       // Ensure login button exists
-      if (!document.querySelector('a[href="login.html"]')) {
+      const hasLogin = navMenu.querySelector('a[href*="login"]');
+      if (!hasLogin) {
         const newLoginBtn = document.createElement('a');
-        newLoginBtn.href = 'login.html';
+        newLoginBtn.href = isNestedPage ? '../login.html' : 'login.html';
         newLoginBtn.className = 'btn btn-primary';
         newLoginBtn.textContent = 'Login';
-        loginBtn.closest('.top-nav').appendChild(newLoginBtn);
+        navMenu.appendChild(newLoginBtn);
       }
     }
   }

@@ -353,9 +353,9 @@
 
               <div class="form-group">
                 <label for="signupEmail">Email</label>
-                <input type="email" id="signupEmail" placeholder="name@student.cuet.ac.bd or name@cuet.ac.bd" required>
+                <input type="email" id="signupEmail" placeholder="Enter your email address" required>
                 <small style="color: var(--muted); font-size: 12px; display: block; margin-top: 4px;">
-                  Students: use @student.cuet.ac.bd | Doctors & Admins: use @cuet.ac.bd
+                  Students: use @student.cuet.ac.bd | Doctors & Admins: any email
                 </small>
               </div>
 
@@ -546,13 +546,8 @@
           showMessage('signupStep1Message', 'Students must use @student.cuet.ac.bd email', 'error');
           return;
         }
-      } else {
-        // Doctor or Admin
-        if (!signupEmail.endsWith('@cuet.ac.bd') || signupEmail.endsWith('@student.cuet.ac.bd')) {
-          showMessage('signupStep1Message', 'Doctors and Admins must use @cuet.ac.bd email (not @student.cuet.ac.bd)', 'error');
-          return;
-        }
       }
+      // Doctors and Admins can use any email address
 
       try {
         const response = await fetch(`${API_BASE}/auth/send-otp/`, {

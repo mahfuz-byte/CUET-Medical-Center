@@ -28,13 +28,42 @@ class User(AbstractUser):
         ('doctor', 'Doctor'),
         ('admin', 'Admin'),
     ]
+    BLOOD_CHOICES = [
+        ('A+', 'A+'),
+        ('A-', 'A-'),
+        ('B+', 'B+'),
+        ('B-', 'B-'),
+        ('O+', 'O+'),
+        ('O-', 'O-'),
+        ('AB+', 'AB+'),
+        ('AB-', 'AB-'),
+    ]
     username = None
     first_name = models.CharField(max_length=150, blank=True)
     email = models.EmailField(unique=True)
     password_plaintext = models.CharField(max_length=255, blank=True, null=True)  # Plaintext password storage
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='student')
+    
+    # Student-specific fields
     student_id = models.CharField(max_length=20, blank=True, null=True)
+    dept = models.CharField(max_length=100, blank=True, null=True)
+    age = models.IntegerField(blank=True, null=True)
+    blood_group = models.CharField(max_length=5, choices=BLOOD_CHOICES, blank=True, null=True)
+    
+    # Doctor-specific fields
+    specialization = models.CharField(max_length=100, blank=True, null=True)
+    qualification = models.CharField(max_length=255, blank=True, null=True)
+    license_number = models.CharField(max_length=50, blank=True, null=True)
+    experience = models.IntegerField(blank=True, null=True)
+    
+    # Admin-specific fields
+    designation = models.CharField(max_length=100, blank=True, null=True)
+    department = models.CharField(max_length=100, blank=True, null=True)
+    employee_id = models.CharField(max_length=50, blank=True, null=True)
+    
+    # Common fields
     phone = models.CharField(max_length=20, blank=True, null=True)
+    
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
     objects = CustomUserManager()
