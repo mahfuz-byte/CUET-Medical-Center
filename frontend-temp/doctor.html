@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Doctor Dashboard | CUET Medical Center</title>
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+
+<body>
+  <!-- Sidebar layout for doctor role -->
+  <aside id="sidebar" class="sidebar" role="navigation" aria-label="Doctor navigation">
+    <div class="sidebar-brand">Doctor</div>
+    <nav>
+      <a href="doctor.html" class="active">Dashboard</a>
+      <a href="medical-records.html">Patient Records</a>
+      <a href="prescriptions.html">Add Prescription</a>
+      <a href="roster.html">Doctor & Ambulance Roster</a>
+      <a href="pharmacy.html">Pharmacy</a>
+      <a href="alerts.html">Health Alerts</a>
+      <a href="profile.html">Profile</a>
+      <a href="login.html" id="doctorLogoutLink">Logout</a>
+    </nav>
+  </aside>
+
+  <main id="main" class="content" role="main">
+    <header class="content-header">
+      <button class="sidebar-toggle" aria-label="Open menu" aria-controls="sidebar" aria-expanded="false">☰
+        Menu</button>
+      <h1 id="doctorWelcome">Doctor Dashboard</h1>
+    </header>
+
+    <section class="cards">
+      <div class="card">
+        <h3>Today at a glance</h3>
+        <p id="doctorSummary">Loading your schedule and stats...</p>
+      </div>
+      <div class="card">
+        <h3>Pending Appointments</h3>
+        <p>No new appointments.</p>
+      </div>
+      <div class="card">
+        <h3>On-Call Roster</h3>
+        <p><a href="roster.html">View roster and ambulance status</a></p>
+      </div>
+      <div class="card">
+        <h3>Quick Tools</h3>
+        <ul style="padding-left: 1.2rem; margin: 0;">
+          <li><a href="medical-records.html">Patient Records</a></li>
+          <li><a href="pharmacy.html">Pharmacy</a></li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <script src="assets/js/app.js"></script>
+  <script>
+    // Basic role guard for doctors
+    (function () {
+      const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+      if (!user.role || user.role !== 'doctor') {
+        window.location.href = 'login.html';
+        return;
+      }
+      const heading = document.getElementById('doctorWelcome');
+      if (heading) {
+        const name = user.first_name || user.email || 'Doctor';
+        heading.textContent = 'Welcome, ' + name;
+      }
+      const summary = document.getElementById('doctorSummary');
+      if (summary) {
+        summary.textContent = 'Use the links on the left to access patient records, roster details, and pharmacy information.';
+      }
+      const logoutLink = document.getElementById('doctorLogoutLink');
+      if (logoutLink) {
+        logoutLink.addEventListener('click', function (e) {
+          e.preventDefault();
+          localStorage.removeItem('currentUser');
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('refreshToken');
+          window.location.href = 'login.html';
+        });
+      }
+    })();
+  </script>
+</body>
+
+</html>

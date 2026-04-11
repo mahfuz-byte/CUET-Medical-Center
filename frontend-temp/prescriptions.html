@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Add Prescription | Doctor | CUET Medical Center</title>
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+
+<body>
+    <!-- Sidebar layout for doctor role -->
+    <aside id="sidebar" class="sidebar" role="navigation" aria-label="Doctor navigation">
+        <div class="sidebar-brand">Doctor</div>
+        <nav>
+            <a href="doctor.html">Dashboard</a>
+            <a href="medical-records.html">Patient Records</a>
+            <a href="prescriptions.html" class="active">Add Prescription</a>
+            <a href="roster.html">Doctor & Ambulance Roster</a>
+            <a href="pharmacy.html">Pharmacy</a>
+            <a href="alerts.html">Health Alerts</a>
+            <a href="profile.html">Profile</a>
+            <a href="login.html" id="doctorLogoutLink">Logout</a>
+        </nav>
+    </aside>
+
+    <main id="main" class="content" role="main">
+        <header class="content-header">
+            <button class="sidebar-toggle" aria-label="Open menu" aria-controls="sidebar" aria-expanded="false">☰
+                Menu</button>
+            <h1>Add Prescription</h1>
+        </header>
+
+        <section class="cards">
+            <div class="card" style="grid-column: 1 / -1;">
+                <h3>Prescribe Medication</h3>
+                <p>Use this form to add a prescription and notes to a student's medical record.</p>
+                <form id="prescription-form" class="form-grid" style="margin-top: 1rem;">
+                    <input type="text" placeholder="Student ID (e.g. STU001)" id="rxStudentId" required>
+                    <input type="text" placeholder="Diagnosis" id="rxDiagnosis" required>
+                    <textarea placeholder="Prescribed Medicines (e.g. Paracetamol 500mg, 1-1-1)" id="rxMedicines"
+                        required rows="3"></textarea>
+                    <textarea placeholder="Additional Advice / Tests" id="rxAdvice" rows="2"></textarea>
+                    <button class="btn btn-primary" type="submit">Submit Prescription</button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <script src="assets/js/app.js"></script>
+    <script>
+        (function () {
+            const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            if (!user.role || user.role !== 'doctor') {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const logoutLink = document.getElementById('doctorLogoutLink');
+            if (logoutLink) {
+                logoutLink.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    localStorage.removeItem('currentUser');
+                    localStorage.removeItem('accessToken');
+                    localStorage.removeItem('refreshToken');
+                    window.location.href = 'login.html';
+                });
+            }
+
+            // Pre-fill student ID from query param if available
+            const urlParams = new URLSearchParams(window.location.search);
+            const sid = urlParams.get('sid');
+            if (sid) {
+                document.getElementById('rxStudentId').value = sid;
+            }
+
+            document.getElementById('prescription-form').addEventListener('submit', function (e) {
+                e.preventDefault();
+                const studentId = document.getElementById('rxStudentId').value;
+                const diagnosis = document.getElementById('rxDiagnosis').value;
+                const medicines = document.getElementById('rxMedicines').value;
+                const advice = document.getElementById('rxAdvice').value;
+
+                let mockPrescriptions = JSON.parse(localStorage.getItem('mockPrescriptions') || '[]');
+                mockPrescriptions.push({
+                    studentId: studentId.toUpperCase(),
+                    diagnosis: diagnosis,
+                    medicines: medicines,
+                    advice: advice,
+                    date: new Date().toLocaleDateString()
+                });
+                localStorage.setItem('mockPrescriptions', JSON.stringify(mockPrescriptions));
+
+                if (window.showToast) window.showToast('Prescription saved for student ' + studentId + '.', 'success');
+                this.reset();
+            });
+        })();
+    </script>
+</body>
+
+</html>

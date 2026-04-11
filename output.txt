@@ -1,0 +1,3 @@
+Admin admin@example.com already exists
+Doctor doctor@example.com already exists
+Student student@example.com already exists

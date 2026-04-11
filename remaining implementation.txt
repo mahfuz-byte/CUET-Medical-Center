@@ -16,9 +16,6 @@ Phase 2: User Management
 Verify all three serializers exist and work properly
 Test registration, profile retrieval, and updates
 5. Implement Role-Based Permissions
-6. Admin Panel for User Management
-Configure admin.py for User model
-Enable creating students/doctors from admin panel
 
 Phase 3: Core Features (Based on Your Models)
 7. Medical Records Module
@@ -84,3 +81,22 @@ Immediate Next Steps (Priority Order):
 ✅ Implement protected routes on frontend
 ✅ Create basic dashboards for each role
 ✅ Build core features one by one
+
+
+Admin user
+
+Email: admin1@example.com
+Password: Admin123!
+Role: admin
+Flags: is_staff=True, is_superuser=True
+Doctor user
+
+Email: doctor1@example.com
+Password: Doctor123!
+Role: doctor
+Student user
+
+Email: student1@example.com
+Password: Student123!
+Role: student
+student_id='STU001'
