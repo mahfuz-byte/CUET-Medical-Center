@@ -3,7 +3,85 @@
   // API Configuration
   const API_BASE_URL = 'http://127.0.0.1:8000/api';
 
-  // Handle login with Django backend API
+  // ===== AUTH STATE MANAGEMENT =====
+  function checkAuthState() {
+    const token = localStorage.getItem('access_token');
+    const user = localStorage.getItem('user');
+    return token && user ? { token, user: JSON.parse(user) } : null;
+  }
+
+  function logout() {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('user');
+    updateNavbar();
+    window.location.href = 'login.html';
+  }
+
+  function updateNavbar() {
+    const auth = checkAuthState();
+    const loginBtn = document.querySelector('a.btn-primary[href="login.html"]');
+    
+    if (!loginBtn) return; // Navbar not loaded yet
+
+    if (auth) {
+      // User is logged in
+      const user = auth.user;
+      const navMenu = loginBtn.closest('.top-nav') || loginBtn.parentElement;
+      
+      // Remove login button if exists
+      const existingLoginBtn = navMenu.querySelector('a[href="login.html"]');
+      if (existingLoginBtn) {
+        existingLoginBtn.remove();
+      }
+
+      // Add profile and logout buttons
+      let profileLink = navMenu.querySelector('a[href*="profile"]');
+      if (!profileLink) {
+        profileLink = document.createElement('a');
+        profileLink.href = `profile-${user.role}.html`;
+        profileLink.className = 'nav-link';
+        profileLink.textContent = 'Profile';
+        navMenu.appendChild(profileLink);
+      }
+
+      let logoutBtn = navMenu.querySelector('a.logout-btn');
+      if (!logoutBtn) {
+        logoutBtn = document.createElement('a');
+        logoutBtn.href = '#';
+        logoutBtn.className = 'btn btn-primary logout-btn';
+        logoutBtn.textContent = 'Logout';
+        logoutBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          logout();
+        });
+        navMenu.appendChild(logoutBtn);
+      }
+    } else {
+      // User is not logged in
+      const profileLink = document.querySelector('a[href*="profile"]');
+      const logoutBtn = document.querySelector('a.logout-btn');
+      
+      if (profileLink) profileLink.remove();
+      if (logoutBtn) logoutBtn.remove();
+
+      // Ensure login button exists
+      if (!document.querySelector('a[href="login.html"]')) {
+        const newLoginBtn = document.createElement('a');
+        newLoginBtn.href = 'login.html';
+        newLoginBtn.className = 'btn btn-primary';
+        newLoginBtn.textContent = 'Login';
+        loginBtn.closest('.top-nav').appendChild(newLoginBtn);
+      }
+    }
+  }
+
+  // Update navbar when page loads
+  window.addEventListener('DOMContentLoaded', updateNavbar);
+  
+  // Check auth state periodically (every 5 seconds when user interacts)
+  window.addEventListener('focus', updateNavbar);
+
+  // ===== LEGACY LOGIN HANDLER (keep for backward compatibility) =====
   var form = document.getElementById('loginForm');
   if (form) {
     form.addEventListener('submit', function (e) {

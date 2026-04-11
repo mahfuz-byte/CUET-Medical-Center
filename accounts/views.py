@@ -139,10 +139,12 @@ class LoginView(generics.GenericAPIView):
 
 class ProfileView(generics.RetrieveUpdateAPIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = UserSerializer
 
     def get_serializer_class(self):
         if self.request.method in ['PUT', 'PATCH']:
-            return UserSerializer
+            from .serializers import UserProfileUpdateSerializer
+            return UserProfileUpdateSerializer
         return UserSerializer
 
     def get_object(self):

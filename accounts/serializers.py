@@ -14,7 +14,15 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'email', 'first_name', 'role', 'student_id', 'phone', 'is_active']
-        read_only_fields = ['id', 'is_active']
+        read_only_fields = ['id', 'email', 'role', 'is_active']
+
+
+class UserProfileUpdateSerializer(serializers.ModelSerializer):
+    """Serializer for updating user profile."""
+    
+    class Meta:
+        model = User
+        fields = ['first_name', 'student_id', 'phone']
 
 
 class SendOTPSerializer(serializers.Serializer):
