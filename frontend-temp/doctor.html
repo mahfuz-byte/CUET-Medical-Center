@@ -79,31 +79,41 @@
   <script>
     // Basic role guard for doctors
     (function () {
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
-      const token = localStorage.getItem('access_token');
-      
-      if (!user.role || user.role !== 'doctor' || !token) {
-        window.location.href = 'login.html';
-        return;
-      }
-      const heading = document.getElementById('doctorWelcome');
-      if (heading) {
-        const name = user.first_name || user.email || 'Doctor';
-        heading.textContent = 'Welcome, ' + name;
-      }
-      const summary = document.getElementById('doctorSummary');
-      if (summary) {
-        summary.textContent = 'Use the links on the left to access patient records, roster details, and pharmacy information.';
-      }
-      const logoutLink = document.getElementById('doctorLogoutLink');
-      if (logoutLink) {
-        logoutLink.addEventListener('click', function (e) {
-          e.preventDefault();
-          localStorage.removeItem('user');
-          localStorage.removeItem('access_token');
+      // Small delay to ensure localStorage is ready
+      setTimeout(() => {
+        const userStr = localStorage.getItem('user');
+        const token = localStorage.getItem('access_token');
+        
+        if (!userStr || !token) {
           window.location.href = 'login.html';
-        });
-      }
+          return;
+        }
+        
+        const user = JSON.parse(userStr);
+        if (!user.role || user.role !== 'doctor') {
+          window.location.href = 'login.html';
+          return;
+        }
+        
+        const heading = document.getElementById('doctorWelcome');
+        if (heading) {
+          const name = user.first_name || user.email || 'Doctor';
+          heading.textContent = 'Welcome, ' + name;
+        }
+        const summary = document.getElementById('doctorSummary');
+        if (summary) {
+          summary.textContent = 'Use the links on the left to access patient records, roster details, and pharmacy information.';
+        }
+        const logoutLink = document.getElementById('doctorLogoutLink');
+        if (logoutLink) {
+          logoutLink.addEventListener('click', function (e) {
+            e.preventDefault();
+            localStorage.removeItem('user');
+            localStorage.removeItem('access_token');
+            window.location.href = 'login.html';
+          });
+        }
+      }, 100);
     })();
   </script>
 

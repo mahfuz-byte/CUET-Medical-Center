@@ -14,7 +14,10 @@
     localStorage.removeItem('access_token');
     localStorage.removeItem('user');
     updateNavbar();
-    window.location.href = 'index.html';
+    // Detect if on nested page and use correct path
+    const isNestedPage = window.location.pathname.includes('/student/');
+    const indexPath = isNestedPage ? '../index.html' : 'index.html';
+    window.location.href = indexPath;
   }
 
   function updateNavbar() {

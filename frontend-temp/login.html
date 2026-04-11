@@ -503,6 +503,8 @@
       const email = document.getElementById('loginEmail').value;
       const password = document.getElementById('loginPassword').value;
 
+      console.log('[LOGIN] Submitting login form:', { email });
+
       try {
         const response = await fetch(`${API_BASE}/auth/login/`, {
           method: 'POST',
@@ -513,20 +515,37 @@
         });
 
         const data = await response.json();
+        console.log('[LOGIN] Response:', { ok: response.ok, status: response.status, data });
 
         if (response.ok) {
+          console.log('[LOGIN] Login successful, user role:', data.user?.role);
           showMessage('loginMessage', 'Login successful! Redirecting...', 'success');
           localStorage.setItem('access_token', data.access);
           localStorage.setItem('user', JSON.stringify(data.user));
+          
+          console.log('[LOGIN] localStorage set. User:', localStorage.getItem('user'));
+
+          // Redirect based on role
+          const dashboardMap = {
+            'student': 'student/dashboard.html',
+            'doctor': 'doctor.html',
+            'admin': 'admin.html'
+          };
+          const redirectUrl = dashboardMap[data.user.role] || 'student/dashboard.html';
+          console.log('[LOGIN] Redirecting to:', redirectUrl);
+          
           setTimeout(() => {
-            window.location.href = `../student/dashboard.html`;
+            console.log('[LOGIN] Executing window.location.href =', redirectUrl);
+            window.location.href = redirectUrl;
           }, 1500);
         } else {
-          showMessage('loginMessage', data.error || 'Login failed. Please try again.', 'error');
+          const errorMsg = Array.isArray(data.error) ? data.error[0] : (data.error || 'Login failed. Please try again.');
+          console.log('[LOGIN] Login failed:', errorMsg);
+          showMessage('loginMessage', errorMsg, 'error');
         }
       } catch (error) {
+        console.error('[LOGIN] Exception:', error);
         showMessage('loginMessage', 'Error connecting to server. Please try again.', 'error');
-        console.error(error);
       }
     });
 

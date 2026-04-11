@@ -124,7 +124,29 @@
       </div>
     </div>
   </footer>
-  <script src="../assets/js/api-client.js"></script>`r`n  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/api-client.js"></script>
+  <script src="../assets/js/app.js"></script>
+  <script>
+    // Basic role guard for students
+    (function () {
+      // Small delay to ensure localStorage is ready
+      setTimeout(() => {
+        const userStr = localStorage.getItem('user');
+        const token = localStorage.getItem('access_token');
+        
+        if (!userStr || !token) {
+          window.location.href = '../login.html';
+          return;
+        }
+        
+        const user = JSON.parse(userStr);
+        if (!user.role || user.role !== 'student') {
+          window.location.href = '../login.html';
+          return;
+        }
+      }, 100);
+    })();
+  </script>
 </body>
 </html>
 

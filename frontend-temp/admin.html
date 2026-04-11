@@ -1,15 +1,13 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - CUET Medical Center</title>
-    <link rel="manifest" href="manifest.webmanifest">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/styles.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin Dashboard | CUET Medical Center</title>
+  <link rel="stylesheet" href="assets/css/styles.css">
 </head>
+
 <body>
   <header class="site-header" role="banner">
     <div class="container">
@@ -31,918 +29,442 @@
       </nav>
     </div>
   </header>
-    <style>
-        .admin-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-        }
 
-        .admin-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            padding: 20px;
-            background: linear-gradient(135deg, #3b82f6 0%, #a855f7 100%);
-            border-radius: 12px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-        }
+  <main id="main" class="content" role="main" style="padding-top: 20px;">
+    <div class="container">
+      <h1 id="adminWelcome" style="text-align: center; margin-bottom: 40px;">👨‍💼 Admin Dashboard</h1>
 
-        .admin-header h1 {
-            font-size: 2rem;
-            color: white;
-            margin: 0;
-        }
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 25px; margin-bottom: 40px;">
+        <!-- Doctor Roster Section -->
+        <div style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%); border: 2px solid rgba(59, 130, 246, 0.3); border-radius: 12px; padding: 25px;">
+          <h2 style="color: var(--primary-500); margin: 0 0 20px 0; font-size: 1.3rem;">👨‍⚕️ Doctor Roster</h2>
+          
+          <div style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Doctor Name</label>
+            <input type="text" id="doctorName" placeholder="Enter doctor name" style="width: 100%; padding: 10px 12px; background: rgba(255, 255, 255, 0.08); border: 2px solid rgba(59, 130, 246, 0.3); border-radius: 8px; color: var(--text); font-family: Poppins, sans-serif;">
+          </div>
 
-        .admin-logout {
-            background: rgba(255, 255, 255, 0.2);
-            border: 2px solid white;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+            <div>
+              <label style="display: block; margin-bottom: 8px; font-weight: 500;">Department</label>
+              <input type="text" id="doctorDept" placeholder="e.g., Cardiology" style="width: 100%; padding: 10px 12px; background: rgba(255, 255, 255, 0.08); border: 2px solid rgba(59, 130, 246, 0.3); border-radius: 8px; color: var(--text); font-family: Poppins, sans-serif;">
+            </div>
+            <div>
+              <label style="display: block; margin-bottom: 8px; font-weight: 500;">Title</label>
+              <input type="text" id="doctorTitle" placeholder="e.g., MBBS, MD" style="width: 100%; padding: 10px 12px; background: rgba(255, 255, 255, 0.08); border: 2px solid rgba(59, 130, 246, 0.3); border-radius: 8px; color: var(--text); font-family: Poppins, sans-serif;">
+            </div>
+          </div>
 
-        .admin-logout:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateY(-2px);
-        }
+          <div style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Hours</label>
+            <input type="text" id="doctorHours" placeholder="e.g., 9 AM - 5 PM" style="width: 100%; padding: 10px 12px; background: rgba(255, 255, 255, 0.08); border: 2px solid rgba(59, 130, 246, 0.3); border-radius: 8px; color: var(--text); font-family: Poppins, sans-serif;">
+          </div>
 
-        .admin-content {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
+          <button id="addDoctorBtn" style="width: 100%; background: linear-gradient(135deg, var(--primary-500) 0%, var(--accent) 100%); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer;">Add Doctor</button>
 
-        .admin-section {
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%);
-            border: 2px solid rgba(59, 130, 246, 0.3);
-            border-radius: 12px;
-            padding: 25px;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-        }
-
-        .section-title {
-            font-size: 1.5rem;
-            color: #3b82f6;
-            margin-bottom: 20px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .section-title::before {
-            content: '';
-            display: inline-block;
-            width: 4px;
-            height: 24px;
-            background: linear-gradient(135deg, #3b82f6 0%, #a855f7 100%);
-            border-radius: 2px;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #e5e7eb;
-            font-weight: 500;
-            font-size: 0.95rem;
-        }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 10px 12px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid rgba(59, 130, 246, 0.3);
-            border-radius: 8px;
-            color: #e5e7eb;
-            font-family: 'Inter', sans-serif;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            outline: none;
-            background: rgba(255, 255, 255, 0.15);
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-
-        .form-group textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #3b82f6 0%, #a855f7 100%);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            width: 100%;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
-        }
-
-        .btn-primary:active {
-            transform: translateY(0);
-        }
-
-        .btn-small {
-            padding: 8px 16px;
-            font-size: 0.9rem;
-            width: auto;
-            margin-right: 8px;
-            margin-bottom: 8px;
-        }
-
-        .btn-danger {
-            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-        }
-
-        .btn-danger:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
-        }
-
-        .item-list {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 8px;
-            max-height: 300px;
-            overflow-y: auto;
-            padding: 0;
-        }
-
-        .item-list-empty {
-            padding: 20px;
-            text-align: center;
-            color: #9ca3af;
-        }
-
-        .item-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 15px;
-            border-bottom: 1px solid rgba(59, 130, 246, 0.2);
-            color: #e5e7eb;
-        }
-
-        .item-row:last-child {
-            border-bottom: none;
-        }
-
-        .item-row:hover {
-            background: rgba(59, 130, 246, 0.1);
-        }
-
-        .item-info {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .item-info-text {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .item-info-text strong {
-            color: #3b82f6;
-        }
-
-        .item-actions {
-            display: flex;
-            gap: 8px;
-        }
-
-        .btn-edit {
-            background: #3b82f6;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.85rem;
-            transition: all 0.3s ease;
-        }
-
-        .btn-edit:hover {
-            background: #2563eb;
-            transform: translateY(-1px);
-        }
-
-        .two-column {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
-        .pharmacy-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 15px;
-            margin-top: 15px;
-        }
-
-        .medicine-card {
-            background: rgba(59, 130, 246, 0.1);
-            border: 2px solid rgba(59, 130, 246, 0.3);
-            border-radius: 8px;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            min-height: 140px;
-        }
-
-        .medicine-name {
-            font-weight: 600;
-            color: #3b82f6;
-            margin-bottom: 8px;
-            word-break: break-word;
-        }
-
-        .medicine-dosage {
-            color: #9ca3af;
-            font-size: 0.9rem;
-            margin-bottom: 12px;
-        }
-
-        .medicine-actions {
-            display: flex;
-            gap: 8px;
-        }
-
-        .card-section {
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(168, 85, 247, 0.15) 100%);
-            border: 2px solid rgba(59, 130, 246, 0.3);
-            border-radius: 12px;
-            padding: 25px;
-            grid-column: 1 / -1;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-        }
-
-        .stat-card {
-            background: rgba(59, 130, 246, 0.1);
-            border: 2px solid rgba(59, 130, 246, 0.3);
-            border-radius: 8px;
-            padding: 15px;
-            text-align: center;
-            color: #e5e7eb;
-        }
-
-        .stat-value {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #3b82f6;
-            margin-bottom: 5px;
-        }
-
-        .stat-label {
-            font-size: 0.9rem;
-            color: #9ca3af;
-        }
-
-        .toast {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white;
-            padding: 16px 24px;
-            border-radius: 8px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-            animation: slideIn 0.3s ease;
-            z-index: 1000;
-        }
-
-        .toast.error {
-            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateX(400px);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .admin-header {
-                flex-direction: column;
-                gap: 15px;
-                text-align: center;
-            }
-
-            .admin-header h1 {
-                font-size: 1.5rem;
-            }
-
-            .two-column {
-                grid-template-columns: 1fr;
-            }
-
-            .admin-content {
-                grid-template-columns: 1fr;
-            }
-
-            .pharmacy-list {
-                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="admin-container">
-        <div class="admin-header">
-            <h1>👨‍💼 Admin Dashboard</h1>
-            <button class="admin-logout" id="adminLogout">Logout</button>
+          <div id="doctorList" style="background: rgba(0, 0, 0, 0.2); border-radius: 8px; max-height: 300px; overflow-y: auto; margin-top: 15px;"></div>
         </div>
 
-        <div class="admin-content">
-            <!-- Doctor Roster Section -->
-            <div class="admin-section">
-                <div class="section-title">👨‍⚕️ Doctor Roster</div>
-                
-                <div class="form-group">
-                    <label>Doctor Name</label>
-                    <input type="text" id="doctorName" placeholder="Enter doctor name">
-                </div>
+        <!-- Ambulance Section -->
+        <div style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%); border: 2px solid rgba(59, 130, 246, 0.3); border-radius: 12px; padding: 25px;">
+          <h2 style="color: var(--primary-500); margin: 0 0 20px 0; font-size: 1.3rem;">🚑 Ambulance</h2>
+          
+          <div style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Ambulance Name</label>
+            <input type="text" id="ambulanceName" placeholder="Enter ambulance name" style="width: 100%; padding: 10px 12px; background: rgba(255, 255, 255, 0.08); border: 2px solid rgba(59, 130, 246, 0.3); border-radius: 8px; color: var(--text); font-family: Poppins, sans-serif;">
+          </div>
 
-                <div class="two-column">
-                    <div class="form-group">
-                        <label>Department</label>
-                        <input type="text" id="doctorDept" placeholder="e.g., Cardiology">
-                    </div>
-                    <div class="form-group">
-                        <label>Title</label>
-                        <input type="text" id="doctorTitle" placeholder="e.g., MBBS, MD">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Availability (Hours)</label>
-                    <input type="text" id="doctorHours" placeholder="e.g., 9AM - 5PM">
-                </div>
-
-                <button class="btn-primary" id="addDoctorBtn">Add Doctor</button>
-
-                <div class="item-list" id="doctorList" style="margin-top: 15px;"></div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+            <div>
+              <label style="display: block; margin-bottom: 8px; font-weight: 500;">Driver</label>
+              <input type="text" id="ambulanceDriver" placeholder="Driver name" style="width: 100%; padding: 10px 12px; background: rgba(255, 255, 255, 0.08); border: 2px solid rgba(59, 130, 246, 0.3); border-radius: 8px; color: var(--text); font-family: Poppins, sans-serif;">
             </div>
-
-            <!-- Ambulance Roster Section -->
-            <div class="admin-section">
-                <div class="section-title">🚑 Ambulance Roster</div>
-                
-                <div class="form-group">
-                    <label>Ambulance ID</label>
-                    <input type="text" id="ambulanceId" placeholder="e.g., AMB-001">
-                </div>
-
-                <div class="two-column">
-                    <div class="form-group">
-                        <label>Status</label>
-                        <select id="ambulanceStatus">
-                            <option value="">Select Status</option>
-                            <option value="Available">Available</option>
-                            <option value="On Duty">On Duty</option>
-                            <option value="Maintenance">Maintenance</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Contact Number</label>
-                        <input type="tel" id="ambulanceContact" placeholder="e.g., +880-1XXX-XXXXXX">
-                    </div>
-                </div>
-
-                <button class="btn-primary" id="addAmbulanceBtn">Add Ambulance</button>
-
-                <div class="item-list" id="ambulanceList" style="margin-top: 15px;"></div>
+            <div>
+              <label style="display: block; margin-bottom: 8px; font-weight: 500;">Contact</label>
+              <input type="text" id="ambulanceContact" placeholder="Contact number" style="width: 100%; padding: 10px 12px; background: rgba(255, 255, 255, 0.08); border: 2px solid rgba(59, 130, 246, 0.3); border-radius: 8px; color: var(--text); font-family: Poppins, sans-serif;">
             </div>
+          </div>
 
-            <!-- Test Kits Availability -->
-            <div class="admin-section">
-                <div class="section-title">🧪 Test Kits</div>
-                
-                <div class="form-group">
-                    <label>Dengue Test - Available Kits</label>
-                    <input type="number" id="denguKits" min="0" value="0" placeholder="0">
-                </div>
+          <button id="addAmbulanceBtn" style="width: 100%; background: linear-gradient(135deg, var(--primary-500) 0%, var(--accent) 100%); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer;">Add Ambulance</button>
 
-                <div class="form-group">
-                    <label>COVID-19 Test - Available Kits</label>
-                    <input type="number" id="covidKits" min="0" value="0" placeholder="0">
-                </div>
-
-                <div class="form-group">
-                    <label>Malaria Test - Available Kits</label>
-                    <input type="number" id="malariaKits" min="0" value="0" placeholder="0">
-                </div>
-
-                <div class="form-group">
-                    <label>Blood Group Test - Available Kits</label>
-                    <input type="number" id="bloodGroupKits" min="0" value="0" placeholder="0">
-                </div>
-
-                <button class="btn-primary" id="updateTestKitsBtn">Update Test Kits</button>
-
-                <div id="testKitsSummary" style="margin-top: 15px; display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px;"></div>
-            </div>
-
-            <!-- Bed Availability -->
-            <div class="admin-section">
-                <div class="section-title">🛏️ Bed Availability</div>
-                
-                <div class="form-group">
-                    <label>Total Available Beds</label>
-                    <div style="display: flex; gap: 10px; align-items: center;">
-                        <button class="btn-danger" id="bedDecreaseBtn">-</button>
-                        <input type="number" id="bedCount" min="0" value="0" readonly style="text-align: center; background: rgba(0,0,0,0.3);">
-                        <button class="btn-primary" id="bedIncreaseBtn" style="width: auto; padding: 12px 24px;">+</button>
-                    </div>
-                </div>
-
-                <button class="btn-primary" id="updateBedsBtn" style="margin-top: 15px;">Update Beds</button>
-
-                <div id="bedSummary" style="margin-top: 15px;">
-                    <div class="stat-card">
-                        <div class="stat-value" id="bedValue">0</div>
-                        <div class="stat-label">Available Beds</div>
-                    </div>
-                </div>
-            </div>
+          <div id="ambulanceList" style="background: rgba(0, 0, 0, 0.2); border-radius: 8px; max-height: 300px; overflow-y: auto; margin-top: 15px;"></div>
         </div>
 
-        <!-- Pharmacy Management Section -->
-        <div class="card-section">
-            <div class="section-title">💊 Pharmacy Management</div>
+        <!-- Test Kits Section -->
+        <div style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%); border: 2px solid rgba(59, 130, 246, 0.3); border-radius: 12px; padding: 25px;">
+          <h2 style="color: var(--primary-500); margin: 0 0 20px 0; font-size: 1.3rem;">🧪 Test Kits Inventory</h2>
+          
+          <div style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Dengue</label>
+            <input type="number" id="denguKits" placeholder="Quantity" style="width: 100%; padding: 10px 12px; background: rgba(255, 255, 255, 0.08); border: 2px solid rgba(59, 130, 246, 0.3); border-radius: 8px; color: var(--text); font-family: Poppins, sans-serif;">
+          </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
-                <div class="form-group">
-                    <label>Medicine Name</label>
-                    <input type="text" id="medicineName" placeholder="e.g., Paracetamol">
-                </div>
-                <div class="form-group">
-                    <label>Dosage (mg)</label>
-                    <input type="text" id="medicineDosage" placeholder="e.g., 500mg">
-                </div>
-            </div>
+          <div style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 500;">COVID-19</label>
+            <input type="number" id="covidKits" placeholder="Quantity" style="width: 100%; padding: 10px 12px; background: rgba(255, 255, 255, 0.08); border: 2px solid rgba(59, 130, 246, 0.3); border-radius: 8px; color: var(--text); font-family: Poppins, sans-serif;">
+          </div>
 
-            <button class="btn-primary" id="addMedicineBtn" style="margin-bottom: 20px;">Add Medicine</button>
+          <div style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Malaria</label>
+            <input type="number" id="malariaKits" placeholder="Quantity" style="width: 100%; padding: 10px 12px; background: rgba(255, 255, 255, 0.08); border: 2px solid rgba(59, 130, 246, 0.3); border-radius: 8px; color: var(--text); font-family: Poppins, sans-serif;">
+          </div>
 
-            <div class="pharmacy-list" id="pharmacyList"></div>
+          <div style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Blood Group</label>
+            <input type="number" id="bloodGroupKits" placeholder="Quantity" style="width: 100%; padding: 10px 12px; background: rgba(255, 255, 255, 0.08); border: 2px solid rgba(59, 130, 246, 0.3); border-radius: 8px; color: var(--text); font-family: Poppins, sans-serif;">
+          </div>
+
+          <button id="saveTestKitsBtn" style="width: 100%; background: linear-gradient(135deg, var(--primary-500) 0%, var(--accent) 100%); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer;">Save Inventory</button>
         </div>
+
+        <!-- Beds Section -->
+        <div style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%); border: 2px solid rgba(59, 130, 246, 0.3); border-radius: 12px; padding: 25px;">
+          <h2 style="color: var(--primary-500); margin: 0 0 20px 0; font-size: 1.3rem;">🛏️ Bed Availability</h2>
+          
+          <div style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Available Beds</label>
+            <input type="number" id="availableBeds" placeholder="Number of beds" style="width: 100%; padding: 10px 12px; background: rgba(255, 255, 255, 0.08); border: 2px solid rgba(59, 130, 246, 0.3); border-radius: 8px; color: var(--text); font-family: Poppins, sans-serif;">
+          </div>
+
+          <button id="saveBedsBtn" style="width: 100%; background: linear-gradient(135deg, var(--primary-500) 0%, var(--accent) 100%); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer;">Save Bed Info</button>
+        </div>
+
+        <!-- Pharmacy Section -->
+        <div style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%); border: 2px solid rgba(59, 130, 246, 0.3); border-radius: 12px; padding: 25px; grid-column: 1 / -1;">
+          <h2 style="color: var(--primary-500); margin: 0 0 20px 0; font-size: 1.3rem;">💊 Pharmacy</h2>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+            <div>
+              <label style="display: block; margin-bottom: 8px; font-weight: 500;">Medicine Name</label>
+              <input type="text" id="medicineName" placeholder="Enter medicine name" style="width: 100%; padding: 10px 12px; background: rgba(255, 255, 255, 0.08); border: 2px solid rgba(59, 130, 246, 0.3); border-radius: 8px; color: var(--text); font-family: Poppins, sans-serif;">
+            </div>
+            <div>
+              <label style="display: block; margin-bottom: 8px; font-weight: 500;">Dosage</label>
+              <input type="text" id="medicineDosage" placeholder="e.g., 500mg" style="width: 100%; padding: 10px 12px; background: rgba(255, 255, 255, 0.08); border: 2px solid rgba(59, 130, 246, 0.3); border-radius: 8px; color: var(--text); font-family: Poppins, sans-serif;">
+            </div>
+          </div>
+
+          <button id="addMedicineBtn" style="width: 100%; background: linear-gradient(135deg, var(--primary-500) 0%, var(--accent) 100%); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; margin-bottom: 20px;">Add Medicine</button>
+
+          <div id="pharmacyList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;"></div>
+        </div>
+      </div>
     </div>
+  </main>
 
-    <script>
-        // Hardcoded admin credentials
-        const ADMIN_CREDENTIALS = {
-            username: 'admin',
-            password: 'admin123'
-        };
-
-        // Check if user is logged in as admin
-        window.addEventListener('load', () => {
-            const user = JSON.parse(localStorage.getItem('user') || '{}');
-            const token = localStorage.getItem('access_token');
-            
-            if (!user.role || user.role !== 'admin' || !token) {
-                window.location.href = 'login.html';
-            }
-            loadAdminData();
-        });
-
-        // Logout functionality
-        document.getElementById('adminLogout').addEventListener('click', () => {
-            localStorage.removeItem('user');
-            localStorage.removeItem('access_token');
-            window.location.href = 'login.html';
-        });
-
-        function getHeaders() {
-            return {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('access_token')}`
-            };
+  <script src="assets/js/app.js"></script>
+  <script>
+    // Basic role guard for admins
+    (function () {
+      setTimeout(() => {
+        console.log('[ADMIN AUTH] Checking authentication...');
+        const userStr = localStorage.getItem('user');
+        const token = localStorage.getItem('access_token');
+        
+        if (!userStr || !token) {
+          console.log('[ADMIN AUTH] Missing credentials, redirecting to login');
+          window.location.href = 'login.html';
+          return;
         }
         
-        const API_URL = 'http://127.0.0.1:8000/api';
-
-        // Load all admin data from backend
-        function loadAdminData() {
-            loadDoctors();
-            loadAmbulances();
-            loadTestKits();
-            loadBeds();
-            loadPharmacy();
+        const user = JSON.parse(userStr);
+        console.log('[ADMIN AUTH] User role:', user.role);
+        
+        if (!user.role || user.role !== 'admin') {
+          console.log('[ADMIN AUTH] User is not admin, redirecting to login');
+          window.location.href = 'login.html';
+          return;
         }
+        
+        console.log('[ADMIN AUTH] User authenticated as admin, loading data');
+        loadAdminData();
+      }, 100);
+    })();
 
-        // ===== DOCTOR ROSTER =====
-        async function loadDoctors() {
-            const list = document.getElementById('doctorList');
-            try {
-                const res = await fetch(`${API_URL}/roster/doctors/`, { headers: getHeaders() });
-                const doctors = await res.json();
-                if (doctors.length === 0) {
-                    list.innerHTML = '<div class="item-list-empty">No doctors added yet</div>';
-                    return;
-                }
-                list.innerHTML = doctors.map(doc => `
-                    <div class="item-row">
-                        <div class="item-info">
-                            <div class="item-info-text">
-                                <strong>${doc.name}</strong>
-                                <span>${doc.dept} - ${doc.title}</span>
-                                <span style="color: #9ca3af; font-size: 0.85rem;">${doc.hours}</span>
-                            </div>
-                        </div>
-                        <button class="btn-danger" onclick="removeDoctor(${doc.id})">Delete</button>
-                    </div>
-                `).join('');
-            } catch (err) {
-                console.error(err);
-            }
+    function getHeaders() {
+      return {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+      };
+    }
+    
+    const API_URL = 'http://127.0.0.1:8000/api';
+
+    function loadAdminData() {
+      loadDoctors();
+      loadAmbulances();
+      loadTestKits();
+      loadBeds();
+      loadPharmacy();
+    }
+
+    // ===== DOCTOR ROSTER =====
+    async function loadDoctors() {
+      const list = document.getElementById('doctorList');
+      try {
+        const res = await fetch(`${API_URL}/roster/doctors/`, { headers: getHeaders() });
+        const doctors = await res.json();
+        if (doctors.length === 0) {
+          list.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--muted);">No doctors added yet</div>';
+          return;
         }
+        list.innerHTML = doctors.map(doc => `
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; border-bottom: 1px solid rgba(59, 130, 246, 0.2);">
+            <div>
+              <strong style="color: var(--primary-500);">${doc.name}</strong><br>
+              <span style="color: var(--muted); font-size: 0.9rem;">${doc.dept} - ${doc.title}</span><br>
+              <span style="color: var(--muted); font-size: 0.85rem;">${doc.hours}</span>
+            </div>
+            <button onclick="removeDoctor(${doc.id})" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer;">Delete</button>
+          </div>
+        `).join('');
+      } catch (err) {
+        console.error(err);
+      }
+    }
 
-        document.getElementById('addDoctorBtn').addEventListener('click', async () => {
-            const name = document.getElementById('doctorName').value.trim();
-            const dept = document.getElementById('doctorDept').value.trim();
-            const title = document.getElementById('doctorTitle').value.trim();
-            const hours = document.getElementById('doctorHours').value.trim();
+    document.getElementById('addDoctorBtn').addEventListener('click', async () => {
+      const name = document.getElementById('doctorName').value.trim();
+      const dept = document.getElementById('doctorDept').value.trim();
+      const title = document.getElementById('doctorTitle').value.trim();
+      const hours = document.getElementById('doctorHours').value.trim();
 
-            if (!name || !dept || !title || !hours) {
-                showToast('Please fill all fields', 'error');
-                return;
-            }
+      if (!name || !dept || !title || !hours) {
+        showToast('Please fill all fields', 'error');
+        return;
+      }
 
-            try {
-                await fetch(`${API_URL}/roster/doctors/`, {
-                    method: 'POST',
-                    headers: getHeaders(),
-                    body: JSON.stringify({ name, dept, title, hours })
-                });
-
-                document.getElementById('doctorName').value = '';
-                document.getElementById('doctorDept').value = '';
-                document.getElementById('doctorTitle').value = '';
-                document.getElementById('doctorHours').value = '';
-
-                loadDoctors();
-                showToast('Doctor added successfully');
-            } catch (err) {
-                showToast('Failed to add doctor', 'error');
-            }
+      try {
+        await fetch(`${API_URL}/roster/doctors/`, {
+          method: 'POST',
+          headers: getHeaders(),
+          body: JSON.stringify({ name, dept, title, hours })
         });
 
-        async function removeDoctor(id) {
-            try {
-                await fetch(`${API_URL}/roster/doctors/${id}/`, {
-                    method: 'DELETE',
-                    headers: getHeaders()
-                });
-                loadDoctors();
-                showToast('Doctor removed');
-            } catch(e) {}
+        document.getElementById('doctorName').value = '';
+        document.getElementById('doctorDept').value = '';
+        document.getElementById('doctorTitle').value = '';
+        document.getElementById('doctorHours').value = '';
+
+        loadDoctors();
+        showToast('Doctor added successfully');
+      } catch (err) {
+        showToast('Failed to add doctor', 'error');
+      }
+    });
+
+    async function removeDoctor(id) {
+      try {
+        await fetch(`${API_URL}/roster/doctors/${id}/`, {
+          method: 'DELETE',
+          headers: getHeaders()
+        });
+        loadDoctors();
+      } catch (err) {}
+    }
+
+    // ===== AMBULANCE =====
+    async function loadAmbulances() {
+      const list = document.getElementById('ambulanceList');
+      try {
+        const res = await fetch(`${API_URL}/roster/ambulances/`, { headers: getHeaders() });
+        const ambulances = await res.json();
+        if (ambulances.length === 0) {
+          list.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--muted);">No ambulances added yet</div>';
+          return;
         }
+        list.innerHTML = ambulances.map(amb => `
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; border-bottom: 1px solid rgba(59, 130, 246, 0.2);">
+            <div>
+              <strong style="color: var(--primary-500);">${amb.name}</strong><br>
+              <span style="color: var(--muted); font-size: 0.9rem;">Driver: ${amb.driver}</span><br>
+              <span style="color: var(--muted); font-size: 0.85rem;">${amb.contact}</span>
+            </div>
+            <button onclick="removeAmbulance(${amb.id})" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer;">Delete</button>
+          </div>
+        `).join('');
+      } catch (err) {
+        console.error(err);
+      }
+    }
 
-        // ===== AMBULANCE ROSTER =====
-        async function loadAmbulances() {
-            const list = document.getElementById('ambulanceList');
-            try {
-                const res = await fetch(`${API_URL}/roster/ambulances/`, { headers: getHeaders() });
-                const ambulances = await res.json();
-                if (ambulances.length === 0) {
-                    list.innerHTML = '<div class="item-list-empty">No ambulances added yet</div>';
-                    return;
-                }
-                list.innerHTML = ambulances.map(amb => `
-                    <div class="item-row">
-                        <div class="item-info">
-                            <div class="item-info-text">
-                                <strong>${amb.ambulance_id}</strong>
-                                <span style="font-weight: 600;">${amb.status}</span>
-                                <span style="color: #9ca3af; font-size: 0.85rem;">${amb.contact}</span>
-                            </div>
-                        </div>
-                        <button class="btn-danger" onclick="removeAmbulance(${amb.id})">Delete</button>
-                    </div>
-                `).join('');
-            } catch(e) {}
-        }
+    document.getElementById('addAmbulanceBtn').addEventListener('click', async () => {
+      const name = document.getElementById('ambulanceName').value.trim();
+      const driver = document.getElementById('ambulanceDriver').value.trim();
+      const contact = document.getElementById('ambulanceContact').value.trim();
 
-        document.getElementById('addAmbulanceBtn').addEventListener('click', async () => {
-            const ambulance_id = document.getElementById('ambulanceId').value.trim();
-            const status = document.getElementById('ambulanceStatus').value.trim();
-            const contact = document.getElementById('ambulanceContact').value.trim();
+      if (!name || !driver || !contact) {
+        showToast('Please fill all fields', 'error');
+        return;
+      }
 
-            if (!ambulance_id || !status || !contact) {
-                showToast('Please fill all fields', 'error');
-                return;
-            }
-
-            try {
-                await fetch(`${API_URL}/roster/ambulances/`, {
-                    method: 'POST',
-                    headers: getHeaders(),
-                    body: JSON.stringify({ ambulance_id, status, contact })
-                });
-
-                document.getElementById('ambulanceId').value = '';
-                document.getElementById('ambulanceStatus').value = '';
-                document.getElementById('ambulanceContact').value = '';
-
-                loadAmbulances();
-                showToast('Ambulance added successfully');
-            } catch(e) { showToast('Error', 'error'); }
+      try {
+        await fetch(`${API_URL}/roster/ambulances/`, {
+          method: 'POST',
+          headers: getHeaders(),
+          body: JSON.stringify({ name, driver, contact })
         });
 
-        async function removeAmbulance(id) {
-            try {
-                await fetch(`${API_URL}/roster/ambulances/${id}/`, {
-                    method: 'DELETE',
-                    headers: getHeaders()
-                });
-                loadAmbulances();
-                showToast('Ambulance removed');
-            } catch(e) {}
-        }
+        document.getElementById('ambulanceName').value = '';
+        document.getElementById('ambulanceDriver').value = '';
+        document.getElementById('ambulanceContact').value = '';
 
-        // ===== TEST KITS + BED AVAILABILITY (BACKEND) =====
-        const INVENTORY_NAMES = {
-            dengue: 'Dengue Test Kit',
-            covid: 'COVID-19 Test Kit',
-            malaria: 'Malaria Test Kit',
-            bloodGroup: 'Blood Group Test Kit',
-            beds: 'Available Beds'
+        loadAmbulances();
+        showToast('Ambulance added successfully');
+      } catch (err) {
+        showToast('Failed to add ambulance', 'error');
+      }
+    });
+
+    async function removeAmbulance(id) {
+      try {
+        await fetch(`${API_URL}/roster/ambulances/${id}/`, {
+          method: 'DELETE',
+          headers: getHeaders()
+        });
+        loadAmbulances();
+      } catch (err) {}
+    }
+
+    // ===== TEST KITS =====
+    async function loadTestKits() {
+      try {
+        const res = await fetch(`${API_URL}/records/inventory/`, { headers: getHeaders() });
+        const inventory = await res.json();
+        const kits = inventory.filter(item => item.item_type === 'kit');
+
+        const getQty = (name) => {
+          const found = kits.find(k => k.name === name);
+          return found ? Number(found.quantity) || 0 : 0;
         };
 
-        async function fetchInventory() {
-            const res = await fetch(`${API_URL}/records/inventory/`, { headers: getHeaders() });
-            if (!res.ok) throw new Error('Failed to load inventory');
-            return res.json();
+        document.getElementById('denguKits').value = getQty('Dengue Test Kit');
+        document.getElementById('covidKits').value = getQty('COVID-19 Test Kit');
+        document.getElementById('malariaKits').value = getQty('Malaria Test Kit');
+        document.getElementById('bloodGroupKits').value = getQty('Blood Group Test Kit');
+      } catch (e) {
+        showToast('Failed to load test kits', 'error');
+      }
+    }
+
+    document.getElementById('saveTestKitsBtn').addEventListener('click', async () => {
+      const kits = [
+        { name: 'Dengue Test Kit', qty: document.getElementById('denguKits').value },
+        { name: 'COVID-19 Test Kit', qty: document.getElementById('covidKits').value },
+        { name: 'Malaria Test Kit', qty: document.getElementById('malariaKits').value },
+        { name: 'Blood Group Test Kit', qty: document.getElementById('bloodGroupKits').value }
+      ];
+
+      try {
+        for (let kit of kits) {
+          await fetch(`${API_URL}/records/inventory/`, {
+            method: 'POST',
+            headers: getHeaders(),
+            body: JSON.stringify({ item_type: 'kit', name: kit.name, quantity: kit.qty })
+          });
         }
+        showToast('Test kits inventory updated');
+      } catch (e) {
+        showToast('Failed to save inventory', 'error');
+      }
+    });
 
-        async function upsertInventoryItem(existingItems, payload) {
-            const existing = existingItems.find(item => item.item_type === payload.item_type && item.name === payload.name);
-            if (existing) {
-                const res = await fetch(`${API_URL}/records/inventory/${existing.id}/`, {
-                    method: 'PATCH',
-                    headers: getHeaders(),
-                    body: JSON.stringify(payload)
-                });
-                if (!res.ok) throw new Error('Failed to update inventory item');
-                return;
-            }
+    // ===== BEDS =====
+    async function loadBeds() {
+      try {
+        const res = await fetch(`${API_URL}/records/inventory/`, { headers: getHeaders() });
+        const inventory = await res.json();
+        const bed = inventory.find(item => item.item_type === 'bed');
+        document.getElementById('availableBeds').value = bed ? Number(bed.quantity) || 0 : 0;
+      } catch (e) {
+        showToast('Failed to load bed info', 'error');
+      }
+    }
 
-            const createRes = await fetch(`${API_URL}/records/inventory/`, {
-                method: 'POST',
-                headers: getHeaders(),
-                body: JSON.stringify(payload)
-            });
-            if (!createRes.ok) throw new Error('Failed to create inventory item');
+    document.getElementById('saveBedsBtn').addEventListener('click', async () => {
+      const beds = document.getElementById('availableBeds').value;
+      try {
+        await fetch(`${API_URL}/records/inventory/`, {
+          method: 'POST',
+          headers: getHeaders(),
+          body: JSON.stringify({ item_type: 'bed', name: 'Available Beds', quantity: beds })
+        });
+        showToast('Bed availability updated');
+      } catch (e) {
+        showToast('Failed to save beds', 'error');
+      }
+    });
+
+    // ===== PHARMACY =====
+    async function loadPharmacy() {
+      const list = document.getElementById('pharmacyList');
+      try {
+        const res = await fetch(`${API_URL}/records/medicines/`, { headers: getHeaders() });
+        const medicines = await res.json();
+        if (medicines.length === 0) {
+          list.innerHTML = '<div style="grid-column: 1 / -1; padding: 20px; text-align: center; color: var(--muted);">No medicines added yet</div>';
+          return;
         }
+        list.innerHTML = medicines.map(med => `
+          <div style="background: rgba(59, 130, 246, 0.1); border: 2px solid rgba(59, 130, 246, 0.3); border-radius: 8px; padding: 16px;">
+            <strong style="color: var(--primary-500);">${med.name}</strong><br>
+            <span style="color: var(--muted); font-size: 0.9rem;">${med.dosage}</span><br>
+            <button onclick="removeMedicine(${med.id})" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; margin-top: 10px; width: 100%;">Delete</button>
+          </div>
+        `).join('');
+      } catch (err) {
+        console.error(err);
+      }
+    }
 
-        async function loadTestKits() {
-            try {
-                const inventory = await fetchInventory();
-                const kits = inventory.filter(item => item.item_type === 'kit');
+    document.getElementById('addMedicineBtn').addEventListener('click', async () => {
+      const name = document.getElementById('medicineName').value.trim();
+      const dosage = document.getElementById('medicineDosage').value.trim();
 
-                const getQty = (name) => {
-                    const found = kits.find(k => k.name === name);
-                    return found ? Number(found.quantity) || 0 : 0;
-                };
+      if (!name || !dosage) {
+        showToast('Please fill all fields', 'error');
+        return;
+      }
 
-                document.getElementById('denguKits').value = getQty(INVENTORY_NAMES.dengue);
-                document.getElementById('covidKits').value = getQty(INVENTORY_NAMES.covid);
-                document.getElementById('malariaKits').value = getQty(INVENTORY_NAMES.malaria);
-                document.getElementById('bloodGroupKits').value = getQty(INVENTORY_NAMES.bloodGroup);
-
-                updateTestKitsSummary();
-            } catch (e) {
-                showToast('Failed to load test kits from backend', 'error');
-            }
-        }
-
-        function updateTestKitsSummary() {
-            const testKits = {
-                dengue: parseInt(document.getElementById('denguKits').value) || 0,
-                covid: parseInt(document.getElementById('covidKits').value) || 0,
-                malaria: parseInt(document.getElementById('malariaKits').value) || 0,
-                bloodGroup: parseInt(document.getElementById('bloodGroupKits').value) || 0
-            };
-
-            const summary = document.getElementById('testKitsSummary');
-            summary.innerHTML = `
-                <div class="stat-card">
-                    <div class="stat-value">${testKits.dengue}</div>
-                    <div class="stat-label">Dengue</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value">${testKits.covid}</div>
-                    <div class="stat-label">COVID-19</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value">${testKits.malaria}</div>
-                    <div class="stat-label">Malaria</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value">${testKits.bloodGroup}</div>
-                    <div class="stat-label">Blood Group</div>
-                </div>
-            `;
-        }
-
-        document.getElementById('updateTestKitsBtn').addEventListener('click', async () => {
-            const testKits = {
-                dengue: parseInt(document.getElementById('denguKits').value) || 0,
-                covid: parseInt(document.getElementById('covidKits').value) || 0,
-                malaria: parseInt(document.getElementById('malariaKits').value) || 0,
-                bloodGroup: parseInt(document.getElementById('bloodGroupKits').value) || 0
-            };
-
-            try {
-                const inventory = await fetchInventory();
-                await upsertInventoryItem(inventory, {
-                    item_type: 'kit',
-                    name: INVENTORY_NAMES.dengue,
-                    quantity: testKits.dengue
-                });
-                await upsertInventoryItem(inventory, {
-                    item_type: 'kit',
-                    name: INVENTORY_NAMES.covid,
-                    quantity: testKits.covid
-                });
-                await upsertInventoryItem(inventory, {
-                    item_type: 'kit',
-                    name: INVENTORY_NAMES.malaria,
-                    quantity: testKits.malaria
-                });
-                await upsertInventoryItem(inventory, {
-                    item_type: 'kit',
-                    name: INVENTORY_NAMES.bloodGroup,
-                    quantity: testKits.bloodGroup
-                });
-
-                updateTestKitsSummary();
-                showToast('Test kits updated in backend');
-            } catch (e) {
-                showToast('Failed to update test kits', 'error');
-            }
+      try {
+        await fetch(`${API_URL}/records/medicines/`, {
+          method: 'POST',
+          headers: getHeaders(),
+          body: JSON.stringify({ name, dosage })
         });
 
-        // ===== BED AVAILABILITY =====
-        async function loadBeds() {
-            try {
-                const inventory = await fetchInventory();
-                const bedItems = inventory.filter(item => item.item_type === 'bed');
-                const bedTotal = bedItems.reduce((sum, item) => sum + (Number(item.quantity) || 0), 0);
-                document.getElementById('bedCount').value = bedTotal;
-                document.getElementById('bedValue').textContent = bedTotal;
-            } catch (e) {
-                showToast('Failed to load bed availability', 'error');
-            }
-        }
+        document.getElementById('medicineName').value = '';
+        document.getElementById('medicineDosage').value = '';
+        loadPharmacy();
+        showToast('Medicine added successfully');
+      } catch (err) {
+        showToast('Failed to add medicine', 'error');
+      }
+    });
 
-        document.getElementById('bedIncreaseBtn').addEventListener('click', () => {
-            const current = parseInt(document.getElementById('bedCount').value) || 0;
-            document.getElementById('bedCount').value = current + 1;
+    async function removeMedicine(id) {
+      try {
+        await fetch(`${API_URL}/records/medicines/${id}/`, {
+          method: 'DELETE',
+          headers: getHeaders()
         });
+        loadPharmacy();
+      } catch (err) {}
+    }
 
-        document.getElementById('bedDecreaseBtn').addEventListener('click', () => {
-            const current = parseInt(document.getElementById('bedCount').value) || 0;
-            if (current > 0) {
-                document.getElementById('bedCount').value = current - 1;
-            }
-        });
+    // Toast notification
+    function showToast(message, type = 'success') {
+      const toast = document.createElement('div');
+      const bgColor = type === 'error' ? '#ef4444' : '#10b981';
+      toast.textContent = message;
+      toast.style.cssText = `position: fixed; bottom: 20px; right: 20px; background: ${bgColor}; color: white; padding: 16px 24px; border-radius: 8px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2); z-index: 1000;`;
+      document.body.appendChild(toast);
 
-        document.getElementById('updateBedsBtn').addEventListener('click', async () => {
-            const beds = parseInt(document.getElementById('bedCount').value) || 0;
-
-            try {
-                const inventory = await fetchInventory();
-                await upsertInventoryItem(inventory, {
-                    item_type: 'bed',
-                    name: INVENTORY_NAMES.beds,
-                    quantity: beds
-                });
-                document.getElementById('bedValue').textContent = beds;
-                showToast('Bed availability updated in backend');
-            } catch (e) {
-                showToast('Failed to update bed availability', 'error');
-            }
-        });
-
-        // ===== PHARMACY =====
-        async function loadPharmacy() {
-            const list = document.getElementById('pharmacyList');
-            try {
-                const res = await fetch(`${API_URL}/records/medicines/`, { headers: getHeaders() });
-                const medicines = await res.json();
-                if (medicines.length === 0) {
-                    list.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #9ca3af; padding: 20px;">No medicines added yet</div>';
-                    return;
-                }
-                list.innerHTML = medicines.map(med => `
-                    <div class="medicine-card">
-                        <div>
-                            <div class="medicine-name">${med.name}</div>
-                            <div class="medicine-dosage">${med.dosage}</div>
-                        </div>
-                        <button class="btn-danger" style="width: 100%;" onclick="removeMedicine(${med.id})">Remove</button>
-                    </div>
-                `).join('');
-            } catch(e) {}
-        }
-
-        document.getElementById('addMedicineBtn').addEventListener('click', async () => {
-            const name = document.getElementById('medicineName').value.trim();
-            const dosage = document.getElementById('medicineDosage').value.trim();
-
-            if (!name || !dosage) {
-                showToast('Please fill all fields', 'error');
-                return;
-            }
-
-            try {
-                await fetch(`${API_URL}/records/medicines/`, {
-                    method: 'POST',
-                    headers: getHeaders(),
-                    body: JSON.stringify({ name, dosage })
-                });
-
-                document.getElementById('medicineName').value = '';
-                document.getElementById('medicineDosage').value = '';
-                loadPharmacy();
-                showToast('Medicine added successfully');
-            } catch(e) { showToast('Error', 'error'); }
-        });
-
-        async function removeMedicine(id) {
-            try {
-                await fetch(`${API_URL}/records/medicines/${id}/`, {
-                    method: 'DELETE',
-                    headers: getHeaders()
-                });
-                loadPharmacy();
-                showToast('Medicine removed');
-            } catch(e) {}
-        }
-
-        // Toast notification
-        function showToast(message, type = 'success') {
-            const toast = document.createElement('div');
-            toast.className = `toast ${type === 'error' ? 'error' : ''}`;
-            toast.textContent = message;
-            document.body.appendChild(toast);
-
-            setTimeout(() => {
-                toast.style.animation = 'slideOut 0.3s ease forwards';
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
-        }
-
-        // Update summary displays when inputs change
-        document.getElementById('denguKits').addEventListener('input', updateTestKitsSummary);
-        document.getElementById('covidKits').addEventListener('input', updateTestKitsSummary);
-        document.getElementById('malariaKits').addEventListener('input', updateTestKitsSummary);
-        document.getElementById('bloodGroupKits').addEventListener('input', updateTestKitsSummary);
-    </script>
+      setTimeout(() => {
+        toast.remove();
+      }, 3000);
+    }
+  </script>
 
   <footer class="site-footer">
     <div class="container">
