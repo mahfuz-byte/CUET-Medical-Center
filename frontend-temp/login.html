@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 
-<body class="auth">
+<body>
   <header class="site-header" role="banner">
     <div class="container">
       <div class="branding">
@@ -30,7 +30,8 @@
     </div>
   </header>
   
-  <div class="auth-card" role="main">
+  <main class="auth-container">
+    <div class="auth-card" role="main">
     <a href="index.html" class="logo" style="display:inline-block; margin-bottom:8px;">CUET Medical Center</a>
     <h1>Login</h1>
     <form id="loginForm">
@@ -50,13 +51,10 @@
       <button type="submit" class="btn btn-primary">Login</button>
     </form>
     <p id="loginStatus" class="note" role="status" aria-live="polite">
-      <strong>Demo Credentials:</strong><br>
-      Admin: Email <strong>admin@example.com</strong>, Password <strong>admin123</strong><br>
-      Doctor: Email <strong>doctor@example.com</strong>, Password <strong>doctor123</strong><br>
-      Student: Email <strong>student@example.com</strong>, Password <strong>student123</strong><br>
       Select the correct role and login to be redirected to your dashboard.
     </p>
-  </div>
+    </div>
+  </main>
 
   <footer class="site-footer">
     <div class="container">
@@ -104,7 +102,8 @@
     </div>
   </footer>
 
-  <script src="assets/js/api-client.js"></script>`r`n  <script src="assets/js/app.js"></script>
+  <script src="assets/js/api-client.js"></script>
+  <script src="assets/js/app.js"></script>
 </body>
 
 </html>
