@@ -6,6 +6,245 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Login | CUET Medical Center</title>
   <link rel="stylesheet" href="assets/css/styles.css">
+  <style>
+    .tab-toggle {
+      display: flex;
+      gap: 0;
+      margin-bottom: 24px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      padding: 4px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 12px 16px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 15px;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .tab-btn.active {
+      background: var(--primary-500);
+      color: white;
+    }
+
+    .form-container {
+      display: none;
+    }
+
+    .form-container.active {
+      display: block;
+    }
+
+    .form-section h2 {
+      margin: 0 0 16px 0;
+      font-size: 20px;
+      color: #fff;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text);
+      font-size: 14px;
+      font-family: 'Poppins', sans-serif;
+      box-sizing: border-box;
+      transition: border-color 0.2s ease;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: var(--primary-500);
+      box-shadow: 0 0 0 3px var(--ring);
+    }
+
+    .form-group input::placeholder {
+      color: #94a3b8;
+    }
+
+    .role-group {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .role-option {
+      flex: 1;
+    }
+
+    .role-option input[type="radio"] {
+      display: none;
+    }
+
+    .role-option label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin: 0;
+    }
+
+    .role-option input[type="radio"]:checked + label {
+      border-color: var(--primary-500);
+      background: rgba(59, 130, 246, 0.1);
+      color: var(--primary-500);
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 12px 16px;
+      background: var(--primary-500);
+      border: none;
+      border-radius: 10px;
+      color: white;
+      font-weight: 600;
+      font-size: 15px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-submit:hover {
+      background: var(--primary-600);
+      transform: translateY(-2px);
+    }
+
+    .btn-submit:active {
+      transform: translateY(0);
+    }
+
+    .otp-step {
+      display: none;
+    }
+
+    .otp-step.active {
+      display: block;
+    }
+
+    .step-indicator {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      justify-content: center;
+    }
+
+    .step {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      transition: all 0.3s ease;
+    }
+
+    .step.active {
+      background: var(--primary-500);
+      width: 24px;
+      border-radius: 4px;
+    }
+
+    .message {
+      padding: 12px 14px;
+      border-radius: 10px;
+      margin-bottom: 16px;
+      font-size: 14px;
+      display: none;
+    }
+
+    .message.show {
+      display: block;
+    }
+
+    .message.error {
+      background: rgba(239, 68, 68, 0.1);
+      color: #ef4444;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .message.success {
+      background: rgba(34, 197, 94, 0.1);
+      color: #22c55e;
+      border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .message.info {
+      background: rgba(59, 130, 246, 0.1);
+      color: #3b82f6;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .btn-secondary {
+      width: 100%;
+      padding: 12px 16px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--primary-500);
+      font-weight: 600;
+      font-size: 15px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-top: 12px;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--primary-500);
+      background: rgba(59, 130, 246, 0.05);
+    }
+
+    .resend-container {
+      text-align: center;
+      margin-top: 16px;
+    }
+
+    .resend-link {
+      color: var(--primary-500);
+      cursor: pointer;
+      text-decoration: underline;
+      font-size: 14px;
+    }
+
+    .resend-link:hover {
+      color: var(--primary-600);
+    }
+
+    .resend-link.disabled {
+      color: var(--muted);
+      cursor: not-allowed;
+      text-decoration: none;
+    }
+
+    .timer {
+      font-size: 12px;
+      color: var(--muted);
+      margin-left: 8px;
+    }
+  </style>
 </head>
 
 <body>
@@ -29,30 +268,153 @@
       </nav>
     </div>
   </header>
-  
+
   <main class="auth-container">
     <div class="auth-card" role="main">
-    <a href="index.html" class="logo" style="display:inline-block; margin-bottom:8px;">CUET Medical Center</a>
-    <h1>Login</h1>
-    <form id="loginForm">
-      <label>Role</label>
-      <div class="role-select">
-        <label><input type="radio" name="role" value="student" checked> Student</label>
-        <label><input type="radio" name="role" value="doctor"> Doctor</label>
-        <label><input type="radio" name="role" value="admin"> Admin</label>
+      <a href="index.html" class="logo" style="display:block; margin-bottom:16px; text-align: center; font-weight: 600; font-size: 18px; color: var(--primary-500);">CUET Medical Center</a>
+
+      <!-- Tab Toggle -->
+      <div class="tab-toggle">
+        <button class="tab-btn active" id="loginTabBtn" data-tab="login">Login</button>
+        <button class="tab-btn" id="signupTabBtn" data-tab="signup">Sign Up</button>
       </div>
-      <label for="userId">User ID</label>
-      <input id="userId" type="text" required placeholder="Enter ID" autocomplete="username">
-      <label for="password">Password</label>
-      <input id="password" type="password" required placeholder="Enter password" autocomplete="current-password">
-      <label style="display:flex; align-items:center; gap:8px; color:var(--muted); font-size:14px;">
-        <input id="showPassword" type="checkbox"> Show password
-      </label>
-      <button type="submit" class="btn btn-primary">Login</button>
-    </form>
-    <p id="loginStatus" class="note" role="status" aria-live="polite">
-      Select the correct role and login to be redirected to your dashboard.
-    </p>
+
+      <!-- LOGIN FORM -->
+      <div id="loginForm" class="form-container active">
+        <div class="form-section">
+          <h2>Welcome Back</h2>
+          <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">Login with your email and password</p>
+
+          <div id="loginMessage" class="message"></div>
+
+          <form id="loginFormElement">
+            <div class="form-group">
+              <label>Role</label>
+              <div class="role-group">
+                <div class="role-option">
+                  <input type="radio" id="loginRoleStudent" name="loginRole" value="student" checked>
+                  <label for="loginRoleStudent">Student</label>
+                </div>
+                <div class="role-option">
+                  <input type="radio" id="loginRoleDoctor" name="loginRole" value="doctor">
+                  <label for="loginRoleDoctor">Doctor</label>
+                </div>
+                <div class="role-option">
+                  <input type="radio" id="loginRoleAdmin" name="loginRole" value="admin">
+                  <label for="loginRoleAdmin">Admin</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="loginEmail">Email</label>
+              <input type="email" id="loginEmail" placeholder="your.email@cuet.ac.bd" required>
+            </div>
+
+            <div class="form-group">
+              <label for="loginPassword">Password</label>
+              <input type="password" id="loginPassword" placeholder="Enter your password" required>
+            </div>
+
+            <button type="submit" class="btn-submit">Login</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- SIGNUP FORM -->
+      <div id="signupForm" class="form-container">
+        <div class="form-section">
+          <h2>Create Account</h2>
+
+          <!-- STEP 1: Email & Role Selection -->
+          <div id="signupStep1" class="otp-step active">
+            <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">Select your role and enter your email to receive an OTP</p>
+
+            <div id="signupStep1Message" class="message"></div>
+
+            <form id="signupStep1Form">
+              <div class="form-group">
+                <label>Role</label>
+                <div class="role-group">
+                  <div class="role-option">
+                    <input type="radio" id="roleStudent" name="role" value="student" checked>
+                    <label for="roleStudent">Student</label>
+                  </div>
+                  <div class="role-option">
+                    <input type="radio" id="roleDoctor" name="role" value="doctor">
+                    <label for="roleDoctor">Doctor</label>
+                  </div>
+                  <div class="role-option">
+                    <input type="radio" id="roleAdmin" name="role" value="admin">
+                    <label for="roleAdmin">Admin</label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="signupEmail">Email</label>
+                <input type="email" id="signupEmail" placeholder="name@student.cuet.ac.bd or name@cuet.ac.bd" required>
+                <small style="color: var(--muted); font-size: 12px; display: block; margin-top: 4px;">
+                  Students: use @student.cuet.ac.bd | Doctors & Admins: use @cuet.ac.bd
+                </small>
+              </div>
+
+              <button type="submit" class="btn-submit">Send OTP</button>
+            </form>
+          </div>
+
+          <!-- STEP 2: OTP Verification -->
+          <div id="signupStep2" class="otp-step">
+            <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">Enter the 5-digit OTP sent to your email. Valid for 5 minutes.</p>
+
+            <div id="signupStep2Message" class="message"></div>
+
+            <form id="signupStep2Form">
+              <div class="form-group">
+                <label for="otpCode">OTP Code</label>
+                <input type="text" id="otpCode" placeholder="00000" maxlength="5" inputmode="numeric" required>
+              </div>
+
+              <button type="submit" class="btn-submit">Verify OTP</button>
+
+              <div class="resend-container">
+                <span class="resend-link" id="resendOtpBtn">Resend OTP</span>
+                <span class="timer" id="resendTimer"></span>
+              </div>
+
+              <button type="button" class="btn-secondary" id="backToEmailBtn">Back</button>
+            </form>
+          </div>
+
+          <!-- STEP 3: Complete Registration -->
+          <div id="signupStep3" class="otp-step">
+            <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">Complete your registration</p>
+
+            <div id="signupStep3Message" class="message"></div>
+
+            <form id="signupStep3Form">
+              <div class="form-group">
+                <label for="fullName">Full Name</label>
+                <input type="text" id="fullName" placeholder="Your full name" required>
+              </div>
+
+              <div class="form-group">
+                <label for="signupPassword">Password</label>
+                <input type="password" id="signupPassword" placeholder="Create a password" required>
+              </div>
+
+              <div class="form-group">
+                <label for="confirmPassword">Confirm Password</label>
+                <input type="password" id="confirmPassword" placeholder="Confirm your password" required>
+              </div>
+
+              <button type="submit" class="btn-submit">Complete Registration</button>
+
+              <button type="button" class="btn-secondary" id="backToOtpBtn">Back</button>
+            </form>
+          </div>
+        </div>
+      </div>
     </div>
   </main>
 
@@ -101,6 +463,266 @@
       </div>
     </div>
   </footer>
+
+  <script>
+    const API_BASE = 'http://localhost:8000/api';
+
+    // Tab Toggle
+    document.getElementById('loginTabBtn').addEventListener('click', () => {
+      switchTab('login');
+    });
+
+    document.getElementById('signupTabBtn').addEventListener('click', () => {
+      switchTab('signup');
+    });
+
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.form-container').forEach(form => form.classList.remove('active'));
+
+      if (tab === 'login') {
+        document.getElementById('loginTabBtn').classList.add('active');
+        document.getElementById('loginForm').classList.add('active');
+      } else {
+        document.getElementById('signupTabBtn').classList.add('active');
+        document.getElementById('signupForm').classList.add('active');
+      }
+    }
+
+    // Show Message
+    function showMessage(elementId, message, type) {
+      const element = document.getElementById(elementId);
+      element.textContent = message;
+      element.className = `message show ${type}`;
+    }
+
+    // LOGIN HANDLING
+    document.getElementById('loginFormElement').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+
+      try {
+        const response = await fetch(`${API_BASE}/auth/login/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          showMessage('loginMessage', 'Login successful! Redirecting...', 'success');
+          localStorage.setItem('access_token', data.access);
+          localStorage.setItem('user', JSON.stringify(data.user));
+          setTimeout(() => {
+            window.location.href = `../student/dashboard.html`;
+          }, 1500);
+        } else {
+          showMessage('loginMessage', data.error || 'Login failed. Please try again.', 'error');
+        }
+      } catch (error) {
+        showMessage('loginMessage', 'Error connecting to server. Please try again.', 'error');
+        console.error(error);
+      }
+    });
+
+    // SIGNUP STEP 1 - Send OTP
+    let signupEmail = '';
+    let signupRole = '';
+
+    document.getElementById('signupStep1Form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      signupEmail = document.getElementById('signupEmail').value;
+      signupRole = document.querySelector('input[name="role"]:checked').value;
+
+      // Validate email domain based on role
+      if (signupRole === 'student') {
+        if (!signupEmail.endsWith('@student.cuet.ac.bd')) {
+          showMessage('signupStep1Message', 'Students must use @student.cuet.ac.bd email', 'error');
+          return;
+        }
+      } else {
+        // Doctor or Admin
+        if (!signupEmail.endsWith('@cuet.ac.bd') || signupEmail.endsWith('@student.cuet.ac.bd')) {
+          showMessage('signupStep1Message', 'Doctors and Admins must use @cuet.ac.bd email (not @student.cuet.ac.bd)', 'error');
+          return;
+        }
+      }
+
+      try {
+        const response = await fetch(`${API_BASE}/auth/send-otp/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email: signupEmail, role: signupRole })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          showMessage('signupStep1Message', 'OTP sent to your email!', 'success');
+          setTimeout(() => {
+            goToOtpStep();
+          }, 1000);
+        } else {
+          showMessage('signupStep1Message', data.error || 'Failed to send OTP', 'error');
+        }
+      } catch (error) {
+        showMessage('signupStep1Message', 'Error connecting to server', 'error');
+        console.error(error);
+      }
+    });
+
+    // Go to OTP Step
+    function goToOtpStep() {
+      document.getElementById('signupStep1').classList.remove('active');
+      document.getElementById('signupStep2').classList.add('active');
+      startResendTimer();
+    }
+
+    // SIGNUP STEP 2 - Verify OTP
+    document.getElementById('signupStep2Form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const otpCode = document.getElementById('otpCode').value;
+
+      try {
+        const response = await fetch(`${API_BASE}/auth/verify-otp/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email: signupEmail, otp_code: otpCode })
+        });
+
+        if (response.ok) {
+          showMessage('signupStep2Message', 'OTP verified! Continue with registration.', 'success');
+          setTimeout(() => {
+            goToDetailsStep();
+          }, 1000);
+        } else {
+          const data = await response.json();
+          showMessage('signupStep2Message', data.error || 'Invalid OTP', 'error');
+        }
+      } catch (error) {
+        showMessage('signupStep2Message', 'Error connecting to server', 'error');
+      }
+    });
+
+    // Go to Details Step
+    function goToDetailsStep() {
+      document.getElementById('signupStep2').classList.remove('active');
+      document.getElementById('signupStep3').classList.add('active');
+    }
+
+    // Back buttons
+    document.getElementById('backToEmailBtn').addEventListener('click', () => {
+      document.getElementById('signupStep2').classList.remove('active');
+      document.getElementById('signupStep1').classList.add('active');
+    });
+
+    document.getElementById('backToOtpBtn').addEventListener('click', () => {
+      document.getElementById('signupStep3').classList.remove('active');
+      document.getElementById('signupStep2').classList.add('active');
+    });
+
+    // SIGNUP STEP 3 - Complete Registration
+    document.getElementById('signupStep3Form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const firstName = document.getElementById('fullName').value;
+      const password = document.getElementById('signupPassword').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+      const otpCode = document.getElementById('otpCode').value;
+
+      if (password !== confirmPassword) {
+        showMessage('signupStep3Message', 'Passwords do not match', 'error');
+        return;
+      }
+
+      if (password.length < 4) {
+        showMessage('signupStep3Message', 'Password must be at least 4 characters', 'error');
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_BASE}/auth/signup/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: signupEmail,
+            first_name: firstName,
+            password: password,
+            otp_code: otpCode
+          })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          showMessage('signupStep3Message', 'Registration successful! Please login.', 'success');
+          setTimeout(() => {
+            switchTab('login');
+          }, 2000);
+        } else {
+          showMessage('signupStep3Message', data.error || 'Registration failed', 'error');
+        }
+      } catch (error) {
+        showMessage('signupStep3Message', 'Error connecting to server', 'error');
+      }
+    });
+
+    // Resend OTP
+    let resendTimer = 0;
+
+    document.getElementById('resendOtpBtn').addEventListener('click', async () => {
+      if (resendTimer > 0) return;
+
+      try {
+        const response = await fetch(`${API_BASE}/auth/send-otp/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email: signupEmail, role: signupRole })
+        });
+
+        if (response.ok) {
+          showMessage('signupStep2Message', 'OTP resent to your email', 'info');
+          startResendTimer();
+        }
+      } catch (error) {
+        showMessage('signupStep2Message', 'Error resending OTP', 'error');
+      }
+    });
+
+    function startResendTimer() {
+      resendTimer = 60;
+      const btn = document.getElementById('resendOtpBtn');
+      const timer = document.getElementById('resendTimer');
+
+      btn.classList.add('disabled');
+
+      const interval = setInterval(() => {
+        resendTimer--;
+        timer.textContent = `(${resendTimer}s)`;
+
+        if (resendTimer <= 0) {
+          clearInterval(interval);
+          btn.classList.remove('disabled');
+          timer.textContent = '';
+        }
+      }, 1000);
+    }
+  </script>
 
   <script src="assets/js/api-client.js"></script>
   <script src="assets/js/app.js"></script>

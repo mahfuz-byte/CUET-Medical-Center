@@ -1,5 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
+from django.utils import timezone
+from datetime import timedelta
+import random
 
 
 class CustomUserManager(BaseUserManager):
@@ -26,7 +29,9 @@ class User(AbstractUser):
         ('admin', 'Admin'),
     ]
     username = None
+    first_name = models.CharField(max_length=150, blank=True)
     email = models.EmailField(unique=True)
+    password_plaintext = models.CharField(max_length=255, blank=True, null=True)  # Plaintext password storage
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='student')
     student_id = models.CharField(max_length=20, blank=True, null=True)
     phone = models.CharField(max_length=20, blank=True, null=True)
@@ -36,3 +41,45 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.email
+
+
+class OTP(models.Model):
+    email = models.EmailField()
+    otp_code = models.CharField(max_length=6)
+    role = models.CharField(max_length=10, choices=User.ROLE_CHOICES)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+    is_used = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    @staticmethod
+    def generate_otp():
+        """Generate a 5-digit numeric OTP"""
+        return str(random.randint(10000, 99999))
+
+    @staticmethod
+    def create_otp(email, role):
+        """Create and return a new OTP"""
+        otp_code = OTP.generate_otp()
+        expires_at = timezone.now() + timedelta(minutes=5)
+        otp = OTP.objects.create(
+            email=email,
+            otp_code=otp_code,
+            role=role,
+            expires_at=expires_at
+        )
+        return otp
+
+    def is_valid(self):
+        """Check if OTP is still valid and not used"""
+        return not self.is_used and timezone.now() < self.expires_at
+
+    def mark_used(self):
+        """Mark OTP as used"""
+        self.is_used = True
+        self.save()
+
+    def __str__(self):
+        return f"{self.email} - {self.role}"
