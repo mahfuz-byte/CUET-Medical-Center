@@ -1,6 +1,8 @@
 // Shared API helper for frontend pages.
 (function () {
-  var API_BASE_URL = 'http://127.0.0.1:8000/api';
+  var API_BASE_URL = (window.location.port === '8000')
+    ? '/api'
+    : 'http://127.0.0.1:8000/api';
 
   function getAuthHeaders() {
     var token = localStorage.getItem('accessToken');
