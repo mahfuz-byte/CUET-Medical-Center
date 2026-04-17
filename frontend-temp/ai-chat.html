@@ -230,6 +230,9 @@
                     ✓ Viral disease information
                 </p>
                 <span class="info-badge">💡 Start by asking a question below</span>
+                <div id="quota-notice" style="margin-top: 20px; padding: 10px; background: #fff3cd; border-radius: 5px; color: #856404; border: 1px solid #ffeaa7; display: none;">
+                    <strong>⚠️ API Quota Notice:</strong> The daily free tier limit has been reached. The AI will be available again tomorrow or after enabling billing.
+                </div>
             </div>
         </div>
 
@@ -306,18 +309,23 @@
                     body: JSON.stringify({ message: message })
                 });
 
-                if (!response.ok) {
-                    throw new Error('Failed to get response');
-                }
-
                 const data = await response.json();
                 
                 // Remove typing indicator
                 const typingDiv = document.getElementById('typing-indicator');
                 if (typingDiv) typingDiv.remove();
                 
-                // Add AI response
-                addMessage('AI Assistant', data.ai_response);
+                if (!response.ok) {
+                    // Check for quota error
+                    if (response.status === 429 || data.error.includes('quota')) {
+                        document.getElementById('quota-notice').style.display = 'block';
+                    }
+                    addMessage('AI Assistant', data.error || 'An error occurred');
+                } else {
+                    // Hide quota notice on success
+                    document.getElementById('quota-notice').style.display = 'none';
+                    addMessage('AI Assistant', data.ai_response);
+                }
                 
             } catch (error) {
                 console.error('Error:', error);
@@ -326,7 +334,7 @@
                 const typingDiv = document.getElementById('typing-indicator');
                 if (typingDiv) typingDiv.remove();
                 
-                addMessage('AI Assistant', 'Sorry, I encountered an error. Please try again later.');
+                addMessage('AI Assistant', 'Sorry, I encountered an error. Please check your internet connection.');
             }
         }
 

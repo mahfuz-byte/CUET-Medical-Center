@@ -130,9 +130,21 @@ def chat_with_ai(request):
         }, status=status.HTTP_200_OK)
     
     except Exception as e:
-        return Response({
-            'error': f'Failed to generate response: {str(e)}'
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        error_message = str(e)
+        
+        # Provide user-friendly error messages
+        if 'quota' in error_message.lower() or 'resource_exhausted' in error_message.lower():
+            return Response({
+                'error': 'API quota exhausted. Please try again later or contact support.'
+            }, status=status.HTTP_429_TOO_MANY_REQUESTS)
+        elif 'not found' in error_message.lower():
+            return Response({
+                'error': 'Model not available. Please contact support.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({
+                'error': f'Failed to generate response: {error_message[:100]}'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class ChatHistoryView(generics.ListAPIView):

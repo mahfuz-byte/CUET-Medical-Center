@@ -19,15 +19,19 @@ async function sendMessageToAI(userMessage) {
             })
         });
 
+        const data = await response.json();
+
         if (!response.ok) {
-            throw new Error('Failed to get AI response');
+            if (response.status === 429) {
+                return '⚠️ API quota exceeded. The daily free tier limit has been reached. Please try again tomorrow or contact your administrator to enable billing.';
+            }
+            return data.error || 'Sorry, I encountered an error. Please try again.';
         }
 
-        const data = await response.json();
         return data.ai_response;
     } catch (error) {
         console.error('Error:', error);
-        return 'Sorry, I couldn\'t process your request. Please try again.';
+        return 'Sorry, I couldn\'t process your request. Please check your internet connection and try again.';
     }
 }
 
