@@ -10,6 +10,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/auth/', include('accounts.urls')),
     path('api/assistant/ask/', GeminiHealthAssistantView.as_view(), name='gemini-assistant-ask'),
+    path('api/ai/', include('ai_assistant.urls')),
     path('api/roster/', include('roster.urls')),
     path('api/records/', include('records.urls')),
     path('api/notifications/', include('notifications.urls')),
