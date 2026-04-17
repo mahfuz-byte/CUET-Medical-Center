@@ -3,15 +3,25 @@
   // API Configuration
   const API_BASE_URL = 'http://127.0.0.1:8000/api';
 
+  function getStoredToken() {
+    return localStorage.getItem('accessToken') || localStorage.getItem('access_token');
+  }
+
+  function getStoredUser() {
+    return localStorage.getItem('currentUser') || localStorage.getItem('user');
+  }
+
   // ===== AUTH STATE MANAGEMENT =====
   function checkAuthState() {
-    const token = localStorage.getItem('access_token');
-    const user = localStorage.getItem('user');
+    const token = getStoredToken();
+    const user = getStoredUser();
     return token && user ? { token, user: JSON.parse(user) } : null;
   }
 
   function logout() {
+    localStorage.removeItem('accessToken');
     localStorage.removeItem('access_token');
+    localStorage.removeItem('currentUser');
     localStorage.removeItem('user');
     updateNavbar();
     // Detect if on nested page and use correct path
@@ -153,6 +163,7 @@
         })
         .then(function (data) {
           localStorage.setItem('accessToken', data.access);
+          localStorage.setItem('access_token', data.access);
           localStorage.setItem('refreshToken', data.refresh);
           return fetch(API_BASE_URL + '/auth/me/', {
             headers: { 'Authorization': 'Bearer ' + data.access }
@@ -167,6 +178,7 @@
             throw new Error('Selected role does not match your account role');
           }
           localStorage.setItem('currentUser', JSON.stringify(user));
+          localStorage.setItem('user', JSON.stringify(user));
           if (window.showToast) {
             window.showToast('Welcome ' + (user.first_name || user.email) + '!', 'success');
           }
@@ -433,7 +445,7 @@
     if (!doctorOnlyList && !ambulanceOnlyList && !testKitList && !bedList && !medicineList) return;
 
     function authHeaders() {
-      var token = localStorage.getItem('accessToken');
+      var token = getStoredToken();
       return token ? { 'Authorization': 'Bearer ' + token } : {};
     }
 
@@ -482,7 +494,7 @@
     }
 
     function loadAvailability() {
-      var token = localStorage.getItem('accessToken');
+      var token = getStoredToken();
       if (!token) {
         renderNotLoggedIn(testKitList, 'test kit availability');
         renderNotLoggedIn(bedList, 'bed availability');

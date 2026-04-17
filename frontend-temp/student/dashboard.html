@@ -131,8 +131,8 @@
     (function () {
       // Small delay to ensure localStorage is ready
       setTimeout(() => {
-        const userStr = localStorage.getItem('user');
-        const token = localStorage.getItem('access_token');
+        const userStr = localStorage.getItem('currentUser') || localStorage.getItem('user');
+        const token = localStorage.getItem('accessToken') || localStorage.getItem('access_token');
         
         if (!userStr || !token) {
           window.location.href = '../login.html';
