@@ -21,8 +21,8 @@
   }
 
   function logout() {
-    localStorage.removeItem('accessToken');
     localStorage.removeItem('access_token');
+    localStorage.removeItem('accessToken');
     localStorage.removeItem('currentUser');
     localStorage.removeItem('user');
     updateNavbar();
@@ -72,6 +72,16 @@
         dashboardLink.className = 'nav-link';
         dashboardLink.textContent = 'Dashboard';
         navMenu.appendChild(dashboardLink);
+      }
+
+      // Add notices link
+      let noticesLink = navMenu.querySelector('a[href*="notices"]');
+      if (!noticesLink) {
+        noticesLink = document.createElement('a');
+        noticesLink.href = isNestedPage ? '../notices.html' : 'notices.html';
+        noticesLink.className = 'nav-link';
+        noticesLink.textContent = 'Notices';
+        navMenu.appendChild(noticesLink);
       }
 
       // Add profile link

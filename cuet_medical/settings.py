@@ -29,7 +29,7 @@ SECRET_KEY = 'django-insecure-31v#_-bi2*s)aru8bousrgpu-!k1ke)#)ptt9=czss*_!ldm9r
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '*']
 
 
 # Application definition
@@ -131,6 +131,10 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+# Media files (User uploads)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
@@ -162,10 +166,16 @@ CORS_ALLOWED_ORIGINS = [
     'http://localhost:5501',
     'http://127.0.0.1:8000',
     'http://localhost:8000',
+    'http://127.0.0.1',
+    'http://localhost',
 ]
 
 # Allow credentials for JWT cookies
 CORS_ALLOW_CREDENTIALS = True
+
+# In development, allow all origins
+if DEBUG:
+    CORS_ALLOW_ALL_ORIGINS = True
 
 # Email Configuration
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
