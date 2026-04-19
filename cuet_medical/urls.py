@@ -3,14 +3,11 @@ from django.urls import path, include
 from django.views.static import serve
 from django.conf import settings
 from django.views.generic import TemplateView
-from .views import GeminiHealthAssistantView
 import os
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/auth/', include('accounts.urls')),
-    path('api/assistant/ask/', GeminiHealthAssistantView.as_view(), name='gemini-assistant-ask'),
-    path('api/ai/', include('ai_assistant.urls')),
     path('api/roster/', include('roster.urls')),
     path('api/records/', include('records.urls')),
     path('api/notifications/', include('notifications.urls')),

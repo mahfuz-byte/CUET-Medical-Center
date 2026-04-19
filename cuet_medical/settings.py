@@ -51,7 +51,6 @@ INSTALLED_APPS = [
     'notifications',
     'records',
     'roster',
-    'ai_assistant',
 ]
 
 MIDDLEWARE = [
