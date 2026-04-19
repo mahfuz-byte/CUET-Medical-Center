@@ -76,8 +76,12 @@
 
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
             <div>
-              <label style="display: block; margin-bottom: 8px; font-weight: 500;">Driver</label>
-              <input type="text" id="ambulanceDriver" placeholder="Driver name" style="width: 100%; padding: 10px 12px; background: rgba(255, 255, 255, 0.08); border: 2px solid rgba(59, 130, 246, 0.3); border-radius: 8px; color: var(--text); font-family: Poppins, sans-serif;">
+              <label style="display: block; margin-bottom: 8px; font-weight: 500;">Status</label>
+              <select id="ambulanceStatus" style="width: 100%; padding: 10px 12px; background: rgba(255, 255, 255, 0.08); border: 2px solid rgba(59, 130, 246, 0.3); border-radius: 8px; color: var(--text); font-family: Poppins, sans-serif;">
+                <option value="Available">Available</option>
+                <option value="On Duty">On Duty</option>
+                <option value="Maintenance">Maintenance</option>
+              </select>
             </div>
             <div>
               <label style="display: block; margin-bottom: 8px; font-weight: 500;">Contact</label>
@@ -147,6 +151,34 @@
           <button id="addMedicineBtn" style="width: 100%; background: linear-gradient(135deg, var(--primary-500) 0%, var(--accent) 100%); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; margin-bottom: 20px;">Add Medicine</button>
 
           <div id="pharmacyList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;"></div>
+        </div>
+
+        <!-- Health Alerts Section -->
+        <div style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%); border: 2px solid rgba(59, 130, 246, 0.3); border-radius: 12px; padding: 25px; grid-column: 1 / -1;">
+          <h2 style="color: var(--primary-500); margin: 0 0 20px 0; font-size: 1.3rem;">📢 Health Alerts</h2>
+
+          <div style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Alert Title</label>
+            <input type="text" id="alertTitle" placeholder="Enter alert title" style="width: 100%; padding: 10px 12px; background: rgba(255, 255, 255, 0.08); border: 2px solid rgba(59, 130, 246, 0.3); border-radius: 8px; color: var(--text); font-family: Poppins, sans-serif;">
+          </div>
+
+          <div style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Alert Message</label>
+            <textarea id="alertMessage" rows="3" placeholder="Write health alert message" style="width: 100%; padding: 10px 12px; background: rgba(255, 255, 255, 0.08); border: 2px solid rgba(59, 130, 246, 0.3); border-radius: 8px; color: var(--text); font-family: Poppins, sans-serif;"></textarea>
+          </div>
+
+          <div style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Target Users</label>
+            <select id="alertTarget" style="width: 100%; padding: 10px 12px; background: rgba(255, 255, 255, 0.08); border: 2px solid rgba(59, 130, 246, 0.3); border-radius: 8px; color: var(--text); font-family: Poppins, sans-serif;">
+              <option value="all">All Users</option>
+              <option value="students">Students Only</option>
+              <option value="doctors">Doctors Only</option>
+            </select>
+          </div>
+
+          <button id="publishAlertBtn" style="width: 100%; background: linear-gradient(135deg, var(--primary-500) 0%, var(--accent) 100%); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; margin-bottom: 20px;">Publish Alert</button>
+
+          <div id="adminAlertsList" style="background: rgba(0, 0, 0, 0.2); border-radius: 8px; max-height: 320px; overflow-y: auto;"></div>
         </div>
       </div>
     </div>
@@ -218,6 +250,7 @@
       loadTestKits();
       loadBeds();
       loadPharmacy();
+      loadHealthAlerts();
     }
 
     // ===== DOCTOR ROSTER =====
@@ -310,7 +343,7 @@
 
     document.getElementById('addAmbulanceBtn').addEventListener('click', async () => {
       const ambulance_id = document.getElementById('ambulanceName').value.trim();
-      const status = document.getElementById('ambulanceDriver').value.trim();
+      const status = document.getElementById('ambulanceStatus').value;
       const contact = document.getElementById('ambulanceContact').value.trim();
 
       if (!ambulance_id || !status || !contact) {
@@ -326,13 +359,13 @@
         });
 
         document.getElementById('ambulanceName').value = '';
-        document.getElementById('ambulanceDriver').value = '';
+        document.getElementById('ambulanceStatus').value = 'Available';
         document.getElementById('ambulanceContact').value = '';
 
         loadAmbulances();
         showToast('Ambulance added successfully');
       } catch (err) {
-        showToast('Failed to add ambulance', 'error');
+        showToast(err.message || 'Failed to add ambulance', 'error');
       }
     });
 
@@ -482,6 +515,72 @@
         });
         loadPharmacy();
       } catch (err) {}
+    }
+
+    // ===== HEALTH ALERTS =====
+    async function loadHealthAlerts() {
+      const list = document.getElementById('adminAlertsList');
+      try {
+        const alerts = await fetchJsonOrThrow(`${API_URL}/notifications/`, { headers: getHeaders() });
+        if (!alerts.length) {
+          list.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--muted);">No health alerts published yet</div>';
+          return;
+        }
+
+        list.innerHTML = alerts.map(alert => `
+          <div style="padding: 12px 15px; border-bottom: 1px solid rgba(59, 130, 246, 0.2);">
+            <div style="display:flex; justify-content:space-between; gap:12px; align-items:center;">
+              <strong style="color: var(--primary-500);">${alert.title}</strong>
+              <button onclick="deleteHealthAlert(${alert.id})" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer;">Delete</button>
+            </div>
+            <div style="color: var(--muted); font-size: 0.85rem; margin-top: 6px;">Target: ${alert.target || 'all'} | ${new Date(alert.created_at).toLocaleString()}</div>
+            <div style="margin-top: 8px; color: var(--text); word-break: break-word;">${alert.message}</div>
+          </div>
+        `).join('');
+      } catch (err) {
+        console.error(err);
+        list.innerHTML = '<div style="padding: 20px; text-align: center; color: #ef4444;">Failed to load health alerts</div>';
+      }
+    }
+
+    document.getElementById('publishAlertBtn').addEventListener('click', async () => {
+      const title = document.getElementById('alertTitle').value.trim();
+      const message = document.getElementById('alertMessage').value.trim();
+      const target = document.getElementById('alertTarget').value;
+
+      if (!title || !message) {
+        showToast('Please fill alert title and message', 'error');
+        return;
+      }
+
+      try {
+        await fetchJsonOrThrow(`${API_URL}/notifications/`, {
+          method: 'POST',
+          headers: getHeaders(),
+          body: JSON.stringify({ title, message, target })
+        });
+
+        document.getElementById('alertTitle').value = '';
+        document.getElementById('alertMessage').value = '';
+        document.getElementById('alertTarget').value = 'all';
+        showToast('Health alert published successfully');
+        loadHealthAlerts();
+      } catch (err) {
+        showToast(err.message || 'Failed to publish health alert', 'error');
+      }
+    });
+
+    async function deleteHealthAlert(id) {
+      try {
+        await fetchJsonOrThrow(`${API_URL}/notifications/${id}/`, {
+          method: 'DELETE',
+          headers: getHeaders()
+        });
+        showToast('Health alert deleted');
+        loadHealthAlerts();
+      } catch (err) {
+        showToast(err.message || 'Failed to delete health alert', 'error');
+      }
     }
 
     // Toast notification

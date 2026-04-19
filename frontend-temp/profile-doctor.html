@@ -332,20 +332,40 @@
   </footer>
 
   <script>
-    const API_BASE = 'http://localhost:8000/api';
+    const API_BASE = 'http://127.0.0.1:8000/api';
+
+    function getStoredToken() {
+      return localStorage.getItem('accessToken') || localStorage.getItem('access_token');
+    }
+
+    function getStoredUser() {
+      const raw = localStorage.getItem('user') || localStorage.getItem('currentUser');
+      return raw ? JSON.parse(raw) : null;
+    }
+
+    function setStoredUser(user) {
+      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem('currentUser', JSON.stringify(user));
+    }
 
     // Check auth and load profile
     function checkAuth() {
-      const user = localStorage.getItem('user');
-      const token = localStorage.getItem('access_token');
+      const user = getStoredUser();
+      const token = getStoredToken();
 
       if (!user || !token) {
         document.getElementById('authCheckMsg').style.display = 'block';
         return null;
       }
 
+      if (user.role !== 'doctor') {
+        document.getElementById('authCheckMsg').style.display = 'block';
+        showMessage('Only doctor accounts can edit this profile page.', 'error');
+        return null;
+      }
+
       document.getElementById('profileContent').style.display = 'block';
-      return { user: JSON.parse(user), token };
+      return { user, token };
     }
 
     function showMessage(message, type) {
@@ -359,7 +379,23 @@
       const auth = checkAuth();
       if (!auth) return;
 
-      const { user, token } = auth;
+      const { token } = auth;
+
+      // Always load latest profile from backend so doctor edits are current.
+      let user = auth.user;
+      try {
+        const res = await fetch(`${API_BASE}/auth/me/`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        if (res.ok) {
+          user = await res.json();
+          setStoredUser(user);
+        }
+      } catch (_) {
+        // Fallback to local user if profile fetch fails.
+      }
 
       // Populate fields
       document.getElementById('email').value = user.email;
@@ -410,7 +446,7 @@
         const data = await response.json();
 
         if (response.ok) {
-          localStorage.setItem('user', JSON.stringify({...user, ...data}));
+          setStoredUser({ ...user, ...data });
           showMessage('Profile updated successfully!', 'success');
           setTimeout(() => {
             location.reload();
@@ -446,7 +482,9 @@
           showMessage('Account deleted successfully. Redirecting...', 'success');
           setTimeout(() => {
             localStorage.removeItem('access_token');
+            localStorage.removeItem('accessToken');
             localStorage.removeItem('user');
+            localStorage.removeItem('currentUser');
             window.location.href = 'index.html';
           }, 1500);
         } else {

@@ -264,32 +264,65 @@
     <script src="assets/js/api-client.js"></script>
   <script src="assets/js/app.js"></script>
     <script>
-        function loadPharmacy() {
-            const medicines = JSON.parse(localStorage.getItem('medicines') || '[]');
+        const API_BASE = 'http://127.0.0.1:8000/api';
+
+        function getStoredToken() {
+            return localStorage.getItem('accessToken') || localStorage.getItem('access_token');
+        }
+
+        function renderEmpty(message) {
+            const grid = document.getElementById('medicinesGrid');
+            const count = document.getElementById('medicineCount');
+            grid.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">💊</div>
+                    <div class="empty-state-text">${message}</div>
+                </div>
+            `;
+            count.style.display = 'none';
+        }
+
+        async function loadPharmacy() {
+            const token = getStoredToken();
             const grid = document.getElementById('medicinesGrid');
             const count = document.getElementById('medicineCount');
 
-            if (medicines.length === 0) {
-                grid.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">💊</div>
-                        <div class="empty-state-text">No medicines available at the moment</div>
-                    </div>
-                `;
-                count.style.display = 'none';
+            if (!token) {
+                renderEmpty('Please login to view medicines.');
                 return;
             }
 
-            count.innerHTML = `<strong>${medicines.length}</strong> medicines available in our pharmacy`;
-            count.style.display = 'block';
+            try {
+                const response = await fetch(`${API_BASE}/records/medicines/`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
 
-            grid.innerHTML = medicines.map((med, idx) => `
-                <div class="medicine-card">
-                    <div class="medicine-icon">💊</div>
-                    <div class="medicine-name">${med.name}</div>
-                    <div class="medicine-dosage">${med.dosage}</div>
-                </div>
-            `).join('');
+                if (!response.ok) {
+                    throw new Error(`Request failed (${response.status})`);
+                }
+
+                const medicines = await response.json();
+
+                if (!medicines.length) {
+                    renderEmpty('No medicines available at the moment');
+                    return;
+                }
+
+                count.innerHTML = `<strong>${medicines.length}</strong> medicines available in our pharmacy`;
+                count.style.display = 'block';
+
+                grid.innerHTML = medicines.map((med) => `
+                    <div class="medicine-card">
+                        <div class="medicine-icon">💊</div>
+                        <div class="medicine-name">${med.name}</div>
+                        <div class="medicine-dosage">${med.dosage || '-'}</div>
+                    </div>
+                `).join('');
+            } catch (_) {
+                renderEmpty('Unable to load medicines right now.');
+            }
         }
 
         window.addEventListener('load', loadPharmacy);

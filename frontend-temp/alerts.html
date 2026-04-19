@@ -34,6 +34,7 @@
   <main id="main" class="container">
     <h1>Health Alerts</h1>
     <section class="panel">
+      <div id="alert-form-note" class="item" style="display:none; margin-bottom: 1rem;"></div>
       <form id="alert-form" class="form-grid">
         <input type="text" id="alert-title" placeholder="Title" required>
         <textarea id="alert-body" placeholder="Message" rows="3" required></textarea>
@@ -106,6 +107,41 @@
   <script>
     const API_BASE_URL = 'http://127.0.0.1:8000/api';
 
+    function getStoredUser() {
+      const raw = localStorage.getItem('currentUser') || localStorage.getItem('user');
+      if (!raw) return null;
+      try {
+        return JSON.parse(raw);
+      } catch (_) {
+        return null;
+      }
+    }
+
+    function getStoredToken() {
+      return localStorage.getItem('accessToken') || localStorage.getItem('access_token') || '';
+    }
+
+    function setupFormByRole() {
+      const user = getStoredUser();
+      const form = document.getElementById('alert-form');
+      const note = document.getElementById('alert-form-note');
+
+      const canPublish = user && (user.role === 'admin' || user.role === 'doctor');
+      if (canPublish) {
+        note.style.display = 'none';
+        form.style.display = '';
+        return;
+      }
+
+      form.style.display = 'none';
+      note.style.display = 'block';
+      if (user && user.role === 'student') {
+        note.textContent = 'Students can only view health alerts.';
+      } else {
+        note.textContent = 'Login as doctor or admin to publish health alerts.';
+      }
+    }
+
     function fetchAlerts() {
       fetch(API_BASE_URL + '/notifications/')
         .then(response => response.json())
@@ -124,7 +160,13 @@
       const body = document.getElementById('alert-body').value.trim();
       if (!title || !body) return;
 
-      const token = localStorage.getItem('accessToken');
+      const user = getStoredUser();
+      if (!user || (user.role !== 'admin' && user.role !== 'doctor')) {
+        if (window.showToast) window.showToast('Only doctor/admin can publish alerts.', 'error');
+        return;
+      }
+
+      const token = getStoredToken();
       if (!token) {
         if (window.showToast) window.showToast('You must be logged in to publish alerts.', 'error');
         return;
@@ -168,6 +210,7 @@
     }
 
     // Load alerts on init
+    setupFormByRole();
     fetchAlerts();
   </script>
 </body>

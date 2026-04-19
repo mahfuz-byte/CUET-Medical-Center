@@ -355,7 +355,7 @@
                 <label for="signupEmail">Email</label>
                 <input type="email" id="signupEmail" placeholder="Enter your email address" required>
                 <small style="color: var(--muted); font-size: 12px; display: block; margin-top: 4px;">
-                  Students: use @student.cuet.ac.bd | Doctors & Admins: any email
+                  Students: use uXXXXXXX@student.cuet.ac.bd | Doctors & Admins: any email
                 </small>
               </div>
 
@@ -465,7 +465,8 @@
   </footer>
 
   <script>
-    const API_BASE = 'http://localhost:8000/api';
+    const API_BASE = 'http://127.0.0.1:8000/api';
+    const STUDENT_EMAIL_REGEX = /^u\d{7}@student\.cuet\.ac\.bd$/i;
 
     // Tab Toggle
     document.getElementById('loginTabBtn').addEventListener('click', () => {
@@ -521,7 +522,9 @@
           console.log('[LOGIN] Login successful, user role:', data.user?.role);
           showMessage('loginMessage', 'Login successful! Redirecting...', 'success');
           localStorage.setItem('access_token', data.access);
+          localStorage.setItem('accessToken', data.access);
           localStorage.setItem('user', JSON.stringify(data.user));
+          localStorage.setItem('currentUser', JSON.stringify(data.user));
           
           console.log('[LOGIN] localStorage set. User:', localStorage.getItem('user'));
 
@@ -559,10 +562,10 @@
       signupEmail = document.getElementById('signupEmail').value;
       signupRole = document.querySelector('input[name="role"]:checked').value;
 
-      // Validate email domain based on role
+      // Validate email format based on role
       if (signupRole === 'student') {
-        if (!signupEmail.endsWith('@student.cuet.ac.bd')) {
-          showMessage('signupStep1Message', 'Students must use @student.cuet.ac.bd email', 'error');
+        if (!STUDENT_EMAIL_REGEX.test(signupEmail)) {
+          showMessage('signupStep1Message', 'Student email must follow uXXXXXXX@student.cuet.ac.bd format', 'error');
           return;
         }
       }
@@ -585,7 +588,8 @@
             goToOtpStep();
           }, 1000);
         } else {
-          showMessage('signupStep1Message', data.error || 'Failed to send OTP', 'error');
+          const err = data.error || data.detail || data.non_field_errors || 'Failed to send OTP';
+          showMessage('signupStep1Message', Array.isArray(err) ? err[0] : err, 'error');
         }
       } catch (error) {
         showMessage('signupStep1Message', 'Error connecting to server', 'error');
@@ -622,7 +626,8 @@
           }, 1000);
         } else {
           const data = await response.json();
-          showMessage('signupStep2Message', data.error || 'Invalid OTP', 'error');
+          const err = data.error || data.detail || data.non_field_errors || 'Invalid OTP';
+          showMessage('signupStep2Message', Array.isArray(err) ? err[0] : err, 'error');
         }
       } catch (error) {
         showMessage('signupStep2Message', 'Error connecting to server', 'error');
@@ -687,7 +692,8 @@
             switchTab('login');
           }, 2000);
         } else {
-          showMessage('signupStep3Message', data.error || 'Registration failed', 'error');
+          const err = data.error || data.detail || data.non_field_errors || 'Registration failed';
+          showMessage('signupStep3Message', Array.isArray(err) ? err[0] : err, 'error');
         }
       } catch (error) {
         showMessage('signupStep3Message', 'Error connecting to server', 'error');
