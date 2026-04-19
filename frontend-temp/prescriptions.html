@@ -36,8 +36,10 @@
             <a href="doctor.html">Dashboard</a>
             <a href="medical-records.html">Patient Records</a>
             <a href="prescriptions.html" class="active">Add Prescription</a>
-            <a href="roster.html">Doctor & Ambulance Roster</a>
-            <a href="pharmacy.html">Pharmacy</a>
+          <a href="doctor-roster.html">Doctor Roster</a>
+          <a href="doctor-ambulance.html">Ambulance Status</a>
+          <a href="doctor-test-kits.html">Test Kit Availability</a>
+          <a href="doctor-pharmacy.html">Pharmacy Info</a>
             <a href="alerts.html">Health Alerts</a>
             <a href="profile-doctor.html">Profile</a>
             <a href="login.html" id="doctorLogoutLink">Logout</a>
@@ -70,18 +72,28 @@
     <script src="assets/js/app.js"></script>
     <script>
         (function () {
-            const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+        const user = JSON.parse(localStorage.getItem('currentUser') || localStorage.getItem('user') || '{}');
+        const token = localStorage.getItem('accessToken') || localStorage.getItem('access_token');
+        const API_BASE = 'http://127.0.0.1:8000/api';
+
             if (!user.role || user.role !== 'doctor') {
                 window.location.href = 'login.html';
                 return;
             }
+
+        if (!token) {
+          window.location.href = 'login.html';
+          return;
+        }
 
             const logoutLink = document.getElementById('doctorLogoutLink');
             if (logoutLink) {
                 logoutLink.addEventListener('click', function (e) {
                     e.preventDefault();
                     localStorage.removeItem('currentUser');
+                    localStorage.removeItem('user');
                     localStorage.removeItem('accessToken');
+                    localStorage.removeItem('access_token');
                     localStorage.removeItem('refreshToken');
                     window.location.href = 'login.html';
                 });
@@ -94,25 +106,39 @@
                 document.getElementById('rxStudentId').value = sid;
             }
 
-            document.getElementById('prescription-form').addEventListener('submit', function (e) {
+            document.getElementById('prescription-form').addEventListener('submit', async function (e) {
                 e.preventDefault();
-                const studentId = document.getElementById('rxStudentId').value;
-                const diagnosis = document.getElementById('rxDiagnosis').value;
-                const medicines = document.getElementById('rxMedicines').value;
-                const advice = document.getElementById('rxAdvice').value;
+              const studentId = document.getElementById('rxStudentId').value.trim();
+              const diagnosis = document.getElementById('rxDiagnosis').value.trim();
+              const medicines = document.getElementById('rxMedicines').value.trim();
+              const advice = document.getElementById('rxAdvice').value.trim();
 
-                let mockPrescriptions = JSON.parse(localStorage.getItem('mockPrescriptions') || '[]');
-                mockPrescriptions.push({
-                    studentId: studentId.toUpperCase(),
+              try {
+                const res = await fetch(`${API_BASE}/records/medical-records/`, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                  },
+                  body: JSON.stringify({
+                    student_id: studentId,
                     diagnosis: diagnosis,
-                    medicines: medicines,
+                    prescribed_medicines: medicines,
                     advice: advice,
-                    date: new Date().toLocaleDateString()
+                  }),
                 });
-                localStorage.setItem('mockPrescriptions', JSON.stringify(mockPrescriptions));
+
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) {
+                  const detail = data.student_id || data.detail || data.error || 'Failed to save prescription';
+                  throw new Error(Array.isArray(detail) ? detail[0] : detail);
+                }
 
                 if (window.showToast) window.showToast('Prescription saved for student ' + studentId + '.', 'success');
                 this.reset();
+              } catch (err) {
+                if (window.showToast) window.showToast(err.message || 'Failed to save prescription', 'error');
+              }
             });
         })();
     </script>

@@ -51,13 +51,11 @@
       <h1>My Medical Records</h1>
     </header>
 
-    <section class="cards">
-      <div class="card">
-        <h3>Search Records</h3>
-        <p>Use the campus records portal to view your history.</p>
-        <p><a class="btn" href="../medical-records.html">Open Records Portal</a></p>
+    <section class="panel">
+      <h2>My Prescriptions & Visits</h2>
+      <div class="list" id="student-records-list">
+        <div class="item">Loading your records...</div>
       </div>
-      <div class="card"><h3>Recent Visits</h3><p>Placeholder for recent visit summary.</p></div>
     </section>
   </main>
 
@@ -108,6 +106,57 @@
   </footer>
   <script src="../assets/js/api-client.js"></script>
   <script src="../assets/js/app.js"></script>
+  <script>
+    (async function () {
+      const list = document.getElementById('student-records-list');
+      const userStr = localStorage.getItem('currentUser') || localStorage.getItem('user');
+      const token = localStorage.getItem('accessToken') || localStorage.getItem('access_token');
+
+      if (!userStr || !token) {
+        list.innerHTML = '<div class="item">Login required to view records.</div>';
+        return;
+      }
+
+      const user = JSON.parse(userStr);
+      if (!user.role || user.role !== 'student') {
+        list.innerHTML = '<div class="item">Only students can view this page.</div>';
+        return;
+      }
+
+      try {
+        const res = await fetch('http://127.0.0.1:8000/api/records/medical-records/', {
+          headers: {
+            'Authorization': 'Bearer ' + token
+          }
+        });
+        const records = await res.json().catch(() => []);
+        if (!res.ok) {
+          throw new Error('Failed to load records');
+        }
+
+        if (!records.length) {
+          list.innerHTML = '<div class="item">No medical records found yet.</div>';
+          return;
+        }
+
+        list.innerHTML = records.map(function (r) {
+          return `
+            <div class="item" style="margin-bottom: 1rem; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1rem;">
+              <div style="font-weight: bold; margin-bottom: 0.5rem; display: flex; justify-content: space-between; gap: 10px;">
+                <span>${new Date(r.created_at).toLocaleString()}</span>
+                <span class="badge" style="background: var(--primary); color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem;">${r.student_student_id || ''}</span>
+              </div>
+              <div style="margin-bottom: 0.5rem;"><strong>Diagnosis:</strong> ${r.diagnosis || '-'}</div>
+              <div style="margin-bottom: 0.5rem;"><strong>Medicines:</strong><br>${String(r.prescribed_medicines || '').replace(/\n/g, '<br>')}</div>
+              <div><strong>Advice:</strong><br>${r.advice ? String(r.advice).replace(/\n/g, '<br>') : '-'}</div>
+            </div>
+          `;
+        }).join('');
+      } catch (_) {
+        list.innerHTML = '<div class="item">Unable to load your records right now.</div>';
+      }
+    })();
+  </script>
 </body>
 </html>
 

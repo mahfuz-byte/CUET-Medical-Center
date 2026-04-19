@@ -1,13 +1,11 @@
 <!doctype html>
 <html lang="en">
-
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Doctor Dashboard | CUET Medical Center</title>
+  <title>Pharmacy Information | Doctor | CUET</title>
   <link rel="stylesheet" href="assets/css/styles.css">
 </head>
-
 <body>
   <header class="site-header" role="banner">
     <div class="container">
@@ -25,23 +23,21 @@
         <a href="pharmacy.html" class="nav-link">Pharmacy</a>
         <a href="emergency.html" class="nav-link">Emergency</a>
         <a href="contact.html" class="nav-link">Contact</a>
-        <a href="notices.html" class="nav-link">Notices</a>
         <a href="login.html" class="btn btn-primary">Login</a>
       </nav>
     </div>
   </header>
-  
-  <!-- Sidebar layout for doctor role -->
+
   <aside id="sidebar" class="sidebar" role="navigation" aria-label="Doctor navigation">
     <div class="sidebar-brand">Doctor</div>
     <nav>
-      <a href="doctor.html" class="active">Dashboard</a>
+      <a href="doctor.html">Dashboard</a>
       <a href="medical-records.html">Patient Records</a>
       <a href="prescriptions.html">Add Prescription</a>
       <a href="doctor-roster.html">Doctor Roster</a>
       <a href="doctor-ambulance.html">Ambulance Status</a>
       <a href="doctor-test-kits.html">Test Kit Availability</a>
-      <a href="doctor-pharmacy.html">Pharmacy Info</a>
+      <a href="doctor-pharmacy.html" class="active">Pharmacy Info</a>
       <a href="alerts.html">Health Alerts</a>
       <a href="profile-doctor.html">Profile</a>
       <a href="login.html" id="doctorLogoutLink">Logout</a>
@@ -50,90 +46,17 @@
 
   <main id="main" class="content" role="main">
     <header class="content-header">
-      <button class="sidebar-toggle" aria-label="Open menu" aria-controls="sidebar" aria-expanded="false">☰
-        Menu</button>
-      <h1 id="doctorWelcome">Doctor Dashboard</h1>
+      <button class="sidebar-toggle" aria-label="Open menu" aria-controls="sidebar" aria-expanded="false">☰ Menu</button>
+      <h1>Pharmacy Information</h1>
     </header>
 
-    <section class="cards">
-      <div class="card">
-        <h3>Today at a glance</h3>
-        <p id="doctorSummary">Loading your schedule and stats...</p>
-      </div>
-      <div class="card">
-        <h3>Pending Appointments</h3>
-        <p>No new appointments.</p>
-      </div>
-      <div class="card">
-        <h3>On-Call Roster</h3>
-        <p><a href="doctor-roster.html">View doctor roster</a> | <a href="doctor-ambulance.html">View ambulance status</a></p>
-      </div>
-      <div class="card">
-        <h3>Quick Tools</h3>
-        <ul style="padding-left: 1.2rem; margin: 0;">
-          <li><a href="medical-records.html">Patient Records</a></li>
-          <li><a href="doctor-test-kits.html">Test Kit Availability</a></li>
-          <li><a href="doctor-pharmacy.html">Pharmacy Info</a></li>
-        </ul>
-      </div>
-    </section>
-
-    <section class="cards" style="margin-top: 20px;">
-      <div class="card" id="doctor-test-kit-card">
-        <h3>Test Kit Availability</h3>
-        <p>Open test kit availability page.</p>
-        <p><a class="btn" href="doctor-test-kits.html">Open Test Kits</a></p>
-      </div>
-
-      <div class="card" id="doctor-pharmacy-card" style="grid-column: 1 / -1;">
-        <h3>Pharmacy Information</h3>
-        <p>Open pharmacy medicine page.</p>
-        <p><a class="btn" href="doctor-pharmacy.html">Open Pharmacy Info</a></p>
+    <section class="panel">
+      <h2>Available Medicines</h2>
+      <div class="list" id="availability-medicines">
+        <div class="item">Loading medicine availability...</div>
       </div>
     </section>
   </main>
-
-  <script src="assets/js/app.js"></script>
-  <script>
-    // Basic role guard for doctors
-    (function () {
-      // Small delay to ensure localStorage is ready
-      setTimeout(() => {
-        const userStr = localStorage.getItem('user');
-        const token = localStorage.getItem('access_token');
-        
-        if (!userStr || !token) {
-          window.location.href = 'login.html';
-          return;
-        }
-        
-        const user = JSON.parse(userStr);
-        if (!user.role || user.role !== 'doctor') {
-          window.location.href = 'login.html';
-          return;
-        }
-        
-        const heading = document.getElementById('doctorWelcome');
-        if (heading) {
-          const name = user.first_name || user.email || 'Doctor';
-          heading.textContent = 'Welcome, ' + name;
-        }
-        const summary = document.getElementById('doctorSummary');
-        if (summary) {
-          summary.textContent = 'Use the links on the left to access patient records, roster details, and pharmacy information.';
-        }
-        const logoutLink = document.getElementById('doctorLogoutLink');
-        if (logoutLink) {
-          logoutLink.addEventListener('click', function (e) {
-            e.preventDefault();
-            localStorage.removeItem('user');
-            localStorage.removeItem('access_token');
-            window.location.href = 'login.html';
-          });
-        }
-      }, 100);
-    })();
-  </script>
 
   <footer class="site-footer">
     <div class="container">
@@ -180,6 +103,38 @@
       </div>
     </div>
   </footer>
-</body>
 
+  <script src="assets/js/api-client.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script>
+    (function () {
+      const userStr = localStorage.getItem('currentUser') || localStorage.getItem('user');
+      const token = localStorage.getItem('accessToken') || localStorage.getItem('access_token');
+
+      if (!userStr || !token) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      const user = JSON.parse(userStr);
+      if (!user.role || user.role !== 'doctor') {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      const logoutLink = document.getElementById('doctorLogoutLink');
+      if (logoutLink) {
+        logoutLink.addEventListener('click', function (e) {
+          e.preventDefault();
+          localStorage.removeItem('currentUser');
+          localStorage.removeItem('user');
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('access_token');
+          localStorage.removeItem('refreshToken');
+          window.location.href = 'login.html';
+        });
+      }
+    })();
+  </script>
+</body>
 </html>

@@ -3,6 +3,10 @@ from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.utils import timezone
 from datetime import timedelta
 import random
+import re
+
+
+STUDENT_EMAIL_REGEX = re.compile(r'^u(\d{7})@student\.cuet\.ac\.bd$', re.IGNORECASE)
 
 
 class CustomUserManager(BaseUserManager):
@@ -67,6 +71,14 @@ class User(AbstractUser):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
     objects = CustomUserManager()
+
+    def save(self, *args, **kwargs):
+        # Keep student_id synchronized with CUET student email format.
+        if self.role == 'student' and self.email:
+            match = STUDENT_EMAIL_REGEX.match(self.email.strip())
+            if match:
+                self.student_id = match.group(1)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.email

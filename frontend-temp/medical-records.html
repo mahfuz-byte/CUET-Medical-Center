@@ -11,7 +11,7 @@
   <script>
     (function () {
       var user = null;
-      try { user = JSON.parse(localStorage.getItem('currentUser')); } catch (e) { }
+      try { user = JSON.parse(localStorage.getItem('currentUser') || localStorage.getItem('user')); } catch (e) { }
       if (!user || user.role !== 'doctor') {
         // Not logged in as a doctor — redirect to login
         window.location.replace('login.html');
@@ -35,7 +35,8 @@
       <nav id="topNav" class="top-nav" aria-label="Primary">
         <a href="notices.html" class="nav-link">Notices</a>
         <a href="doctors.html" class="nav-link">Doctors</a>
-        <a href="roster.html" class="nav-link">Roster</a>
+        <a href="doctor-roster.html" class="nav-link">Doctor Roster</a>
+        <a href="doctor-ambulance.html" class="nav-link">Ambulance</a>
         <a href="emergency.html" class="nav-link">Emergency</a>
         <span id="doctor-greeting" class="nav-link muted" style="font-size:0.9em;"></span>
         <button id="logoutBtn" class="btn btn-primary" style="cursor:pointer;">Logout</button>
@@ -49,8 +50,8 @@
 
     <section class="panel">
       <form class="form-inline" id="records-search-form" role="search" aria-label="Medical records search">
-        <input type="text" id="record-query" placeholder="Student ID or name"
-          aria-label="Search medical records by student ID or name">
+        <input type="text" id="record-query" placeholder="Student ID (e.g. 2204093)"
+          aria-label="Search medical records by student ID">
         <button type="submit" class="btn btn-primary">Search</button>
       </form>
       <div id="record-results" class="list" aria-live="polite"></div>
@@ -96,10 +97,12 @@
   <script src="assets/js/api-client.js"></script>
   <script src="assets/js/app.js"></script>
   <script>
+    var API_BASE_URL = 'http://127.0.0.1:8000/api';
+
     // Show doctor's name in the nav
     (function () {
       var user = null;
-      try { user = JSON.parse(localStorage.getItem('currentUser')); } catch (e) { }
+      try { user = JSON.parse(localStorage.getItem('currentUser') || localStorage.getItem('user')); } catch (e) { }
       if (user) {
         var greeting = document.getElementById('doctor-greeting');
         if (greeting) greeting.textContent = 'Dr. ' + (user.first_name || user.email);
@@ -112,48 +115,66 @@
       if (logoutBtn) {
         logoutBtn.addEventListener('click', function () {
           localStorage.removeItem('accessToken');
+          localStorage.removeItem('access_token');
           localStorage.removeItem('refreshToken');
           localStorage.removeItem('currentUser');
+          localStorage.removeItem('user');
           window.location.href = 'login.html';
         });
       }
     })();
 
     // Search behavior
-    document.getElementById('records-search-form').addEventListener('submit', function (e) {
+    document.getElementById('records-search-form').addEventListener('submit', async function (e) {
       e.preventDefault();
       var q = document.getElementById('record-query').value.trim();
       var container = document.getElementById('record-results');
+      var token = localStorage.getItem('accessToken') || localStorage.getItem('access_token');
 
       if (!q) {
         container.innerHTML = '<div class="item">Enter a query to search records.</div>';
         return;
       }
 
-      let html = '';
-
-      let mockPrescriptions = JSON.parse(localStorage.getItem('mockPrescriptions') || '[]');
-      let results = mockPrescriptions.filter(p => p.studentId === q.toUpperCase() || q.toUpperCase() === 'ALL');
-
-      if (results.length > 0) {
-        html += '<h3 style="margin-bottom: 1rem;">Found ' + results.length + ' prescription(s)</h3>';
-        results.forEach(p => {
-          html += '<div class="item" style="margin-bottom: 1rem; border: 1px solid var(--border); padding: 1rem; border-radius: var(--radius-md);">';
-          html += '<div style="font-weight: bold; margin-bottom: 0.5rem; display: flex; justify-content: space-between;"><span>Date: ' + p.date + '</span><span class="badge" style="background: var(--primary); color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem;">' + p.studentId + '</span></div>';
-          html += '<div style="margin-bottom: 0.5rem;"><strong>Diagnosis:</strong> ' + p.diagnosis + '</div>';
-          html += '<div style="margin-bottom: 0.5rem;"><strong>Medicines:</strong><br>' + String(p.medicines).replace(/\n/g, '<br>') + '</div>';
-          if (p.advice) {
-            html += '<div><strong>Advice:</strong><br>' + String(p.advice).replace(/\n/g, '<br>') + '</div>';
-          }
-          html += '</div>';
-        });
-      } else {
-        html += '<div class="item">No previous records found for student: ' + q + '</div>';
+      if (!token) {
+        container.innerHTML = '<div class="item">Login required.</div>';
+        return;
       }
 
-      html += '<div style="margin-top: 1rem;"><a href="prescriptions.html?sid=' + encodeURIComponent(q) + '" class="btn btn-primary">Add New Prescription for ' + q + '</a></div>';
+      try {
+        var response = await fetch(API_BASE_URL + '/records/medical-records/?student_id=' + encodeURIComponent(q), {
+          headers: {
+            'Authorization': 'Bearer ' + token
+          }
+        });
+        var results = await response.json().catch(function () { return []; });
 
-      container.innerHTML = html;
+        if (!response.ok) {
+          throw new Error('Failed to load records');
+        }
+
+        var html = '';
+        if (results.length > 0) {
+          html += '<h3 style="margin-bottom: 1rem;">Found ' + results.length + ' record(s)</h3>';
+          results.forEach(function (r) {
+            html += '<div class="item" style="margin-bottom: 1rem; border: 1px solid var(--border); padding: 1rem; border-radius: var(--radius-md);">';
+            html += '<div style="font-weight: bold; margin-bottom: 0.5rem; display: flex; justify-content: space-between;"><span>Date: ' + new Date(r.created_at).toLocaleString() + '</span><span class="badge" style="background: var(--primary); color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem;">' + (r.student_student_id || q) + '</span></div>';
+            html += '<div style="margin-bottom: 0.5rem;"><strong>Diagnosis:</strong> ' + (r.diagnosis || '-') + '</div>';
+            html += '<div style="margin-bottom: 0.5rem;"><strong>Medicines:</strong><br>' + String(r.prescribed_medicines || '').replace(/\n/g, '<br>') + '</div>';
+            if (r.advice) {
+              html += '<div><strong>Advice:</strong><br>' + String(r.advice).replace(/\n/g, '<br>') + '</div>';
+            }
+            html += '</div>';
+          });
+        } else {
+          html += '<div class="item">No previous records found for student: ' + q + '</div>';
+        }
+
+        html += '<div style="margin-top: 1rem;"><a href="prescriptions.html?sid=' + encodeURIComponent(q) + '" class="btn btn-primary">Add New Prescription for ' + q + '</a></div>';
+        container.innerHTML = html;
+      } catch (_) {
+        container.innerHTML = '<div class="item">Failed to load records for ' + q + '.</div>';
+      }
     });
     document.getElementById('record-results').innerHTML = '<div class="item">Enter a query to search records.</div>';
   </script>

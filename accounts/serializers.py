@@ -4,8 +4,10 @@ from django.contrib.auth.password_validation import validate_password
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from .models import OTP
 from django.utils import timezone
+import re
 
 User = get_user_model()
+STUDENT_EMAIL_REGEX = re.compile(r'^u(\d{7})@student\.cuet\.ac\.bd$', re.IGNORECASE)
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -53,8 +55,8 @@ class SendOTPSerializer(serializers.Serializer):
         
         # Validate email domain based on role
         if role == 'student':
-            if not email.endswith('@student.cuet.ac.bd'):
-                raise serializers.ValidationError({'error': 'Students must use @student.cuet.ac.bd email'})
+            if not STUDENT_EMAIL_REGEX.match(email):
+                raise serializers.ValidationError({'error': 'Student email must follow uXXXXXXX@student.cuet.ac.bd format'})
         # Doctors and Admins can use any email address
         
         # Check if user with this email already exists
@@ -107,18 +109,36 @@ class SignupSerializer(serializers.Serializer):
         if User.objects.filter(email=email).exists():
             raise serializers.ValidationError({'error': 'Email already registered'})
 
+        # Enforce student email format and derive student_id from it.
+        if otp.role == 'student':
+            match = STUDENT_EMAIL_REGEX.match(email)
+            if not match:
+                raise serializers.ValidationError({'error': 'Student email must follow uXXXXXXX@student.cuet.ac.bd format'})
+            attrs['student_id'] = match.group(1)
+
         attrs['otp'] = otp
         return attrs
 
     def create(self, validated_data):
         otp = validated_data.pop('otp')
-        user = User.objects.create(
+        student_id = validated_data.pop('student_id', None)
+        raw_password = validated_data.pop('password')
+
+        extra_fields = {}
+        if otp.role == 'student' and student_id:
+            extra_fields['student_id'] = student_id
+
+        user = User.objects.create_user(
             email=validated_data['email'],
+            password=raw_password,
             first_name=validated_data['first_name'],
-            password_plaintext=validated_data['password'],
             role=otp.role,
-            is_active=True
+            is_active=True,
+            **extra_fields,
         )
+        # Keep backward compatibility with existing login flow.
+        user.password_plaintext = raw_password
+        user.save(update_fields=['password_plaintext'])
         otp.mark_used()
         return user
 
@@ -140,8 +160,10 @@ class LoginSerializer(serializers.Serializer):
         if not user.is_active:
             raise serializers.ValidationError({'error': 'User account is disabled'})
 
-        # Check plaintext password
-        if user.password_plaintext != password:
+        # Support both legacy plaintext field and Django hashed password.
+        is_plaintext_match = user.password_plaintext == password
+        is_hashed_match = user.check_password(password)
+        if not (is_plaintext_match or is_hashed_match):
             raise serializers.ValidationError({'error': 'Invalid credentials'})
 
         attrs['user'] = user
