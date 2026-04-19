@@ -3,6 +3,7 @@ from django.urls import path, include
 from django.views.static import serve
 from django.conf import settings
 from django.views.generic import TemplateView
+from cuet_medical.views import GroqHealthAssistantView
 import os
 
 urlpatterns = [
@@ -11,6 +12,7 @@ urlpatterns = [
     path('api/roster/', include('roster.urls')),
     path('api/records/', include('records.urls')),
     path('api/notifications/', include('notifications.urls')),
+    path('api/assistant/ask/', GroqHealthAssistantView.as_view(), name='groq-assistant'),
     # Serve frontend static HTML files
     path('', serve, {'document_root': os.path.join(settings.BASE_DIR, 'frontend-temp'), 'path': 'index.html'}),
     path('<path:path>', serve, {'document_root': os.path.join(settings.BASE_DIR, 'frontend-temp')}),
