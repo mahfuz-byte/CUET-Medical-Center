@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from django.conf import settings
 from rest_framework_simplejwt.tokens import RefreshToken
+import smtplib
 from .serializers import (
     UserSerializer, SendOTPSerializer, VerifyOTPSerializer, 
     SignupSerializer, LoginSerializer, CustomTokenObtainPairSerializer
@@ -38,17 +39,17 @@ Welcome to CUET Medical Center!
 
 Your One-Time Password (OTP) for registration is: {otp_obj.otp_code}
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-⏱️  This OTP will expire in 5 minutes
+----------------------------------------
+This OTP will expire in 5 minutes.
 Role: {role.upper()}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+----------------------------------------
 
 Instructions:
 1. Enter this OTP in the signup form
 2. Complete your profile registration
 3. Start using CUET Medical Center
 
-⚠️  Did not request this? Please ignore this email or contact our support team.
+Did not request this? Please ignore this email or contact support.
 
 Best regards,
 CUET Campus Medical Center
@@ -56,21 +57,35 @@ Pahartoli, Raozan, Chattogram
 Phone: +880-31-714946
 Email: medical@cuet.edu
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+----------------------------------------
 © 2026 CUET Medical Center. All rights reserved.
             '''
-            send_mail(
-                subject,
-                message,
-                settings.EMAIL_HOST_USER,
-                [email],
-                fail_silently=False,
-            )
+            from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', None) or settings.EMAIL_HOST_USER
+
+            try:
+                send_mail(
+                    subject,
+                    message,
+                    from_email,
+                    [email],
+                    fail_silently=False,
+                )
+            except (BrokenPipeError, ConnectionResetError, smtplib.SMTPServerDisconnected, OSError):
+                # Retry once on transient connection failures.
+                send_mail(
+                    subject,
+                    message,
+                    from_email,
+                    [email],
+                    fail_silently=False,
+                )
+
             return Response(
                 {'message': f'OTP sent to {email}', 'email': email},
                 status=status.HTTP_200_OK
             )
         except Exception as e:
+            otp_obj.delete()
             return Response(
                 {'error': f'Failed to send OTP: {str(e)}'},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR

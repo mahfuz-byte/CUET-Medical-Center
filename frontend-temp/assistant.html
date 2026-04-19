@@ -1,18 +1,21 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>AI Assistant</title>
   <link rel="stylesheet" href="assets/css/styles.css">
 </head>
+
 <body>
   <header class="site-header" role="banner">
     <div class="container">
       <div class="branding">
         <a href="index.html" class="logo">CUET Medical Center</a>
       </div>
-      <button id="menuToggle" class="menu-toggle" aria-label="Toggle navigation" aria-controls="topNav" aria-expanded="false">
+      <button id="menuToggle" class="menu-toggle" aria-label="Toggle navigation" aria-controls="topNav"
+        aria-expanded="false">
         <span class="bar"></span>
         <span class="bar"></span>
         <span class="bar"></span>
@@ -108,7 +111,7 @@
         sendBtn.textContent = 'Thinking...';
       }
 
-      chat.insertAdjacentHTML('beforeend', '<div class="msg bot" id="assistant-loading">Thinking...</div>');
+      chat.insertAdjacentHTML('beforeend', '<div class="msg bot" id="assistant-loading">Thinking<span class="typing-dots"><span></span><span></span><span></span></span></div>');
 
       try {
         var answer = await window.CUETApiClient.askHealthQuestion(text);
@@ -133,4 +136,5 @@
     });
   </script>
 </body>
+
 </html>

@@ -1,17 +1,29 @@
 // Simple client-side helpers
 (function () {
   // API Configuration
-  const API_BASE_URL = 'http://127.0.0.1:8000/api';
+  const API_BASE_URL = (window.location.port === '8000')
+    ? '/api'
+    : 'http://127.0.0.1:8000/api';
+
+  function getStoredToken() {
+    return localStorage.getItem('accessToken') || localStorage.getItem('access_token');
+  }
+
+  function getStoredUser() {
+    return localStorage.getItem('currentUser') || localStorage.getItem('user');
+  }
 
   // ===== AUTH STATE MANAGEMENT =====
   function checkAuthState() {
-    const token = localStorage.getItem('access_token');
-    const user = localStorage.getItem('user');
+    const token = getStoredToken();
+    const user = getStoredUser();
     return token && user ? { token, user: JSON.parse(user) } : null;
   }
 
   function logout() {
+    localStorage.removeItem('accessToken');
     localStorage.removeItem('access_token');
+    localStorage.removeItem('currentUser');
     localStorage.removeItem('user');
     updateNavbar();
     // Detect if on nested page and use correct path
@@ -23,9 +35,9 @@
   function updateNavbar() {
     const auth = checkAuthState();
     // Find login button with flexible path matching (login.html or ../login.html)
-    const loginBtn = document.querySelector('a.btn-primary[href*="login"]') || 
-                     document.querySelector('a[href*="login.html"]');
-    
+    const loginBtn = document.querySelector('a.btn-primary[href*="login"]') ||
+      document.querySelector('a[href*="login.html"]');
+
     if (!loginBtn) return; // Navbar not loaded yet
 
     const navMenu = loginBtn.closest('.top-nav') || loginBtn.parentElement;
@@ -35,7 +47,7 @@
     if (auth) {
       // User is logged in
       const user = auth.user;
-      
+
       // Remove login button if exists
       const existingLoginBtn = navMenu.querySelector('a[href*="login"]');
       if (existingLoginBtn && existingLoginBtn.textContent.toLowerCase() === 'login') {
@@ -89,7 +101,7 @@
       const dashboardLink = navMenu.querySelector('a[href*="dashboard"]');
       const profileLink = navMenu.querySelector('a[href*="profile"]');
       const logoutBtn = navMenu.querySelector('a.logout-btn');
-      
+
       if (dashboardLink) dashboardLink.remove();
       if (profileLink) profileLink.remove();
       if (logoutBtn) logoutBtn.remove();
@@ -108,11 +120,12 @@
 
   // Update navbar when page loads
   window.addEventListener('DOMContentLoaded', updateNavbar);
-  
+
   // Check auth state periodically (every 5 seconds when user interacts)
   window.addEventListener('focus', updateNavbar);
 
-  // ===== LEGACY LOGIN HANDLER (keep for backward compatibility) =====
+  // ===== LEGACY LOGIN HANDLER DISABLED =====
+  /*
   var form = document.getElementById('loginForm');
   if (form) {
     form.addEventListener('submit', function (e) {
@@ -120,24 +133,24 @@
       var role = (document.querySelector('input[name="role"]:checked') || {}).value;
       var userId = document.getElementById('userId').value.trim();
       var password = document.getElementById('password').value.trim();
-
+  
       if (!role) {
         if (window.showToast) window.showToast('Please select a role.', 'warning');
         return;
       }
-
+  
       if (!userId || !password) {
         if (window.showToast) window.showToast('Please enter email and password.', 'warning');
         return;
       }
-
+  
       var submitBtn = form.querySelector('button[type="submit"]');
       var originalText = submitBtn ? submitBtn.textContent : 'Login';
       if (submitBtn) {
         submitBtn.disabled = true;
         submitBtn.textContent = 'Logging in...';
       }
-
+  
       fetch(API_BASE_URL + '/auth/login/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -153,6 +166,7 @@
         })
         .then(function (data) {
           localStorage.setItem('accessToken', data.access);
+          localStorage.setItem('access_token', data.access);
           localStorage.setItem('refreshToken', data.refresh);
           return fetch(API_BASE_URL + '/auth/me/', {
             headers: { 'Authorization': 'Bearer ' + data.access }
@@ -167,6 +181,7 @@
             throw new Error('Selected role does not match your account role');
           }
           localStorage.setItem('currentUser', JSON.stringify(user));
+          localStorage.setItem('user', JSON.stringify(user));
           if (window.showToast) {
             window.showToast('Welcome ' + (user.first_name || user.email) + '!', 'success');
           }
@@ -192,6 +207,7 @@
         });
     });
   }
+  */
 
   var menuBtn = document.getElementById('menuToggle');
   var topNav = document.getElementById('topNav');
@@ -423,7 +439,7 @@
   })();
 
   // Student/Doctor portal: dedicated roster and availability panels
-  (function(){
+  (function () {
     var doctorOnlyList = document.getElementById('doctor-roster-list');
     var ambulanceOnlyList = document.getElementById('ambulance-roster-list');
     var testKitList = document.getElementById('availability-testkits');
@@ -433,7 +449,7 @@
     if (!doctorOnlyList && !ambulanceOnlyList && !testKitList && !bedList && !medicineList) return;
 
     function authHeaders() {
-      var token = localStorage.getItem('accessToken');
+      var token = getStoredToken();
       return token ? { 'Authorization': 'Bearer ' + token } : {};
     }
 
@@ -446,9 +462,9 @@
       if (!doctorOnlyList) return;
       doctorOnlyList.innerHTML = '<div class="item">Loading doctor roster...</div>';
       fetch(API_BASE_URL + '/roster/doctors/')
-        .then(function(r){ return r.ok ? r.json() : []; })
-        .then(function(doctors){
-          doctorOnlyList.innerHTML = doctors.length ? doctors.map(function(d){
+        .then(function (r) { return r.ok ? r.json() : []; })
+        .then(function (doctors) {
+          doctorOnlyList.innerHTML = doctors.length ? doctors.map(function (d) {
             return '<div class="item">'
               + '<div class="item-title">' + (d.name || 'Unknown') + '</div>'
               + '<div class="item-meta">Department: ' + (d.dept || '-') + '</div>'
@@ -457,7 +473,7 @@
               + '</div>';
           }).join('') : '<div class="item">No doctors listed.</div>';
         })
-        .catch(function(){
+        .catch(function () {
           doctorOnlyList.innerHTML = '<div class="item">Unable to load doctor roster.</div>';
         });
     }
@@ -466,9 +482,9 @@
       if (!ambulanceOnlyList) return;
       ambulanceOnlyList.innerHTML = '<div class="item">Loading ambulance roster...</div>';
       fetch(API_BASE_URL + '/roster/ambulances/')
-        .then(function(r){ return r.ok ? r.json() : []; })
-        .then(function(ambulances){
-          ambulanceOnlyList.innerHTML = ambulances.length ? ambulances.map(function(a){
+        .then(function (r) { return r.ok ? r.json() : []; })
+        .then(function (ambulances) {
+          ambulanceOnlyList.innerHTML = ambulances.length ? ambulances.map(function (a) {
             return '<div class="item">'
               + '<div class="item-title">' + (a.ambulance_id || 'Ambulance') + '</div>'
               + '<div class="item-meta">Status: ' + (a.status || 'Unknown') + '</div>'
@@ -476,13 +492,13 @@
               + '</div>';
           }).join('') : '<div class="item">No ambulances listed.</div>';
         })
-        .catch(function(){
+        .catch(function () {
           ambulanceOnlyList.innerHTML = '<div class="item">Unable to load ambulance roster.</div>';
         });
     }
 
     function loadAvailability() {
-      var token = localStorage.getItem('accessToken');
+      var token = getStoredToken();
       if (!token) {
         renderNotLoggedIn(testKitList, 'test kit availability');
         renderNotLoggedIn(bedList, 'bed availability');
@@ -495,13 +511,13 @@
       if (medicineList) medicineList.innerHTML = '<div class="item">Loading medicines...</div>';
 
       fetch(API_BASE_URL + '/records/inventory/', { headers: authHeaders() })
-        .then(function(r){ return r.ok ? r.json() : []; })
-        .then(function(items){
-          var kits = items.filter(function(i){ return i.item_type === 'kit'; });
-          var beds = items.filter(function(i){ return i.item_type === 'bed'; });
+        .then(function (r) { return r.ok ? r.json() : []; })
+        .then(function (items) {
+          var kits = items.filter(function (i) { return i.item_type === 'kit'; });
+          var beds = items.filter(function (i) { return i.item_type === 'bed'; });
 
           if (testKitList) {
-            testKitList.innerHTML = kits.length ? kits.map(function(k){
+            testKitList.innerHTML = kits.length ? kits.map(function (k) {
               return '<div class="item">'
                 + '<div class="item-title">' + (k.name || 'Test Kit') + '</div>'
                 + '<div class="item-meta">Available: ' + (k.quantity || 0) + '</div>'
@@ -511,30 +527,30 @@
 
           if (bedList) {
             if (beds.length) {
-              var totalBeds = beds.reduce(function(sum, b){ return sum + (Number(b.quantity) || 0); }, 0);
+              var totalBeds = beds.reduce(function (sum, b) { return sum + (Number(b.quantity) || 0); }, 0);
               bedList.innerHTML = '<div class="item"><div class="item-title">Available Beds</div><div class="item-meta">' + totalBeds + '</div></div>';
             } else {
               bedList.innerHTML = '<div class="item">No bed availability data available.</div>';
             }
           }
         })
-        .catch(function(){
+        .catch(function () {
           if (testKitList) testKitList.innerHTML = '<div class="item">Unable to load test kit availability.</div>';
           if (bedList) bedList.innerHTML = '<div class="item">Unable to load bed availability.</div>';
         });
 
       fetch(API_BASE_URL + '/records/medicines/', { headers: authHeaders() })
-        .then(function(r){ return r.ok ? r.json() : []; })
-        .then(function(medicines){
+        .then(function (r) { return r.ok ? r.json() : []; })
+        .then(function (medicines) {
           if (!medicineList) return;
-          medicineList.innerHTML = medicines.length ? medicines.map(function(m){
+          medicineList.innerHTML = medicines.length ? medicines.map(function (m) {
             return '<div class="item">'
               + '<div class="item-title">' + (m.name || 'Medicine') + '</div>'
               + '<div class="item-meta">Dosage: ' + (m.dosage || '-') + '</div>'
               + '</div>';
           }).join('') : '<div class="item">No medicines available.</div>';
         })
-        .catch(function(){
+        .catch(function () {
           if (medicineList) medicineList.innerHTML = '<div class="item">Unable to load pharmacy availability.</div>';
         });
     }

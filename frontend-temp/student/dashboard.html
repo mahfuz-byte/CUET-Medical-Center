@@ -42,7 +42,6 @@
       <a href="blood.html">Blood Donation</a>
       <a href="alerts.html">Health Alerts</a>
       <a href="ai.html">AI Assistant</a>
-      <a href="profile-student.html">Profile</a>
       <a href="../login.html">Logout</a>
     </nav>
   </aside>
@@ -131,8 +130,8 @@
     (function () {
       // Small delay to ensure localStorage is ready
       setTimeout(() => {
-        const userStr = localStorage.getItem('user');
-        const token = localStorage.getItem('access_token');
+        const userStr = localStorage.getItem('currentUser') || localStorage.getItem('user');
+        const token = localStorage.getItem('accessToken') || localStorage.getItem('access_token');
         
         if (!userStr || !token) {
           window.location.href = '../login.html';

@@ -158,8 +158,8 @@
     (function () {
       setTimeout(() => {
         console.log('[ADMIN AUTH] Checking authentication...');
-        const userStr = localStorage.getItem('user');
-        const token = localStorage.getItem('access_token');
+        const userStr = localStorage.getItem('currentUser') || localStorage.getItem('user');
+        const token = localStorage.getItem('accessToken') || localStorage.getItem('access_token');
         
         if (!userStr || !token) {
           console.log('[ADMIN AUTH] Missing credentials, redirecting to login');
@@ -181,11 +181,33 @@
       }, 100);
     })();
 
+    function getAuthToken() {
+      return localStorage.getItem('accessToken') || localStorage.getItem('access_token') || '';
+    }
+
     function getHeaders() {
       return {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+        'Authorization': `Bearer ${getAuthToken()}`
       };
+    }
+
+    async function parseJsonSafe(res) {
+      try {
+        return await res.json();
+      } catch (_) {
+        return null;
+      }
+    }
+
+    async function fetchJsonOrThrow(url, options = {}) {
+      const res = await fetch(url, options);
+      const data = await parseJsonSafe(res);
+      if (!res.ok) {
+        const detail = data && (data.detail || data.non_field_errors || JSON.stringify(data));
+        throw new Error(detail || `Request failed (${res.status})`);
+      }
+      return data;
     }
     
     const API_URL = 'http://127.0.0.1:8000/api';
@@ -202,8 +224,7 @@
     async function loadDoctors() {
       const list = document.getElementById('doctorList');
       try {
-        const res = await fetch(`${API_URL}/roster/doctors/`, { headers: getHeaders() });
-        const doctors = await res.json();
+        const doctors = await fetchJsonOrThrow(`${API_URL}/roster/doctors/`, { headers: getHeaders() });
         if (doctors.length === 0) {
           list.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--muted);">No doctors added yet</div>';
           return;
@@ -235,7 +256,7 @@
       }
 
       try {
-        await fetch(`${API_URL}/roster/doctors/`, {
+        await fetchJsonOrThrow(`${API_URL}/roster/doctors/`, {
           method: 'POST',
           headers: getHeaders(),
           body: JSON.stringify({ name, dept, title, hours })
@@ -255,7 +276,7 @@
 
     async function removeDoctor(id) {
       try {
-        await fetch(`${API_URL}/roster/doctors/${id}/`, {
+        await fetchJsonOrThrow(`${API_URL}/roster/doctors/${id}/`, {
           method: 'DELETE',
           headers: getHeaders()
         });
@@ -267,8 +288,7 @@
     async function loadAmbulances() {
       const list = document.getElementById('ambulanceList');
       try {
-        const res = await fetch(`${API_URL}/roster/ambulances/`, { headers: getHeaders() });
-        const ambulances = await res.json();
+        const ambulances = await fetchJsonOrThrow(`${API_URL}/roster/ambulances/`, { headers: getHeaders() });
         if (ambulances.length === 0) {
           list.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--muted);">No ambulances added yet</div>';
           return;
@@ -276,8 +296,8 @@
         list.innerHTML = ambulances.map(amb => `
           <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; border-bottom: 1px solid rgba(59, 130, 246, 0.2);">
             <div>
-              <strong style="color: var(--primary-500);">${amb.name}</strong><br>
-              <span style="color: var(--muted); font-size: 0.9rem;">Driver: ${amb.driver}</span><br>
+              <strong style="color: var(--primary-500);">${amb.ambulance_id}</strong><br>
+              <span style="color: var(--muted); font-size: 0.9rem;">Status: ${amb.status}</span><br>
               <span style="color: var(--muted); font-size: 0.85rem;">${amb.contact}</span>
             </div>
             <button onclick="removeAmbulance(${amb.id})" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer;">Delete</button>
@@ -289,20 +309,20 @@
     }
 
     document.getElementById('addAmbulanceBtn').addEventListener('click', async () => {
-      const name = document.getElementById('ambulanceName').value.trim();
-      const driver = document.getElementById('ambulanceDriver').value.trim();
+      const ambulance_id = document.getElementById('ambulanceName').value.trim();
+      const status = document.getElementById('ambulanceDriver').value.trim();
       const contact = document.getElementById('ambulanceContact').value.trim();
 
-      if (!name || !driver || !contact) {
+      if (!ambulance_id || !status || !contact) {
         showToast('Please fill all fields', 'error');
         return;
       }
 
       try {
-        await fetch(`${API_URL}/roster/ambulances/`, {
+        await fetchJsonOrThrow(`${API_URL}/roster/ambulances/`, {
           method: 'POST',
           headers: getHeaders(),
-          body: JSON.stringify({ name, driver, contact })
+          body: JSON.stringify({ ambulance_id, status, contact })
         });
 
         document.getElementById('ambulanceName').value = '';
@@ -318,7 +338,7 @@
 
     async function removeAmbulance(id) {
       try {
-        await fetch(`${API_URL}/roster/ambulances/${id}/`, {
+        await fetchJsonOrThrow(`${API_URL}/roster/ambulances/${id}/`, {
           method: 'DELETE',
           headers: getHeaders()
         });
@@ -329,8 +349,7 @@
     // ===== TEST KITS =====
     async function loadTestKits() {
       try {
-        const res = await fetch(`${API_URL}/records/inventory/`, { headers: getHeaders() });
-        const inventory = await res.json();
+        const inventory = await fetchJsonOrThrow(`${API_URL}/records/inventory/`, { headers: getHeaders() });
         const kits = inventory.filter(item => item.item_type === 'kit');
 
         const getQty = (name) => {
@@ -347,6 +366,27 @@
       }
     }
 
+    async function upsertInventoryItem(payload) {
+      const inventory = await fetchJsonOrThrow(`${API_URL}/records/inventory/`, { headers: getHeaders() });
+      const existing = inventory.find(
+        item => item.name === payload.name && item.item_type === payload.item_type
+      );
+
+      if (existing) {
+        return fetchJsonOrThrow(`${API_URL}/records/inventory/${existing.id}/`, {
+          method: 'PATCH',
+          headers: getHeaders(),
+          body: JSON.stringify(payload)
+        });
+      }
+
+      return fetchJsonOrThrow(`${API_URL}/records/inventory/`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify(payload)
+      });
+    }
+
     document.getElementById('saveTestKitsBtn').addEventListener('click', async () => {
       const kits = [
         { name: 'Dengue Test Kit', qty: document.getElementById('denguKits').value },
@@ -357,23 +397,19 @@
 
       try {
         for (let kit of kits) {
-          await fetch(`${API_URL}/records/inventory/`, {
-            method: 'POST',
-            headers: getHeaders(),
-            body: JSON.stringify({ item_type: 'kit', name: kit.name, quantity: kit.qty })
-          });
+          await upsertInventoryItem({ item_type: 'kit', name: kit.name, quantity: kit.qty });
         }
         showToast('Test kits inventory updated');
+        loadTestKits();
       } catch (e) {
-        showToast('Failed to save inventory', 'error');
+        showToast(e.message || 'Failed to save inventory', 'error');
       }
     });
 
     // ===== BEDS =====
     async function loadBeds() {
       try {
-        const res = await fetch(`${API_URL}/records/inventory/`, { headers: getHeaders() });
-        const inventory = await res.json();
+        const inventory = await fetchJsonOrThrow(`${API_URL}/records/inventory/`, { headers: getHeaders() });
         const bed = inventory.find(item => item.item_type === 'bed');
         document.getElementById('availableBeds').value = bed ? Number(bed.quantity) || 0 : 0;
       } catch (e) {
@@ -384,14 +420,11 @@
     document.getElementById('saveBedsBtn').addEventListener('click', async () => {
       const beds = document.getElementById('availableBeds').value;
       try {
-        await fetch(`${API_URL}/records/inventory/`, {
-          method: 'POST',
-          headers: getHeaders(),
-          body: JSON.stringify({ item_type: 'bed', name: 'Available Beds', quantity: beds })
-        });
+        await upsertInventoryItem({ item_type: 'bed', name: 'Available Beds', quantity: beds });
         showToast('Bed availability updated');
+        loadBeds();
       } catch (e) {
-        showToast('Failed to save beds', 'error');
+        showToast(e.message || 'Failed to save beds', 'error');
       }
     });
 
@@ -399,8 +432,7 @@
     async function loadPharmacy() {
       const list = document.getElementById('pharmacyList');
       try {
-        const res = await fetch(`${API_URL}/records/medicines/`, { headers: getHeaders() });
-        const medicines = await res.json();
+        const medicines = await fetchJsonOrThrow(`${API_URL}/records/medicines/`, { headers: getHeaders() });
         if (medicines.length === 0) {
           list.innerHTML = '<div style="grid-column: 1 / -1; padding: 20px; text-align: center; color: var(--muted);">No medicines added yet</div>';
           return;
@@ -427,7 +459,7 @@
       }
 
       try {
-        await fetch(`${API_URL}/records/medicines/`, {
+        await fetchJsonOrThrow(`${API_URL}/records/medicines/`, {
           method: 'POST',
           headers: getHeaders(),
           body: JSON.stringify({ name, dosage })
@@ -444,7 +476,7 @@
 
     async function removeMedicine(id) {
       try {
-        await fetch(`${API_URL}/records/medicines/${id}/`, {
+        await fetchJsonOrThrow(`${API_URL}/records/medicines/${id}/`, {
           method: 'DELETE',
           headers: getHeaders()
         });

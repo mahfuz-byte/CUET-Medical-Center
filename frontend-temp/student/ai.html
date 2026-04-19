@@ -1,18 +1,21 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>AI Assistant | Student | CUET</title>
   <link rel="stylesheet" href="../assets/css/styles.css">
 </head>
+
 <body>
   <header class="site-header" role="banner">
     <div class="container">
       <div class="branding">
         <a class="logo" href="../index.html" aria-label="CUET Medical Center Home">CUET Medical Center</a>
       </div>
-      <button id="menuToggle" class="menu-toggle" aria-label="Toggle navigation" aria-controls="topNav" aria-expanded="false">
+      <button id="menuToggle" class="menu-toggle" aria-label="Toggle navigation" aria-controls="topNav"
+        aria-expanded="false">
         <span class="bar"></span>
         <span class="bar"></span>
         <span class="bar"></span>
@@ -27,7 +30,7 @@
       </nav>
     </div>
   </header>
-  
+
   <aside id="sidebar" class="sidebar" role="navigation" aria-label="Student navigation">
     <div class="sidebar-brand">Student</div>
     <nav>
@@ -41,13 +44,13 @@
       <a href="blood.html">Blood Donation</a>
       <a href="alerts.html">Health Alerts</a>
       <a href="ai.html" class="active">AI Assistant</a>
-      <a href="profile-student.html">Profile</a>
       <a href="../login.html">Logout</a>
     </nav>
   </aside>
   <main id="main" class="content" role="main">
     <header class="content-header">
-      <button class="sidebar-toggle" aria-label="Open menu" aria-controls="sidebar" aria-expanded="false">☰ Menu</button>
+      <button class="sidebar-toggle" aria-label="Open menu" aria-controls="sidebar" aria-expanded="false">☰
+        Menu</button>
       <h1>AI Assistant</h1>
     </header>
 
@@ -55,7 +58,8 @@
       <div class="card" style="grid-column: 1 / -1;">
         <h3>Ask a question</h3>
         <div id="assistant-chat" class="chat-window" aria-live="polite">
-          <div class="msg sys">Welcome! Ask a general health question below. For medical advice, consult campus doctors.</div>
+          <div class="msg sys">Welcome! Ask a general health question below. For medical advice, consult campus doctors.
+          </div>
         </div>
         <form id="assistant-form" class="form-inline" style="margin-top:10px;">
           <input type="text" id="assistant-input" placeholder="Type your question" required>
@@ -68,32 +72,32 @@
   <script src="../assets/js/api-client.js"></script>
   <script src="../assets/js/app.js"></script>
   <script>
-    document.getElementById('assistant-form').addEventListener('submit', async function(e){
+    document.getElementById('assistant-form').addEventListener('submit', async function (e) {
       e.preventDefault();
       var input = document.getElementById('assistant-input');
       var sendBtn = document.querySelector('#assistant-form button[type="submit"]');
       var text = (input.value || '').trim();
       if (!text) return;
       var chat = document.getElementById('assistant-chat');
-      chat.insertAdjacentHTML('beforeend', '<div class="msg user">'+text+'</div>');
+      chat.insertAdjacentHTML('beforeend', '<div class="msg user">' + text + '</div>');
 
       if (sendBtn) {
         sendBtn.disabled = true;
         sendBtn.textContent = 'Thinking...';
       }
 
-      chat.insertAdjacentHTML('beforeend', '<div class="msg bot" id="assistant-loading">Thinking...</div>');
+      chat.insertAdjacentHTML('beforeend', '<div class="msg bot" id="assistant-loading">Thinking<span class="typing-dots"><span></span><span></span><span></span></span></div>');
 
       try {
         var answer = await window.CUETApiClient.askHealthQuestion(text);
         var loading = document.getElementById('assistant-loading');
         if (loading) loading.remove();
-        chat.insertAdjacentHTML('beforeend', '<div class="msg bot">'+answer+'</div>');
+        chat.insertAdjacentHTML('beforeend', '<div class="msg bot">' + answer + '</div>');
       } catch (err) {
         var loadingEl = document.getElementById('assistant-loading');
         if (loadingEl) loadingEl.remove();
         var msg = (err && err.message) ? err.message : 'Sorry, I could not answer right now. Please try again.';
-        chat.insertAdjacentHTML('beforeend', '<div class="msg bot">'+msg+'</div>');
+        chat.insertAdjacentHTML('beforeend', '<div class="msg bot">' + msg + '</div>');
         if (window.showToast) window.showToast(msg, 'error');
       } finally {
         if (sendBtn) {
@@ -153,4 +157,5 @@
     </div>
   </footer>
 </body>
+
 </html>
