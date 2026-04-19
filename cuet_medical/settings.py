@@ -158,8 +158,8 @@ SIMPLE_JWT = {
 
 # CORS Settings
 CORS_ALLOWED_ORIGINS = [
-    'http://127.0.0.1:5500',
-    'http://localhost:5500',
+    'http://127.0.0.1:5501',
+    'http://localhost:5501',
     'http://127.0.0.1:8000',
     'http://localhost:8000',
 ]
@@ -178,7 +178,10 @@ EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
 # Gemini configuration
 GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', '').strip()
 
-if not GEMINI_API_KEY:
+# Groq configuration
+GROQ_API_KEY = os.getenv('GROQ_API_KEY', '').strip()
+
+if not GEMINI_API_KEY or not GROQ_API_KEY:
     env_file = BASE_DIR / '.env'
     if env_file.exists():
         raw_bytes = env_file.read_bytes()
@@ -193,4 +196,5 @@ if not GEMINI_API_KEY:
         for line in text.splitlines():
             if line.startswith('GEMINI_API_KEY='):
                 GEMINI_API_KEY = line.split('=', 1)[1].strip()
-                break
+            elif line.startswith('GROQ_API_KEY='):
+                GROQ_API_KEY = line.split('=', 1)[1].strip()

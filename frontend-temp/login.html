@@ -111,7 +111,7 @@
       margin: 0;
     }
 
-    .role-option input[type="radio"]:checked + label {
+    .role-option input[type="radio"]:checked+label {
       border-color: var(--primary-500);
       background: rgba(59, 130, 246, 0.1);
       color: var(--primary-500);
@@ -253,7 +253,8 @@
       <div class="branding">
         <a class="logo" href="index.html" aria-label="CUET Medical Center Home">CUET Medical Center</a>
       </div>
-      <button id="menuToggle" class="menu-toggle" aria-label="Toggle navigation" aria-controls="topNav" aria-expanded="false">
+      <button id="menuToggle" class="menu-toggle" aria-label="Toggle navigation" aria-controls="topNav"
+        aria-expanded="false">
         <span class="bar"></span>
         <span class="bar"></span>
         <span class="bar"></span>
@@ -271,7 +272,9 @@
 
   <main class="auth-container">
     <div class="auth-card" role="main">
-      <a href="index.html" class="logo" style="display:block; margin-bottom:16px; text-align: center; font-weight: 600; font-size: 18px; color: var(--primary-500);">CUET Medical Center</a>
+      <a href="index.html" class="logo"
+        style="display:block; margin-bottom:16px; text-align: center; font-weight: 600; font-size: 18px; color: var(--primary-500);">CUET
+        Medical Center</a>
 
       <!-- Tab Toggle -->
       <div class="tab-toggle">
@@ -328,7 +331,8 @@
 
           <!-- STEP 1: Email & Role Selection -->
           <div id="signupStep1" class="otp-step active">
-            <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">Select your role and enter your email to receive an OTP</p>
+            <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">Select your role and enter your email
+              to receive an OTP</p>
 
             <div id="signupStep1Message" class="message"></div>
 
@@ -365,7 +369,8 @@
 
           <!-- STEP 2: OTP Verification -->
           <div id="signupStep2" class="otp-step">
-            <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">Enter the 5-digit OTP sent to your email. Valid for 5 minutes.</p>
+            <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">Enter the 5-digit OTP sent to your
+              email. Valid for 5 minutes.</p>
 
             <div id="signupStep2Message" class="message"></div>
 
@@ -465,7 +470,9 @@
   </footer>
 
   <script>
-    const API_BASE = 'http://127.0.0.1:8000/api';
+    const API_BASE = (window.location.port === '8000')
+      ? '/api'
+      : 'http://127.0.0.1:8000/api';
     const STUDENT_EMAIL_REGEX = /^u\d{7}@student\.cuet\.ac\.bd$/i;
 
     // Tab Toggle
@@ -525,7 +532,6 @@
           localStorage.setItem('accessToken', data.access);
           localStorage.setItem('user', JSON.stringify(data.user));
           localStorage.setItem('currentUser', JSON.stringify(data.user));
-          
           console.log('[LOGIN] localStorage set. User:', localStorage.getItem('user'));
 
           // Redirect based on role
@@ -536,7 +542,7 @@
           };
           const redirectUrl = dashboardMap[data.user.role] || 'student/dashboard.html';
           console.log('[LOGIN] Redirecting to:', redirectUrl);
-          
+
           setTimeout(() => {
             console.log('[LOGIN] Executing window.location.href =', redirectUrl);
             window.location.href = redirectUrl;
