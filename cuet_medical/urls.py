@@ -14,9 +14,9 @@ urlpatterns = [
     path('api/notifications/', include('notifications.urls')),
     path('api/assistant/ask/', GroqHealthAssistantView.as_view(), name='groq-assistant'),
     # Serve static/media files in development BEFORE the catch-all patterns
-    path('assets/<path:path>', serve, {'document_root': os.path.join(settings.BASE_DIR, 'frontend-temp', 'assets')}),
+    path('assets/<path:path>', serve, {'document_root': os.path.join(settings.BASE_DIR, 'frontend', 'assets')}),
     path('media/<path:path>', serve, {'document_root': settings.MEDIA_ROOT}),
     # Serve frontend static HTML files (catch-all at the end)
-    path('', serve, {'document_root': os.path.join(settings.BASE_DIR, 'frontend-temp'), 'path': 'index.html'}),
-    path('<path:path>', serve, {'document_root': os.path.join(settings.BASE_DIR, 'frontend-temp')}),
+    path('', serve, {'document_root': os.path.join(settings.BASE_DIR, 'frontend'), 'path': 'index.html'}),
+    path('<path:path>', serve, {'document_root': os.path.join(settings.BASE_DIR, 'frontend')}),
 ]

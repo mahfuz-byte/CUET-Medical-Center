@@ -1,6 +1,6 @@
 import os
 
-file_path = r'd:\IP2\frontend-temp\assets\js\app.js'
+file_path = r'd:\IP2\frontend\assets\js\app.js'
 
 with open(file_path, 'r', encoding='utf-8') as f:
     content = f.read()
