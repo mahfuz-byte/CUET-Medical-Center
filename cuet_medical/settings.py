@@ -35,7 +35,9 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-31v#_-bi2*s)aru8bousrgpu-!
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'True').lower() == 'true'
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+# Parse ALLOWED_HOSTS from environment, handling both comma-separated and wildcard patterns
+_allowed_hosts = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1')
+ALLOWED_HOSTS = [host.strip() for host in _allowed_hosts.split(',')]
 
 
 # Application definition
