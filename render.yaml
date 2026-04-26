@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: cuet-medical-center
+    env: python
+    region: oregon
+    plan: free
+    buildCommand: bash build.sh
+    startCommand: gunicorn cuet_medical.wsgi:application
+    healthCheckPath: /api/auth/profile/
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.13
+      - key: DEBUG
+        value: "False"
+      - key: SECRET_KEY
+        fromBuild: true
+
+  - type: postgresql
+    name: cuet-medical-db
+    plan: free
+    region: oregon
+    ipAllowList: []
