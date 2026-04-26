@@ -96,12 +96,12 @@
 
   <script src="assets/js/app.js"></script>
   <script>
-    // Basic role guard for doctors
+    // Role guard and navbar update for doctors
     (function () {
       // Small delay to ensure localStorage is ready
       setTimeout(() => {
-        const userStr = localStorage.getItem('user');
-        const token = localStorage.getItem('access_token');
+        const userStr = localStorage.getItem('user') || localStorage.getItem('currentUser');
+        const token = localStorage.getItem('access_token') || localStorage.getItem('accessToken');
         
         if (!userStr || !token) {
           window.location.href = 'login.html';
@@ -112,6 +112,51 @@
         if (!user.role || user.role !== 'doctor') {
           window.location.href = 'login.html';
           return;
+        }
+        
+        // Update navbar with Dashboard and Profile links for logged-in doctor
+        const topNav = document.querySelector('.top-nav');
+        if (topNav) {
+          // Remove the Login button
+          const loginBtn = topNav.querySelector('a[href*="login"]');
+          if (loginBtn && loginBtn.textContent.toLowerCase() === 'login') {
+            loginBtn.remove();
+          }
+          
+          // Add Dashboard link if not present
+          if (!topNav.querySelector('a[href*="doctor.html"]') && !topNav.querySelector('a[href*="dashboard"]')) {
+            const dashboardLink = document.createElement('a');
+            dashboardLink.href = 'doctor.html';
+            dashboardLink.className = 'nav-link';
+            dashboardLink.textContent = 'Dashboard';
+            topNav.appendChild(dashboardLink);
+          }
+          
+          // Add Profile link if not present
+          if (!topNav.querySelector('a[href*="profile-doctor"]')) {
+            const profileLink = document.createElement('a');
+            profileLink.href = 'profile-doctor.html';
+            profileLink.className = 'nav-link';
+            profileLink.textContent = 'Profile';
+            topNav.appendChild(profileLink);
+          }
+          
+          // Add Logout button if not present
+          if (!topNav.querySelector('a.logout-btn') && !topNav.querySelector('a[href="#logout"]')) {
+            const logoutBtn = document.createElement('a');
+            logoutBtn.href = '#';
+            logoutBtn.className = 'btn btn-primary logout-btn';
+            logoutBtn.textContent = 'Logout';
+            logoutBtn.addEventListener('click', function (e) {
+              e.preventDefault();
+              localStorage.removeItem('user');
+              localStorage.removeItem('access_token');
+              localStorage.removeItem('currentUser');
+              localStorage.removeItem('accessToken');
+              window.location.href = 'login.html';
+            });
+            topNav.appendChild(logoutBtn);
+          }
         }
         
         const heading = document.getElementById('doctorWelcome');
@@ -129,6 +174,8 @@
             e.preventDefault();
             localStorage.removeItem('user');
             localStorage.removeItem('access_token');
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem('accessToken');
             window.location.href = 'login.html';
           });
         }
