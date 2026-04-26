@@ -1,9 +1,9 @@
 // Simple client-side helpers
 (function () {
-  // API Configuration - Dynamic URL for local and production
-  const API_BASE_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+  // API Configuration
+  const API_BASE_URL = (window.location.port === '8000')
     ? '/api'
-    : window.location.origin + '/api';
+    : 'http://127.0.0.1:8000/api';
 
   function getStoredToken() {
     return localStorage.getItem('accessToken') || localStorage.getItem('access_token');

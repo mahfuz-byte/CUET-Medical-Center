@@ -4,7 +4,6 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Notices</title>
-  <link rel="icon" href="./assets/images/cuet_logo.png" type="image/png">
   <link rel="stylesheet" href="assets/css/styles.css">
   <style>
     .notices-container {
@@ -498,10 +497,19 @@
 
       <input type="file" id="pdf-input" accept=".pdf">
 
-      <!-- Alerts -->
+      <!-- Alerts Section -->
+      <div style="margin-bottom: 40px;">
+        <h2 style="color: #e5e7eb; margin-bottom: 20px;">📢 Health Alerts</h2>
+        <div id="alertsList" class="notices-list">
+          <div class="loading">Loading health alerts</div>
+        </div>
+      </div>
+
+      <!-- Notices -->
       <div id="alerts"></div>
 
       <!-- Notices List -->
+      <h2 style="color: #e5e7eb; margin: 40px 0 20px 0;">📄 Published Notices</h2>
       <div class="notices-list" id="noticesList">
         <div class="loading">Loading notices</div>
       </div>
@@ -559,13 +567,15 @@
   <script src="assets/js/app.js"></script>
   <script>
     let selectedPdfFile = null;
-    const API_BASE = (window.location.port === '8000')
+    // Dynamic API URL for localhost
+    const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
       ? '/api/notifications/notices'
-      : 'http://127.0.0.1:8000/api/notifications/notices';
+      : window.location.origin + '/api/notifications/notices';
 
     // Initialize
     document.addEventListener('DOMContentLoaded', async function() {
       checkUserRole();
+      loadAlerts();
       loadNotices();
       setupUploadHandlers();
     });
@@ -688,10 +698,11 @@
         document.getElementById('uploadForm').classList.remove('active');
         document.getElementById('fileName').textContent = 'None';
         selectedPdfFile = null;
+        loadAlerts();
         loadNotices();
       } catch (err) {
         console.error('Upload exception:', err);
-        showAlert('Error uploading notice: ' + err.message + '. Make sure server is running on http://127.0.0.1:8000', 'error');
+        showAlert('Error uploading notice: ' + err.message + '. Make sure server is running.', 'error');
       }
     }
 
@@ -733,6 +744,51 @@
       } catch (err) {
         console.error('Error loading notices:', err);
         showAlert('Error loading notices', 'error');
+      }
+    }
+
+    async function loadAlerts() {
+      try {
+        // Get the base API URL by removing '/notices' from API_BASE
+        const alertsAPI = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+          ? '/api/notifications/notifications'
+          : window.location.origin + '/api/notifications/notifications';
+        
+        const response = await fetch(alertsAPI + '/');
+        if (!response.ok) throw new Error('Failed to load alerts');
+
+        const data = await response.json();
+        const alerts = Array.isArray(data) ? data : (data.results || []);
+        const alertsList = document.getElementById('alertsList');
+
+        if (!alerts || alerts.length === 0) {
+          alertsList.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-state-icon">📭</div>
+              <h3>No Health Alerts</h3>
+              <p>No active health alerts at this time.</p>
+            </div>
+          `;
+          return;
+        }
+
+        alertsList.innerHTML = alerts.map(alert => `
+          <div class="notice-card">
+            <div class="notice-header">
+              <h2 class="notice-title">${escapeHtml(alert.title)}</h2>
+            </div>
+            <div class="notice-meta">
+              <span>📅 ${new Date(alert.created_at).toLocaleDateString()}</span>
+              <span>👤 ${alert.created_by_detail?.first_name || 'System'}</span>
+              <span>🎯 Target: ${alert.target === 'all' ? 'All Users' : (alert.target === 'students' ? 'Students' : 'Doctors')}</span>
+            </div>
+            <p class="notice-description">${escapeHtml(alert.message)}</p>
+          </div>
+        `).join('');
+      } catch (err) {
+        console.error('Error loading alerts:', err);
+        const alertsList = document.getElementById('alertsList');
+        alertsList.innerHTML = '<div class="empty-state"><h3>Error Loading Alerts</h3></div>';
       }
     }
 

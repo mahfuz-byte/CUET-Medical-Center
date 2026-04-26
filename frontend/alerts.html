@@ -5,7 +5,6 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Health Alerts</title>
-  <link rel="icon" href="./assets/images/cuet_logo.png" type="image/png">
   <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 
@@ -107,7 +106,10 @@
   <script src="assets/js/api-client.js"></script>
   <script src="assets/js/app.js"></script>
   <script>
-    const API_BASE_URL = 'http://127.0.0.1:8000/api';
+    // Dynamic API URL for localhost
+    const API_BASE_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') 
+      ? '/api'
+      : window.location.origin + '/api';
 
     function getStoredUser() {
       const raw = localStorage.getItem('currentUser') || localStorage.getItem('user');
@@ -145,10 +147,19 @@
     }
 
     function fetchAlerts() {
-      fetch(API_BASE_URL + '/notifications/')
-        .then(response => response.json())
+      fetch(API_BASE_URL + '/notifications/notifications/')
+        .then(response => {
+          console.log('Fetch response status:', response.status);
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+          return response.json();
+        })
         .then(data => {
-          renderAlerts(data);
+          console.log('Alerts data received:', data);
+          // Handle pagination - DRF may return {results: [...]} or just [...]
+          const alerts = data.results || data;
+          renderAlerts(alerts);
         })
         .catch(err => {
           console.error('Error fetching alerts:', err);
@@ -174,7 +185,7 @@
         return;
       }
 
-      fetch(API_BASE_URL + '/notifications/', {
+      fetch(API_BASE_URL + '/notifications/notifications/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -187,28 +198,49 @@
         })
       })
         .then(response => {
-          if (!response.ok) throw new Error('Failed to post alert');
+          console.log('POST response status:', response.status);
+          console.log('POST response headers:', response.headers);
+          if (!response.ok) {
+            return response.text().then(text => {
+              console.error('Error response body:', text);
+              throw new Error(`HTTP ${response.status}: ${text}`);
+            });
+          }
           return response.json();
         })
         .then(data => {
+          console.log('Alert saved successfully:', data);
           if (window.showToast) window.showToast('Health alert published successfully.', 'success');
-          e.target.reset();
+          document.getElementById('alert-form').reset();
+          // Refresh alerts list
           fetchAlerts();
         })
         .catch(err => {
           console.error('Error posting alert:', err);
-          if (window.showToast) window.showToast('Failed to save alert to database.', 'error');
+          if (window.showToast) window.showToast('Failed to save alert: ' + err.message, 'error');
         });
     });
 
     function renderAlerts(alerts) {
       const list = document.getElementById('alerts-list');
-      list.innerHTML = alerts.length ? alerts.map(a => `
+      
+      if (!alerts || !Array.isArray(alerts)) {
+        console.error('Alerts is not an array:', alerts);
+        list.innerHTML = '<div class="item">Error: Invalid alerts data format.</div>';
+        return;
+      }
+      
+      if (alerts.length === 0) {
+        list.innerHTML = '<div class="item">No active health alerts.</div>';
+        return;
+      }
+      
+      list.innerHTML = alerts.map(a => `
         <div class="item">
-          <div class="item-title">${a.title}</div>
-          <div class="item-meta">${new Date(a.created_at).toLocaleString()} | Posted by ID: ${a.created_by || 'System'}</div>
-          <div style="margin-top: 0.5rem; word-break: break-word;">${a.message}</div>
-        </div>`).join('') : '<div class="item">No active health alerts.</div>';
+          <div class="item-title">${a.title || 'Untitled'}</div>
+          <div class="item-meta">${new Date(a.created_at).toLocaleString()} | Posted by: ${a.created_by_detail?.first_name || 'Unknown'}</div>
+          <div style="margin-top: 0.5rem; word-break: break-word;">${a.message || ''}</div>
+        </div>`).join('');
     }
 
     // Load alerts on init
