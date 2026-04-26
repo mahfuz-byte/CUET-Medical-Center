@@ -1,8 +1,12 @@
 // Shared API helper for frontend pages.
 (function () {
-  var API_BASE_URL = (window.location.port === '8000')
-    ? '/api'
-    : 'http://127.0.0.1:8000/api';
+  // Dynamic API URL - works for both local and production
+  var API_BASE_URL;
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    API_BASE_URL = '/api';  // Local: use relative path
+  } else {
+    API_BASE_URL = window.location.origin + '/api';  // Production: use full origin URL
+  }
 
   function getAuthHeaders() {
     var token = localStorage.getItem('accessToken');
