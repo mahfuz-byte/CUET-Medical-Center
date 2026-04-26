@@ -163,7 +163,7 @@ CUET-Medical-Center/
 ├── records/             # Medical records management
 ├── roster/              # Doctor roster/scheduling
 ├── cuet_medical/        # Main Django project settings
-├── frontend/            # Frontend HTML/CSS/JS files
+├── frontend-temp/       # Frontend HTML/CSS/JS files
 │   ├── student/         # Student-specific pages
 │   └── assets/          # CSS, JS, images
 ├── media/               # User uploads (notices, files)

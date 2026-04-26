@@ -1,6 +1,6 @@
 import os
 
-file_path = r'd:\IP2\frontend\admin.html'
+file_path = r'd:\IP2\frontend-temp\admin.html'
 
 with open(file_path, 'r', encoding='utf-8') as f:
     content = f.read()
