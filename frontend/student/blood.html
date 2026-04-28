@@ -8,8 +8,9 @@
 </head>
 <body>
   <header class="site-header" role="banner">
-    <div class="container">
-      <div class="branding">
+    <div class="container" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 24px;">
+      <button id="sidebarToggle" class="sidebar-toggle" aria-label="Open sidebar menu" aria-controls="sidebar" aria-expanded="false" title="Toggle menu" style="display: none;">☰</button>
+      <div class="branding" style="flex: 1;">
         <a class="logo" href="../index.html" aria-label="CUET Medical Center Home">CUET Medical Center</a>
       </div>
       <button id="menuToggle" class="menu-toggle" aria-label="Toggle navigation" aria-controls="topNav" aria-expanded="false">
@@ -30,7 +31,8 @@
   </header>
   
   <aside id="sidebar" class="sidebar" role="navigation" aria-label="Student navigation">
-    <div class="sidebar-brand">Student</div>
+    <button id="sidebarClose" class="sidebar-close" aria-label="Close sidebar" title="Close menu">✕</button>
+    <div class="sidebar-brand">Navigation</div>
     <nav>
       <a href="dashboard.html">Dashboard</a>
       <a href="records.html">My Medical Records</a>
@@ -42,16 +44,14 @@
       <a href="blood.html" class="active">Blood Donation</a>
       <a href="alerts.html">Health Alerts</a>
       <a href="ai.html">AI Assistant</a>
-      <a href="../login.html">Logout</a>
     </nav>
   </aside>
   <main id="main" class="content" role="main">
-    <header class="content-header">
-      <button class="sidebar-toggle" aria-label="Open menu" aria-controls="sidebar" aria-expanded="false">☰ Menu</button>
-      <h1>Blood Donation</h1>
+    <header style="flex: 1; padding: 16px 24px;">
+      <h1>🩸 Blood Donation</h1>
     </header>
 
-    <section class="cards">
+    <section class="cards" style="padding: 16px 24px;">
       <div class="card">
         <h3>Register as Donor</h3>
         <p>Join the campus donor list.</p>
@@ -112,6 +112,76 @@
   </footer>
   <script src="../assets/js/api-client.js"></script>
   <script src="../assets/js/app.js"></script>
+  <script>
+    // Sidebar toggle functionality
+    (function () {
+      const sidebar = document.getElementById('sidebar');
+      const toggleBtn = document.getElementById('sidebarToggle');
+      const closeBtn = document.getElementById('sidebarClose');
+      const sidebarLinks = sidebar.querySelectorAll('nav a');
+
+      // Only initialize if buttons exist
+      if (!toggleBtn || !closeBtn) {
+        console.warn('Sidebar toggle buttons not found');
+        return;
+      }
+
+      // Toggle sidebar on button click
+      function toggleSidebar() {
+        sidebar.classList.toggle('open');
+        toggleBtn.setAttribute('aria-expanded', sidebar.classList.contains('open'));
+        document.body.classList.toggle('sidebar-open');
+      }
+
+      // Close sidebar
+      function closeSidebar() {
+        sidebar.classList.remove('open');
+        toggleBtn.setAttribute('aria-expanded', 'false');
+        document.body.classList.remove('sidebar-open');
+      }
+
+      // Click outside to close
+      function handleBackdropClick(e) {
+        if (window.innerWidth <= 960 && sidebar.classList.contains('open')) {
+          if (e.target === document.querySelector('body::before') || (!sidebar.contains(e.target) && !toggleBtn.contains(e.target))) {
+            closeSidebar();
+          }
+        }
+      }
+
+      // Event listeners
+      toggleBtn.addEventListener('click', toggleSidebar);
+      closeBtn.addEventListener('click', closeSidebar);
+      document.addEventListener('click', handleBackdropClick);
+
+      // Close sidebar when link is clicked
+      sidebarLinks.forEach(link => {
+        link.addEventListener('click', () => {
+          if (window.innerWidth <= 960) {
+            closeSidebar();
+          }
+        });
+      });
+
+      // Handle window resize
+      window.addEventListener('resize', () => {
+        if (window.innerWidth > 960 && sidebar.classList.contains('open')) {
+          closeSidebar();
+        }
+      });
+
+      // Set active link based on current page
+      const currentPage = window.location.pathname.split('/').pop() || 'blood.html';
+      sidebarLinks.forEach(link => {
+        const href = link.getAttribute('href');
+        if (href === currentPage) {
+          link.classList.add('active');
+        } else {
+          link.classList.remove('active');
+        }
+      });
+    })();
+  </script>
 </body>
 </html>
 

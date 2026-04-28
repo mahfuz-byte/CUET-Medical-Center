@@ -8,8 +8,9 @@
 </head>
 <body>
   <header class="site-header" role="banner">
-    <div class="container">
-      <div class="branding">
+    <div class="container" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 24px;">
+      <button id="sidebarToggle" class="sidebar-toggle" aria-label="Open sidebar menu" aria-controls="sidebar" aria-expanded="false" title="Toggle menu" style="display: none;">☰</button>
+      <div class="branding" style="flex: 1;">
         <a class="logo" href="../index.html" aria-label="CUET Medical Center Home">CUET Medical Center</a>
       </div>
       <button id="menuToggle" class="menu-toggle" aria-label="Toggle navigation" aria-controls="topNav" aria-expanded="false">
@@ -30,7 +31,8 @@
   </header>
   
   <aside id="sidebar" class="sidebar" role="navigation" aria-label="Student navigation">
-    <div class="sidebar-brand">Student</div>
+    <button id="sidebarClose" class="sidebar-close" aria-label="Close sidebar" title="Close menu">✕</button>
+    <div class="sidebar-brand">Navigation</div>
     <nav>
       <a href="dashboard.html">Dashboard</a>
       <a href="records.html">My Medical Records</a>
@@ -42,27 +44,18 @@
       <a href="blood.html">Blood Donation</a>
       <a href="alerts.html">Health Alerts</a>
       <a href="ai.html">AI Assistant</a>
-      <a href="../login.html">Logout</a>
     </nav>
   </aside>
   <main id="main" class="content" role="main">
     <header class="content-header">
-      <button class="sidebar-toggle" aria-label="Open menu" aria-controls="sidebar" aria-expanded="false">☰ Menu</button>
-      <h1>Ambulance Status</h1>
+      <div style="flex: 1;">
+        <h1 style="margin: 0; display: flex; align-items: center; gap: 10px;">🚑 Ambulance Status</h1>
+      </div>
     </header>
 
-    <section class="cards">
-      <div class="card">
-        <h3>Campus Ambulance</h3>
-        <p>Live ambulance status and contact details are shown below.</p>
-      </div>
-      <div class="card"><h3>Emergency</h3><p>Call <strong>999</strong> or campus emergency. See <a href="../emergency.html">Emergency info</a>.</p></div>
-    </section>
-
-    <section class="panel" style="margin-top: 20px;">
-      <h2>Ambulance Roster & Details</h2>
-      <div class="list" id="ambulance-roster-list">
-        <div class="item">Loading ambulance roster...</div>
+    <section style="padding: 16px 24px;">
+      <div id="ambulance-roster-list" style="display: grid; gap: 16px;">
+        <div style="text-align: center; padding: 40px 20px; color: var(--muted);">Loading ambulance roster...</div>
       </div>
     </section>
   </main>
@@ -114,6 +107,108 @@
   </footer>
   <script src="../assets/js/api-client.js"></script>
   <script src="../assets/js/app.js"></script>
+  <script>
+    const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+      ? '/api'
+      : window.location.origin + '/api';
+
+    (async function () {
+      const list = document.getElementById('ambulance-roster-list');
+      
+      try {
+        const res = await fetch(`${API_BASE}/roster/ambulances/`);
+        const data = await res.json().catch(() => []);
+        const ambulances = Array.isArray(data) ? data : (data.results || []);
+        
+        if (!res.ok || !ambulances.length) {
+          list.innerHTML = '<div style="text-align: center; padding: 40px 20px; color: var(--muted);">No ambulances available.</div>';
+          return;
+        }
+
+        list.innerHTML = ambulances.map(function (amb) {
+          const statusColor = amb.status === 'Available' ? '#22c55e' : '#f59e0b';
+          const statusBg = amb.status === 'Available' ? 'rgba(34, 197, 94, 0.2)' : 'rgba(245, 158, 11, 0.2)';
+          return `
+            <div class="card" style="background: linear-gradient(135deg, rgba(8, 145, 178, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%); border: 2px solid rgba(8, 145, 178, 0.3); padding: 20px;">
+              <div style="display: flex; justify-content: space-between; align-items: start; gap: 15px; margin-bottom: 12px;">
+                <div>
+                  <h3 style="margin: 0; color: #0891b2; font-size: 1.1rem; font-weight: 600;">${amb.license_plate || 'Ambulance ' + amb.id}</h3>
+                  <p style="margin: 5px 0; color: var(--muted); font-size: 0.9rem;">🚗 License: ${amb.license_plate || '-'}</p>
+                </div>
+                <span style="padding: 8px 12px; background: ${statusBg}; border-radius: 6px; color: ${statusColor}; font-size: 0.85rem; font-weight: 500;">● ${amb.status || 'Unknown'}</span>
+              </div>
+              <div style="margin-bottom: 10px;">
+                <p style="margin: 5px 0; color: var(--muted); font-size: 0.9rem;"><strong>Driver:</strong> ${amb.driver_name || '-'}</p>
+                <p style="margin: 5px 0; color: var(--muted); font-size: 0.9rem;"><strong>Contact:</strong> ${amb.contact_number || '-'}</p>
+                <p style="margin: 5px 0; color: var(--muted); font-size: 0.9rem;"><strong>Location:</strong> ${amb.location || 'Campus'}</p>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } catch (err) {
+        console.error('Error loading ambulances:', err);
+        list.innerHTML = '<div style="text-align: center; padding: 40px 20px; color: var(--muted);">Unable to load ambulance roster.</div>';
+      }
+    })();
+
+    // Sidebar toggle functionality
+    (function () {
+      const sidebar = document.getElementById('sidebar');
+      const toggleBtn = document.getElementById('sidebarToggle');
+      const closeBtn = document.getElementById('sidebarClose');
+      const sidebarLinks = sidebar.querySelectorAll('nav a');
+
+      if (!toggleBtn || !closeBtn) return;
+
+      function toggleSidebar() {
+        sidebar.classList.toggle('open');
+        toggleBtn.setAttribute('aria-expanded', sidebar.classList.contains('open'));
+        document.body.classList.toggle('sidebar-open');
+      }
+
+      function closeSidebar() {
+        sidebar.classList.remove('open');
+        toggleBtn.setAttribute('aria-expanded', 'false');
+        document.body.classList.remove('sidebar-open');
+      }
+
+      function handleBackdropClick(e) {
+        if (window.innerWidth <= 960 && sidebar.classList.contains('open')) {
+          if (!sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
+            closeSidebar();
+          }
+        }
+      }
+
+      toggleBtn.addEventListener('click', toggleSidebar);
+      closeBtn.addEventListener('click', closeSidebar);
+      document.addEventListener('click', handleBackdropClick);
+
+      sidebarLinks.forEach(link => {
+        link.addEventListener('click', () => {
+          if (window.innerWidth <= 960) {
+            closeSidebar();
+          }
+        });
+      });
+
+      window.addEventListener('resize', () => {
+        if (window.innerWidth > 960 && sidebar.classList.contains('open')) {
+          closeSidebar();
+        }
+      });
+
+      const currentPage = window.location.pathname.split('/').pop() || 'ambulance.html';
+      sidebarLinks.forEach(link => {
+        const href = link.getAttribute('href');
+        if (href === currentPage) {
+          link.classList.add('active');
+        } else {
+          link.classList.remove('active');
+        }
+      });
+    })();
+  </script>
 </body>
 </html>
 

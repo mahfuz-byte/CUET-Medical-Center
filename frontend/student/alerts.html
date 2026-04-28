@@ -8,8 +8,9 @@
 </head>
 <body>
   <header class="site-header" role="banner">
-    <div class="container">
-      <div class="branding">
+    <div class="container" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 24px;">
+      <button id="sidebarToggle" class="sidebar-toggle" aria-label="Open sidebar menu" aria-controls="sidebar" aria-expanded="false" title="Toggle menu" style="display: none;">☰</button>
+      <div class="branding" style="flex: 1;">
         <a class="logo" href="../index.html" aria-label="CUET Medical Center Home">CUET Medical Center</a>
       </div>
       <button id="menuToggle" class="menu-toggle" aria-label="Toggle navigation" aria-controls="topNav" aria-expanded="false">
@@ -30,7 +31,8 @@
   </header>
   
   <aside id="sidebar" class="sidebar" role="navigation" aria-label="Student navigation">
-    <div class="sidebar-brand">Student</div>
+    <button id="sidebarClose" class="sidebar-close" aria-label="Close sidebar" title="Close menu">✕</button>
+    <div class="sidebar-brand">Navigation</div>
     <nav>
       <a href="dashboard.html">Dashboard</a>
       <a href="records.html">My Medical Records</a>
@@ -42,22 +44,21 @@
       <a href="blood.html">Blood Donation</a>
       <a href="alerts.html" class="active">Health Alerts</a>
       <a href="ai.html">AI Assistant</a>
-      <a href="../login.html">Logout</a>
     </nav>
   </aside>
   <main id="main" class="content" role="main">
     <header class="content-header">
-      <button class="sidebar-toggle" aria-label="Open menu" aria-controls="sidebar" aria-expanded="false">☰ Menu</button>
-      <h1>Health Alerts</h1>
+      <div style="flex: 1;">
+        <h1 style="margin: 0; display: flex; align-items: center; gap: 10px;">🚨 Health Alerts</h1>
+      </div>
     </header>
 
-    <section class="cards">
-      <div class="card">
-        <h3>Campus Alerts</h3>
-        <p>View latest advisories and updates.</p>
-        <p><a class="btn" href="../alerts.html">Open Alerts</a></p>
+    <section style="padding: 16px 24px;">
+      <div id="alerts-list" style="display: grid; gap: 16px;">
+        <div style="text-align: center; padding: 40px 20px; color: var(--muted);">Loading health alerts...</div>
       </div>
-      <div class="card"><h3>Subscriptions</h3><p>Placeholder for alert preferences.</p></div>
+    </section>
+  </main>
     </section>
   </main>
 
@@ -108,6 +109,107 @@
   </footer>
   <script src="../assets/js/api-client.js"></script>
   <script src="../assets/js/app.js"></script>
+  <script>
+    const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+      ? '/api'
+      : window.location.origin + '/api';
+
+    (async function () {
+      const list = document.getElementById('alerts-list');
+      
+      try {
+        const res = await fetch(`${API_BASE}/notifications/notifications/`);
+        const data = await res.json().catch(() => []);
+        const alerts = Array.isArray(data) ? data : (data.results || []);
+        
+        if (!res.ok || !alerts.length) {
+          list.innerHTML = '<div style="text-align: center; padding: 40px 20px; color: var(--muted);">No health alerts at this time.</div>';
+          return;
+        }
+
+        list.innerHTML = alerts.map(function (alert) {
+          const alertDate = new Date(alert.created_at);
+          return `
+            <div class="card" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(239, 68, 68, 0.1) 100%); border: 2px solid rgba(245, 158, 11, 0.3); padding: 20px;">
+              <div style="display: flex; justify-content: space-between; align-items: start; gap: 15px; margin-bottom: 15px;">
+                <div>
+                  <h3 style="margin: 0; color: #f59e0b; font-size: 1.1rem; font-weight: 600;">🔔 ${alert.title || 'Health Alert'}</h3>
+                  <p style="margin: 5px 0 0 0; color: var(--muted); font-size: 0.85rem;">${alertDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                </div>
+              </div>
+              <div style="margin-bottom: 15px;">
+                <p style="margin: 0; color: var(--text); font-size: 0.95rem; line-height: 1.5;">${alert.message || '-'}</p>
+              </div>
+              <div style="padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 0.85rem; color: var(--muted);">
+                Posted by ${alert.created_by_detail?.first_name || 'Medical Center'} ${alert.created_by_detail?.last_name || ''}
+              </div>
+            </div>
+          `;
+        }).join('');
+      } catch (err) {
+        console.error('Error loading alerts:', err);
+        list.innerHTML = '<div style="text-align: center; padding: 40px 20px; color: var(--muted);">Unable to load health alerts.</div>';
+      }
+    })();
+
+    // Sidebar toggle functionality
+    (function () {
+      const sidebar = document.getElementById('sidebar');
+      const toggleBtn = document.getElementById('sidebarToggle');
+      const closeBtn = document.getElementById('sidebarClose');
+      const sidebarLinks = sidebar.querySelectorAll('nav a');
+
+      if (!toggleBtn || !closeBtn) return;
+
+      function toggleSidebar() {
+        sidebar.classList.toggle('open');
+        toggleBtn.setAttribute('aria-expanded', sidebar.classList.contains('open'));
+        document.body.classList.toggle('sidebar-open');
+      }
+
+      function closeSidebar() {
+        sidebar.classList.remove('open');
+        toggleBtn.setAttribute('aria-expanded', 'false');
+        document.body.classList.remove('sidebar-open');
+      }
+
+      function handleBackdropClick(e) {
+        if (window.innerWidth <= 960 && sidebar.classList.contains('open')) {
+          if (!sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
+            closeSidebar();
+          }
+        }
+      }
+
+      toggleBtn.addEventListener('click', toggleSidebar);
+      closeBtn.addEventListener('click', closeSidebar);
+      document.addEventListener('click', handleBackdropClick);
+
+      sidebarLinks.forEach(link => {
+        link.addEventListener('click', () => {
+          if (window.innerWidth <= 960) {
+            closeSidebar();
+          }
+        });
+      });
+
+      window.addEventListener('resize', () => {
+        if (window.innerWidth > 960 && sidebar.classList.contains('open')) {
+          closeSidebar();
+        }
+      });
+
+      const currentPage = window.location.pathname.split('/').pop() || 'alerts.html';
+      sidebarLinks.forEach(link => {
+        const href = link.getAttribute('href');
+        if (href === currentPage) {
+          link.classList.add('active');
+        } else {
+          link.classList.remove('active');
+        }
+      });
+    })();
+  </script>
 </body>
 </html>
 

@@ -8,8 +8,9 @@
 </head>
 <body>
   <header class="site-header" role="banner">
-    <div class="container">
-      <div class="branding">
+    <div class="container" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 24px;">
+      <button id="sidebarToggle" class="sidebar-toggle" aria-label="Open sidebar menu" aria-controls="sidebar" aria-expanded="false" title="Toggle menu" style="display: none;">☰</button>
+      <div class="branding" style="flex: 1;">
         <a class="logo" href="../index.html" aria-label="CUET Medical Center Home">CUET Medical Center</a>
       </div>
       <button id="menuToggle" class="menu-toggle" aria-label="Toggle navigation" aria-controls="topNav" aria-expanded="false">
@@ -30,7 +31,8 @@
   </header>
   
   <aside id="sidebar" class="sidebar" role="navigation" aria-label="Student navigation">
-    <div class="sidebar-brand">Student</div>
+    <button id="sidebarClose" class="sidebar-close" aria-label="Close sidebar" title="Close menu">✕</button>
+    <div class="sidebar-brand">Navigation</div>
     <nav>
       <a href="dashboard.html">Dashboard</a>
       <a href="records.html" class="active">My Medical Records</a>
@@ -42,19 +44,18 @@
       <a href="blood.html">Blood Donation</a>
       <a href="alerts.html">Health Alerts</a>
       <a href="ai.html">AI Assistant</a>
-      <a href="../login.html">Logout</a>
     </nav>
   </aside>
   <main id="main" class="content" role="main">
     <header class="content-header">
-      <button class="sidebar-toggle" aria-label="Open menu" aria-controls="sidebar" aria-expanded="false">☰ Menu</button>
-      <h1>My Medical Records</h1>
+      <div style="flex: 1;">
+        <h1 style="margin: 0; display: flex; align-items: center; gap: 10px;">📋 My Medical Records</h1>
+      </div>
     </header>
 
-    <section class="panel">
-      <h2>My Prescriptions & Visits</h2>
-      <div class="list" id="student-records-list">
-        <div class="item">Loading your records...</div>
+    <section style="padding: 16px 24px;">
+      <div id="student-records-list" style="display: grid; gap: 16px;">
+        <div style="text-align: center; padding: 40px 20px; color: var(--muted);">Loading your records...</div>
       </div>
     </section>
   </main>
@@ -107,54 +108,131 @@
   <script src="../assets/js/api-client.js"></script>
   <script src="../assets/js/app.js"></script>
   <script>
+    const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+      ? '/api'
+      : window.location.origin + '/api';
+
     (async function () {
       const list = document.getElementById('student-records-list');
       const userStr = localStorage.getItem('currentUser') || localStorage.getItem('user');
       const token = localStorage.getItem('accessToken') || localStorage.getItem('access_token');
 
       if (!userStr || !token) {
-        list.innerHTML = '<div class="item">Login required to view records.</div>';
+        list.innerHTML = '<div style="text-align: center; padding: 40px 20px; color: var(--muted);">Login required to view records.</div>';
         return;
       }
 
       const user = JSON.parse(userStr);
       if (!user.role || user.role !== 'student') {
-        list.innerHTML = '<div class="item">Only students can view this page.</div>';
+        list.innerHTML = '<div style="text-align: center; padding: 40px 20px; color: var(--muted);">Only students can view this page.</div>';
         return;
       }
 
       try {
-        const res = await fetch('http://127.0.0.1:8000/api/records/medical-records/', {
+        const res = await fetch(`${API_BASE}/records/medical-records/`, {
           headers: {
             'Authorization': 'Bearer ' + token
           }
         });
-        const records = await res.json().catch(() => []);
+        const data = await res.json().catch(() => []);
+        const records = Array.isArray(data) ? data : (data.results || []);
+        
         if (!res.ok) {
           throw new Error('Failed to load records');
         }
 
         if (!records.length) {
-          list.innerHTML = '<div class="item">No medical records found yet.</div>';
+          list.innerHTML = '<div style="text-align: center; padding: 40px 20px; color: var(--muted);">No medical records found yet.</div>';
           return;
         }
 
         list.innerHTML = records.map(function (r) {
+          const visitDate = new Date(r.created_at);
           return `
-            <div class="item" style="margin-bottom: 1rem; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1rem;">
-              <div style="font-weight: bold; margin-bottom: 0.5rem; display: flex; justify-content: space-between; gap: 10px;">
-                <span>${new Date(r.created_at).toLocaleString()}</span>
-                <span class="badge" style="background: var(--primary); color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem;">${r.student_student_id || ''}</span>
+            <div class="card" style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%); border: 2px solid rgba(59, 130, 246, 0.3); padding: 20px;">
+              <div style="display: flex; justify-content: space-between; align-items: start; gap: 15px; margin-bottom: 15px;">
+                <div>
+                  <h3 style="margin: 0; color: var(--primary-500); font-size: 1rem;">📅 ${visitDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</h3>
+                  <p style="margin: 5px 0 0 0; color: var(--muted); font-size: 0.85rem;">${visitDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</p>
+                </div>
               </div>
-              <div style="margin-bottom: 0.5rem;"><strong>Diagnosis:</strong> ${r.diagnosis || '-'}</div>
-              <div style="margin-bottom: 0.5rem;"><strong>Medicines:</strong><br>${String(r.prescribed_medicines || '').replace(/\n/g, '<br>')}</div>
-              <div><strong>Advice:</strong><br>${r.advice ? String(r.advice).replace(/\n/g, '<br>') : '-'}</div>
+              <div style="margin-bottom: 15px;">
+                <h4 style="margin: 0 0 8px 0; color: var(--text); font-size: 0.95rem; text-transform: uppercase; opacity: 0.8;">🔍 Diagnosis</h4>
+                <p style="margin: 0; color: var(--text); font-size: 0.95rem;">${r.diagnosis || '-'}</p>
+              </div>
+              <div style="margin-bottom: 15px;">
+                <h4 style="margin: 0 0 8px 0; color: var(--text); font-size: 0.95rem; text-transform: uppercase; opacity: 0.8;">💊 Prescribed Medicines</h4>
+                <p style="margin: 0; color: var(--text); font-size: 0.9rem; white-space: pre-wrap;">${String(r.prescribed_medicines || '-').replace(/,/g, '<br>')}</p>
+              </div>
+              <div>
+                <h4 style="margin: 0 0 8px 0; color: var(--text); font-size: 0.95rem; text-transform: uppercase; opacity: 0.8;">📝 Doctor's Advice</h4>
+                <p style="margin: 0; color: var(--text); font-size: 0.9rem; white-space: pre-wrap;">${r.advice ? String(r.advice).replace(/\n/g, '<br>') : '-'}</p>
+              </div>
             </div>
           `;
         }).join('');
-      } catch (_) {
-        list.innerHTML = '<div class="item">Unable to load your records right now.</div>';
+      } catch (err) {
+        console.error('Error loading records:', err);
+        list.innerHTML = '<div style="text-align: center; padding: 40px 20px; color: var(--muted);">Unable to load your records right now.</div>';
       }
+    })();
+
+    // Sidebar toggle functionality
+    (function () {
+      const sidebar = document.getElementById('sidebar');
+      const toggleBtn = document.getElementById('sidebarToggle');
+      const closeBtn = document.getElementById('sidebarClose');
+      const sidebarLinks = sidebar.querySelectorAll('nav a');
+
+      if (!toggleBtn || !closeBtn) return;
+
+      function toggleSidebar() {
+        sidebar.classList.toggle('open');
+        toggleBtn.setAttribute('aria-expanded', sidebar.classList.contains('open'));
+        document.body.classList.toggle('sidebar-open');
+      }
+
+      function closeSidebar() {
+        sidebar.classList.remove('open');
+        toggleBtn.setAttribute('aria-expanded', 'false');
+        document.body.classList.remove('sidebar-open');
+      }
+
+      function handleBackdropClick(e) {
+        if (window.innerWidth <= 960 && sidebar.classList.contains('open')) {
+          if (!sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
+            closeSidebar();
+          }
+        }
+      }
+
+      toggleBtn.addEventListener('click', toggleSidebar);
+      closeBtn.addEventListener('click', closeSidebar);
+      document.addEventListener('click', handleBackdropClick);
+
+      sidebarLinks.forEach(link => {
+        link.addEventListener('click', () => {
+          if (window.innerWidth <= 960) {
+            closeSidebar();
+          }
+        });
+      });
+
+      window.addEventListener('resize', () => {
+        if (window.innerWidth > 960 && sidebar.classList.contains('open')) {
+          closeSidebar();
+        }
+      });
+
+      const currentPage = window.location.pathname.split('/').pop() || 'records.html';
+      sidebarLinks.forEach(link => {
+        const href = link.getAttribute('href');
+        if (href === currentPage) {
+          link.classList.add('active');
+        } else {
+          link.classList.remove('active');
+        }
+      });
     })();
   </script>
 </body>

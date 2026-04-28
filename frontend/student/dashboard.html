@@ -8,8 +8,9 @@
 </head>
 <body>
   <header class="site-header" role="banner">
-    <div class="container">
-      <div class="branding">
+    <div class="container" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 24px;">
+      <button id="sidebarToggle" class="sidebar-toggle" aria-label="Open sidebar menu" aria-controls="sidebar" aria-expanded="false" title="Toggle menu" style="display: none;">☰</button>
+      <div class="branding" style="flex: 1;">
         <a class="logo" href="../index.html" aria-label="CUET Medical Center Home">CUET Medical Center</a>
       </div>
       <button id="menuToggle" class="menu-toggle" aria-label="Toggle navigation" aria-controls="topNav" aria-expanded="false">
@@ -31,7 +32,8 @@
   
   <!-- Sidebar layout -->
   <aside id="sidebar" class="sidebar" role="navigation" aria-label="Student navigation">
-    <div class="sidebar-brand">Student</div>
+    <button id="sidebarClose" class="sidebar-close" aria-label="Close sidebar" title="Close menu">✕</button>
+    <div class="sidebar-brand">Navigation</div>
     <nav>
       <a href="dashboard.html" class="active">Dashboard</a>
       <a href="records.html">My Medical Records</a>
@@ -43,38 +45,123 @@
       <a href="blood.html">Blood Donation</a>
       <a href="alerts.html">Health Alerts</a>
       <a href="ai.html">AI Assistant</a>
-      <a href="../login.html">Logout</a>
     </nav>
   </aside>
   <main id="main" class="content" role="main">
-    <header class="content-header">
-      <button class="sidebar-toggle" aria-label="Open menu" aria-controls="sidebar" aria-expanded="false">☰ Menu</button>
-      <h1>Student Dashboard</h1>
-    </header>
-    <section class="cards">
-      <div class="card"><h3>Last visit</h3><p>Placeholder summary.</p></div>
-      <div class="card"><h3>Next doctor availability</h3><p>Placeholder.</p></div>
-      <div class="card"><h3>Active health alerts</h3><p>Placeholder.</p></div>
-      <div class="card"><h3>Blood request notification</h3><p>Placeholder.</p></div>
+
+    <!-- Quick Stats Section -->
+    <section class="cards" style="margin-bottom: 30px;">
+      <div class="card" id="lastVisitCard" style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%); border: 2px solid rgba(59, 130, 246, 0.3);">
+        <div style="display: flex; align-items: center; gap: 15px;">
+          <div style="font-size: 2.5rem;">🏥</div>
+          <div style="flex: 1;">
+            <h3 style="margin: 0; color: var(--primary-500); font-size: 0.95rem; text-transform: uppercase; opacity: 0.8;">Last Visit</h3>
+            <p id="lastVisitDate" style="margin: 8px 0 0 0; font-size: 1.1rem; font-weight: 600;">-</p>
+            <p id="lastVisitDetails" style="margin: 5px 0 0 0; font-size: 0.85rem; color: var(--muted);">No visits yet</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%); border: 2px solid rgba(34, 197, 94, 0.3);">
+        <div style="display: flex; align-items: center; gap: 15px;">
+          <div style="font-size: 2.5rem;">⚕️</div>
+          <div style="flex: 1;">
+            <h3 style="margin: 0; color: #22c55e; font-size: 0.95rem; text-transform: uppercase; opacity: 0.8;">Available Beds</h3>
+            <p id="availableBeds" style="margin: 8px 0 0 0; font-size: 1.8rem; font-weight: 700; color: #22c55e;">-</p>
+            <p style="margin: 5px 0 0 0; font-size: 0.85rem; color: var(--muted);">Campus beds available</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(239, 68, 68, 0.1) 100%); border: 2px solid rgba(245, 158, 11, 0.3);">
+        <div style="display: flex; align-items: center; gap: 15px;">
+          <div style="font-size: 2.5rem;">🚨</div>
+          <div style="flex: 1;">
+            <h3 style="margin: 0; color: #f59e0b; font-size: 0.95rem; text-transform: uppercase; opacity: 0.8;">Active Alerts</h3>
+            <p id="activeAlerts" style="margin: 8px 0 0 0; font-size: 1.8rem; font-weight: 700; color: #f59e0b;">0</p>
+            <p style="margin: 5px 0 0 0; font-size: 0.85rem; color: var(--muted);">Health alerts</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="background: linear-gradient(135deg, rgba(236, 72, 153, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%); border: 2px solid rgba(236, 72, 153, 0.3);">
+        <div style="display: flex; align-items: center; gap: 15px;">
+          <div style="font-size: 2.5rem;">🩸</div>
+          <div style="flex: 1;">
+            <h3 style="margin: 0; color: #ec4899; font-size: 0.95rem; text-transform: uppercase; opacity: 0.8;">Blood Type</h3>
+            <p id="bloodType" style="margin: 8px 0 0 0; font-size: 1.5rem; font-weight: 700; color: #ec4899;">-</p>
+            <p style="margin: 5px 0 0 0; font-size: 0.85rem; color: var(--muted);">Your blood group</p>
+          </div>
+        </div>
+      </div>
     </section>
 
-    <section class="cards" style="margin-top: 20px;">
-      <div class="card" id="test-kit-card">
-        <h3>Test Kit Availability</h3>
-        <p>Open test kit availability page.</p>
-        <p><a class="btn" href="test-kits.html">Open Test Kits</a></p>
+    <!-- Medical Records & Actions -->
+    <section class="cards" style="margin-bottom: 30px;">
+      <div class="card" id="medicalRecordsCard" style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(59, 130, 246, 0.15) 100%); border: 2px solid rgba(59, 130, 246, 0.3); cursor: pointer; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 10px 25px rgba(59, 130, 246, 0.2)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+        <h3 style="color: var(--primary-500); margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 1.5rem;">📋</span> My Medical Records
+        </h3>
+        <p id="recordsCount" style="font-size: 2rem; font-weight: 700; color: var(--primary-500); margin: 0;">0</p>
+        <p style="color: var(--muted); margin-top: 5px; font-size: 0.9rem;">Records on file</p>
+        <p style="margin-top: 15px; margin-bottom: 0;">
+          <a href="records.html" class="btn" style="display: inline-block; background: linear-gradient(135deg, var(--primary-500) 0%, var(--accent) 100%); color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 0.9rem;">View Records →</a>
+        </p>
       </div>
 
-      <div class="card" id="bed-availability-card">
-        <h3>Bed Availability</h3>
-        <p>Open bed availability page.</p>
-        <p><a class="btn" href="bed-availability.html">Open Bed Availability</a></p>
+      <div class="card" id="doctorsCard" style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(34, 197, 94, 0.15) 100%); border: 2px solid rgba(34, 197, 94, 0.3); cursor: pointer; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 10px 25px rgba(34, 197, 94, 0.2)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+        <h3 style="color: #22c55e; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 1.5rem;">👨‍⚕️</span> Doctor Roster
+        </h3>
+        <p id="doctorsCount" style="font-size: 2rem; font-weight: 700; color: #22c55e; margin: 0;">0</p>
+        <p style="color: var(--muted); margin-top: 5px; font-size: 0.9rem;">Doctors available</p>
+        <p style="margin-top: 15px; margin-bottom: 0;">
+          <a href="doctors.html" class="btn" style="display: inline-block; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 0.9rem;">View Doctors →</a>
+        </p>
       </div>
 
-      <div class="card" id="pharmacy-info-card" style="grid-column: 1 / -1;">
-        <h3>Pharmacy Information</h3>
-        <p>Open pharmacy medicine page.</p>
-        <p><a class="btn" href="pharmacy.html">Open Pharmacy Info</a></p>
+      <div class="card" id="pharmacyCard" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(245, 158, 11, 0.15) 100%); border: 2px solid rgba(245, 158, 11, 0.3); cursor: pointer; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 10px 25px rgba(245, 158, 11, 0.2)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+        <h3 style="color: #f59e0b; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 1.5rem;">💊</span> Pharmacy Info
+        </h3>
+        <p id="medicinesCount" style="font-size: 2rem; font-weight: 700; color: #f59e0b; margin: 0;">0</p>
+        <p style="color: var(--muted); margin-top: 5px; font-size: 0.9rem;">Medicines available</p>
+        <p style="margin-top: 15px; margin-bottom: 0;">
+          <a href="pharmacy.html" class="btn" style="display: inline-block; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 0.9rem;">View Pharmacy →</a>
+        </p>
+      </div>
+
+      <div class="card" id="testKitsCard" style="background: linear-gradient(135deg, rgba(236, 72, 153, 0.1) 0%, rgba(236, 72, 153, 0.15) 100%); border: 2px solid rgba(236, 72, 153, 0.3); cursor: pointer; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 10px 25px rgba(236, 72, 153, 0.2)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+        <h3 style="color: #ec4899; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 1.5rem;">🧪</span> Test Kits
+        </h3>
+        <p id="testKitsCount" style="font-size: 2rem; font-weight: 700; color: #ec4899; margin: 0;">0</p>
+        <p style="color: var(--muted); margin-top: 5px; font-size: 0.9rem;">Kits in stock</p>
+        <p style="margin-top: 15px; margin-bottom: 0;">
+          <a href="test-kits.html" class="btn" style="display: inline-block; background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 0.9rem;">View Kits →</a>
+        </p>
+      </div>
+
+      <div class="card" id="ambulanceCard" style="background: linear-gradient(135deg, rgba(8, 145, 178, 0.1) 0%, rgba(8, 145, 178, 0.15) 100%); border: 2px solid rgba(8, 145, 178, 0.3); cursor: pointer; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 10px 25px rgba(8, 145, 178, 0.2)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+        <h3 style="color: #0891b2; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 1.5rem;">🚑</span> Ambulance Service
+        </h3>
+        <p id="ambulancesAvailable" style="font-size: 2rem; font-weight: 700; color: #0891b2; margin: 0;">0</p>
+        <p style="color: var(--muted); margin-top: 5px; font-size: 0.9rem;">Available ambulances</p>
+        <p style="margin-top: 15px; margin-bottom: 0;">
+          <a href="ambulance.html" class="btn" style="display: inline-block; background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%); color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 0.9rem;">View Status →</a>
+        </p>
+      </div>
+
+      <div class="card" id="bedsCard" style="background: linear-gradient(135deg, rgba(168, 85, 247, 0.1) 0%, rgba(168, 85, 247, 0.15) 100%); border: 2px solid rgba(168, 85, 247, 0.3); cursor: pointer; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 10px 25px rgba(168, 85, 247, 0.2)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+        <h3 style="color: #a855f7; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 1.5rem;">🛏️</span> Bed Availability
+        </h3>
+        <p id="bedsAvailable" style="font-size: 2rem; font-weight: 700; color: #a855f7; margin: 0;">0</p>
+        <p style="color: var(--muted); margin-top: 5px; font-size: 0.9rem;">Beds in use</p>
+        <p style="margin-top: 15px; margin-bottom: 0;">
+          <a href="bed-availability.html" class="btn" style="display: inline-block; background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%); color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 0.9rem;">View Beds →</a>
+        </p>
       </div>
     </section>
   </main>
@@ -127,9 +214,13 @@
   <script src="../assets/js/api-client.js"></script>
   <script src="../assets/js/app.js"></script>
   <script>
+    // API Base URL (for nested pages)
+    const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+      ? '/api'
+      : window.location.origin + '/api';
+
     // Basic role guard for students
     (function () {
-      // Small delay to ensure localStorage is ready
       setTimeout(() => {
         const userStr = localStorage.getItem('currentUser') || localStorage.getItem('user');
         const token = localStorage.getItem('accessToken') || localStorage.getItem('access_token');
@@ -144,7 +235,204 @@
           window.location.href = '../login.html';
           return;
         }
+
+        // Display student name
+        const studentName = document.getElementById('studentName');
+        if (studentName && user.first_name) {
+          studentName.textContent = `Welcome, ${user.first_name}${user.last_name ? ' ' + user.last_name : ''}`;
+        }
+
+        // Load dashboard data
+        loadDashboardData(token);
       }, 100);
+    })();
+
+    async function loadDashboardData(token) {
+      try {
+        // Get user data
+        const userStr = localStorage.getItem('currentUser') || localStorage.getItem('user');
+        const user = JSON.parse(userStr);
+
+        // Fetch blood group from user profile
+        if (user.blood_group) {
+          document.getElementById('bloodType').textContent = user.blood_group;
+        }
+
+        // Fetch medical records
+        try {
+          const recordsResponse = await fetch(`${API_BASE}/records/medical-records/`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (recordsResponse.ok) {
+            const records = await recordsResponse.json();
+            const recordsList = Array.isArray(records) ? records : (records.results || []);
+            document.getElementById('recordsCount').textContent = recordsList.length;
+            
+            // Get last visit
+            if (recordsList.length > 0) {
+              const lastRecord = recordsList[0];
+              const visitDate = new Date(lastRecord.created_at);
+              document.getElementById('lastVisitDate').textContent = visitDate.toLocaleDateString();
+              document.getElementById('lastVisitDetails').textContent = `with Dr. ${lastRecord.doctor_name || 'Medical Center'}`;
+            }
+          }
+        } catch (e) {
+          console.error('Error fetching medical records:', e);
+        }
+
+        // Fetch doctors roster
+        try {
+          const doctorsResponse = await fetch(`${API_BASE}/roster/doctors/`);
+          if (doctorsResponse.ok) {
+            const doctors = await doctorsResponse.json();
+            const doctorsList = Array.isArray(doctors) ? doctors : (doctors.results || []);
+            document.getElementById('doctorsCount').textContent = doctorsList.length;
+          }
+        } catch (e) {
+          console.error('Error fetching doctors:', e);
+        }
+
+        // Fetch medicines/pharmacy
+        try {
+          const medicinesResponse = await fetch(`${API_BASE}/records/medicines/`);
+          if (medicinesResponse.ok) {
+            const medicines = await medicinesResponse.json();
+            const medicinesList = Array.isArray(medicines) ? medicines : (medicines.results || []);
+            document.getElementById('medicinesCount').textContent = medicinesList.length;
+          }
+        } catch (e) {
+          console.error('Error fetching medicines:', e);
+        }
+
+        // Fetch test kits inventory
+        try {
+          const inventoryResponse = await fetch(`${API_BASE}/records/inventory/`);
+          if (inventoryResponse.ok) {
+            const inventory = await inventoryResponse.json();
+            const items = Array.isArray(inventory) ? inventory : (inventory.results || []);
+            const testKits = items.filter(item => item.item_type === 'kit');
+            let totalKits = 0;
+            testKits.forEach(kit => {
+              totalKits += parseInt(kit.quantity) || 0;
+            });
+            document.getElementById('testKitsCount').textContent = totalKits;
+          }
+        } catch (e) {
+          console.error('Error fetching test kits:', e);
+        }
+
+        // Fetch bed availability
+        try {
+          const inventoryResponse = await fetch(`${API_BASE}/records/inventory/`);
+          if (inventoryResponse.ok) {
+            const inventory = await inventoryResponse.json();
+            const items = Array.isArray(inventory) ? inventory : (inventory.results || []);
+            const bedItem = items.find(item => item.item_type === 'bed');
+            const bedsCount = bedItem ? parseInt(bedItem.quantity) || 0 : 0;
+            document.getElementById('bedsAvailable').textContent = bedsCount;
+            document.getElementById('availableBeds').textContent = bedsCount;
+          }
+        } catch (e) {
+          console.error('Error fetching beds:', e);
+        }
+
+        // Fetch ambulances
+        try {
+          const ambulancesResponse = await fetch(`${API_BASE}/roster/ambulances/`);
+          if (ambulancesResponse.ok) {
+            const ambulances = await ambulancesResponse.json();
+            const ambulancesList = Array.isArray(ambulances) ? ambulances : (ambulances.results || []);
+            const availableCount = ambulancesList.filter(amb => amb.status === 'Available').length;
+            document.getElementById('ambulancesAvailable').textContent = availableCount;
+          }
+        } catch (e) {
+          console.error('Error fetching ambulances:', e);
+        }
+
+        // Fetch health alerts
+        try {
+          const alertsResponse = await fetch(`${API_BASE}/notifications/notifications/`);
+          if (alertsResponse.ok) {
+            const alerts = await alertsResponse.json();
+            const alertsList = Array.isArray(alerts) ? alerts : (alerts.results || []);
+            document.getElementById('activeAlerts').textContent = alertsList.length;
+          }
+        } catch (e) {
+          console.error('Error fetching alerts:', e);
+        }
+
+      } catch (err) {
+        console.error('Error loading dashboard data:', err);
+      }
+    }
+
+    // Sidebar toggle functionality
+    (function () {
+      const sidebar = document.getElementById('sidebar');
+      const toggleBtn = document.getElementById('sidebarToggle');
+      const closeBtn = document.getElementById('sidebarClose');
+      const sidebarLinks = sidebar.querySelectorAll('nav a');
+
+      // Only initialize if buttons exist
+      if (!toggleBtn || !closeBtn) {
+        console.warn('Sidebar toggle buttons not found');
+        return;
+      }
+
+      // Toggle sidebar on button click
+      function toggleSidebar() {
+        sidebar.classList.toggle('open');
+        toggleBtn.setAttribute('aria-expanded', sidebar.classList.contains('open'));
+        document.body.classList.toggle('sidebar-open');
+      }
+
+      // Close sidebar
+      function closeSidebar() {
+        sidebar.classList.remove('open');
+        toggleBtn.setAttribute('aria-expanded', 'false');
+        document.body.classList.remove('sidebar-open');
+      }
+
+      // Click outside to close
+      function handleBackdropClick(e) {
+        if (window.innerWidth <= 960 && sidebar.classList.contains('open')) {
+          if (e.target === document.querySelector('body::before') || (!sidebar.contains(e.target) && !toggleBtn.contains(e.target))) {
+            closeSidebar();
+          }
+        }
+      }
+
+      // Event listeners
+      toggleBtn.addEventListener('click', toggleSidebar);
+      closeBtn.addEventListener('click', closeSidebar);
+      document.addEventListener('click', handleBackdropClick);
+
+      // Close sidebar when link is clicked
+      sidebarLinks.forEach(link => {
+        link.addEventListener('click', () => {
+          if (window.innerWidth <= 960) {
+            closeSidebar();
+          }
+        });
+      });
+
+      // Handle window resize
+      window.addEventListener('resize', () => {
+        if (window.innerWidth > 960 && sidebar.classList.contains('open')) {
+          closeSidebar();
+        }
+      });
+
+      // Set active link based on current page
+      const currentPage = window.location.pathname.split('/').pop() || 'dashboard.html';
+      sidebarLinks.forEach(link => {
+        const href = link.getAttribute('href');
+        if (href === currentPage) {
+          link.classList.add('active');
+        } else {
+          link.classList.remove('active');
+        }
+      });
     })();
   </script>
 </body>
